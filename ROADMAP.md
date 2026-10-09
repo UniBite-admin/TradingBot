@@ -210,4 +210,4 @@ Objective:
 
 ## Immediate Next Task
 
-Review and reconcile `TECHNICAL_PLAN.md` against the current repository state, then resolve the implementation-blocking Stage 2 decisions recorded there and in Sprint 01 documentation before implementation begins.
+Complete the Sprint 02 review of `ROADMAP.md` and `TECHNICAL_PLAN.md`, then resolve the implementation-blocking Stage 2 decisions required to freeze the first controlled historical research experiment before implementation begins.

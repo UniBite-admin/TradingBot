@@ -1,0 +1,39 @@
+# Sprint 02 - Action Items
+
+This file is the authoritative Sprint 02 task register.
+
+Status vocabulary:
+
+- `NOT_STARTED`
+- `IN_PROGRESS`
+- `BLOCKED`
+- `DONE`
+
+Priority vocabulary:
+
+- `HIGH`
+- `MEDIUM`
+- `LOW`
+
+## Documentation And Review Tasks
+
+| ID | Type | Description | Rationale | Priority | Status | Dependencies | Expected Output | Verification Method | Required Evidence | Blocker / Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S02-001 | DOCUMENTATION | Close Sprint 01 honestly and preserve traceability for unfinished work. | Sprint 02 must start from a truthful record rather than carrying silent open scope forward. | HIGH | DONE | - | Updated Sprint 01 status, scope correction, and transfer mapping. | Inspect Sprint 01 README, action register, and acceptance criteria. | File inspection and Git diff. | Completed in this change set. |
+| S02-002 | DOCUMENTATION | Establish the Sprint 02 documentation set and link it from the repository entrypoint. | Sprint tracking for the new phase must live in the repository. | HIGH | DONE | - | Sprint 02 README, action items, decisions, and acceptance criteria, plus root README link. | Inspect created files and root README links. | File inspection and Git diff. | Completed in this change set. |
+| S02-003 | REVIEW | Audit `ROADMAP.md` for stage order, stage deliverables, transition conditions, approval visibility, and immediate next actions. | The roadmap is authoritative and must reflect the current repository state and planning sequence. | HIGH | DONE | S02-001 | Reviewed roadmap plus any justified corrections. | Inspect `ROADMAP.md` against authoritative project documents and Sprint 02 findings. | File inspection and Git diff. | Completed in this change set. |
+| S02-004 | REVIEW | Audit `TECHNICAL_PLAN.md` for first-experiment scope, minimum requirements, deferred requirements, and decision readiness. | The technical plan must support the first controlled historical research experiment without premature infrastructure assumptions. | HIGH | DONE | S02-001 | Reviewed technical-plan sections plus any justified corrections. | Inspect `TECHNICAL_PLAN.md` against project definition, strategy specification, and Sprint 02 findings. | File inspection and Git diff. | Completed in this change set. |
+| S02-005 | DOCUMENTATION | Record cross-document findings with evidence and classifications. | Confirmed issues and non-issues must be explicit rather than implied. | HIGH | DONE | S02-003, S02-004 | Sprint 02 decisions file with classified findings and carried-forward unresolved decisions. | Inspect Sprint 02 decision register. | File inspection. | Completed in this change set. |
+| S02-006 | DOCUMENTATION | Define the first bounded research experiment as a separate controlled specification. Original ID: `S01-006`. | The proposed strategy cannot be evaluated reproducibly until the first experiment is frozen with explicit data, timing, cost-model, and validation rules. | HIGH | BLOCKED | S02-005, S02-101, S02-102, S02-103 | A bounded first-experiment specification that states hypothesis, inputs, outputs, timing, anti-lookahead rules, cost model, validation split, and acceptance or rejection evidence. | Human review against the authoritative strategy specification, technical plan, and Sprint 02 decision register. | Future approved experiment document or approved experiment section. | Blocked by unresolved exchange, timeframe, candle semantics, parameter-grid, and cost-model decisions. |
+| S02-007 | DOCUMENTATION | Preserve the separation between signal, risk approval, order request, acknowledgement, fill, and final account or position state in the future experiment definition. Original ID: `S01-008`. | Research and accounting become invalid if these states are conflated. | HIGH | NOT_STARTED | S02-006 | First-experiment documentation that explicitly preserves the existing cross-document state distinctions. | Inspect the future experiment specification against the strategy and technical plan. | Future experiment document review. | Depends on the existence of the experiment specification. |
+| S02-008 | DOCUMENTATION | Update sprint statuses and root repository references after Sprint 01 closure and Sprint 02 creation. | Repository entrypoints should reflect the actual active sprint and historical closure. | MEDIUM | DONE | S02-001, S02-002 | Updated root documentation references. | Inspect `README.md` and sprint README files. | File inspection and Git diff. | Completed in this change set. |
+| S02-009 | DOCUMENTATION | Verify the final documentation-only change set with file inspection, `git diff --check`, `git status`, and full diff inspection. | Sprint 02 completion claims require evidence from the actual repository state. | HIGH | DONE | S02-001, S02-002, S02-003, S02-004, S02-005, S02-008 | Verified final repository state. | Inspect created and modified files, run Git inspection commands, and inspect the final diff. | File inspection, Git status output, `git diff --check`, and Git diff. | Completed in this change set. |
+
+## Human-Decision Tasks
+
+| ID | Type | Description | Rationale | Priority | Status | Dependencies | Expected Output | Verification Method | Required Evidence | Blocker / Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| S02-101 | HUMAN_DECISION | Approve the exchange and authoritative market-data source for the first research experiment. Original ID: `S01-101`. | Exchange and source semantics affect candles, fees, liquidity, fills, and execution constraints. | HIGH | NOT_STARTED | - | Approved exchange and data-source decision recorded in an authoritative project document. | Inspect the authoritative document update. | Approved documentation update. | Blocks completion of the first bounded experiment definition. |
+| S02-102 | HUMAN_DECISION | Approve the primary timeframe and candle-semantics policy for the first research experiment. Original ID: `S01-102`. | The strategy and replay logic depend on timeframe, timestamp meaning, finalization rules, and missing-candle handling. | HIGH | NOT_STARTED | - | Approved decision covering timeframe, candle timestamps, timezone, finalization, and continuity policy. | Inspect the authoritative document update. | Approved documentation update. | Blocks completion of the first bounded experiment definition. |
+| S02-103 | HUMAN_DECISION | Approve the first experiment's parameter-selection and execution-cost policy. Original ID: `S01-103`. | The first experiment cannot be frozen without a decision on parameter-grid discipline and how fees, spread, slippage, latency, liquidity, and fill assumptions will be modeled. | HIGH | NOT_STARTED | - | Approved experiment-policy decision covering `L`, `N`, signal expiry, cost-model policy, and out-of-sample discipline. | Inspect the authoritative document update. | Approved documentation update. | Blocks completion of the first bounded experiment definition. |
+| S02-104 | HUMAN_DECISION | Decide whether provisional strategy implementation is allowed before the proposed strategy is formally approved. Original ID: `S01-104`. | The technical plan explicitly treats this as a gating decision for later implementation phases. | MEDIUM | NOT_STARTED | - | Approved implementation-governance decision recorded in an authoritative document. | Inspect the authoritative document update. | Approved documentation update. | Does not block Sprint 02 review work, but it blocks later implementation planning beyond documentation. |

@@ -21,9 +21,10 @@ Sprint 01 can be declared complete only if all of the following are true:
 13. Sprint records clearly state that documentation completion does not authorize live trading.
 14. Sprint records clearly state that out-of-sample evidence must not be repeatedly reused for parameter tuning.
 15. Sprint records clearly state that unfavorable results must not be handled by weakening acceptance criteria.
-16. Git status and Git diff are inspected after the documentation changes.
-17. The post-edit inspection shows that no application code or test files were modified.
-18. The post-edit inspection shows that no unrelated changes were included.
+16. Unfinished experiment-definition and human-decision work is explicitly transferred to the next sprint with traceable references rather than being silently closed or erased.
+17. Git status and Git diff are inspected after the documentation changes.
+18. The post-edit inspection shows that no application code or test files were modified.
+19. The post-edit inspection shows that no unrelated changes were included.
 
 ## Required Evidence
 
@@ -34,8 +35,13 @@ The following evidence is required before Sprint 01 can be declared complete:
 - post-edit `git status --short --branch` output,
 - post-edit `git diff --stat` output,
 - post-edit `git diff` inspection,
+- sprint-transfer mapping from unfinished Sprint 01 tasks into Sprint 02,
 - confirmation that all changed files are documentation files only,
 - confirmation that strategy rules were not altered.
+
+## Honest Closure Rule
+
+Sprint 01 may close as `DONE` when its documentation-only scope is satisfied and any unfinished experiment-definition or approval-dependent work is explicitly transferred forward with traceable IDs and blockers.
 
 ## Explicit Non-Criteria
 

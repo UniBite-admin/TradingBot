@@ -31,6 +31,10 @@ Classification used in this document:
 - `docs/sprints/sprint-01/ACTION_ITEMS.md`
 - `docs/sprints/sprint-01/DECISIONS.md`
 - `docs/sprints/sprint-01/ACCEPTANCE_CRITERIA.md`
+- `docs/sprints/sprint-02/README.md`
+- `docs/sprints/sprint-02/ACTION_ITEMS.md`
+- `docs/sprints/sprint-02/DECISIONS.md`
+- `docs/sprints/sprint-02/ACCEPTANCE_CRITERIA.md`
 
 `FACT`: No implementation artifacts currently exist.
 
@@ -382,6 +386,31 @@ The design should preserve the following invariants:
 - Advanced multi-asset ranking heuristics
 - Advanced reconciliation tooling
 - Deployment automation
+
+## First Controlled Historical Research Experiment Scope
+
+`FACT`: The first controlled historical research experiment does not require the full later-stage paper-trading or live-trading stack.
+
+`PROPOSED`: The minimum documented capabilities needed before the first historical experiment can be conducted reproducibly are:
+
+- approved exchange and market-data source policy,
+- approved timeframe and candle semantics,
+- approved data-integrity policy,
+- validated historical data with provenance,
+- deterministic replay,
+- feature and strategy evaluation using committed information only,
+- explicit execution-cost and fill-model assumptions,
+- accounting and result provenance sufficient to support reproducible reports,
+- out-of-sample validation methodology,
+- explicit evidence standards for accepting or rejecting the hypothesis.
+
+`PROPOSED`: The following are not required to conduct the first historical experiment itself, though they remain required later for paper-trading or live-readiness stages:
+
+- private exchange execution integration,
+- live paper-trading operations,
+- operational monitoring beyond research-safety needs,
+- restart recovery for live exchange state,
+- deployment automation.
 
 ## Part 3 - Technology Proposal
 

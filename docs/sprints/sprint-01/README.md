@@ -3,7 +3,7 @@
 ## Sprint Status
 
 - Identifier: Sprint 01
-- Status: IN_PROGRESS
+- Status: DONE
 - Scope state: Documentation only
 - Implementation state: Not started
 - Strategy approval state: Not approved
@@ -66,10 +66,37 @@ Sprint 01 is done only when:
 2. The sprint task register uses stable IDs, valid dependencies, explicit statuses, verification methods, and required evidence.
 3. The roadmap and technical plan no longer contain repository-state claims disproved by inspected evidence.
 4. Unresolved critical decisions are explicitly visible and not silently treated as approved.
-5. The first research experiment is scoped as a bounded documentation task with clear blockers and evidence requirements.
+5. The first research experiment is recorded as bounded follow-on work with clear blockers and evidence requirements, even if the experiment specification itself remains deferred.
 6. Git status and Git diff have been inspected after the changes.
 7. No application code or test files were modified.
 8. No documentation change claims strategy profitability, implementation readiness, or live-trading authorization.
+
+## Sprint Closure Decision
+
+Sprint 01 is closed as a documentation-only sprint.
+
+Completed Sprint 01 scope:
+
+- Sprint documentation structure established.
+- Stage 2 roadmap inconsistency corrected.
+- Stale technical-plan repository findings corrected.
+- Unresolved-decision register established for the first research experiment.
+- Documentation-only acceptance criteria established.
+- Documentation-only verification performed.
+
+Deferred to Sprint 02:
+
+- `S01-006` -> `S02-006`
+- `S01-008` -> `S02-007`
+- `S01-101` -> `S02-101`
+- `S01-102` -> `S02-102`
+- `S01-103` -> `S02-103`
+- `S01-104` -> `S02-104`
+
+Scope correction applied for honest closure:
+
+- Sprint 01 does not complete the first bounded experiment specification.
+- Sprint 01 completes the documentation work needed to surface that follow-on work, its blockers, and its evidence requirements.
 
 ## Sprint Completion Blockers
 
