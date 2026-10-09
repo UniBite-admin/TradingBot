@@ -17,7 +17,7 @@ Classification used in this document:
 
 ## 1. Executive Summary
 
-`FACT`: The project is spot-only, capital-constrained, research-driven, and not allowed to claim profitability without evidence. Exchange, market universe, timeframe, and numeric risk limits are not yet approved.
+`FACT`: The project is spot-only, capital-constrained, research-driven, and not allowed to claim profitability without evidence. Bitvavo Spot is the intended venue for planning purposes, while the market universe, timeframe, Bitvavo data-adequacy policy, and numeric risk limits are not yet approved.
 
 `RESEARCH CONCLUSION`: A standalone named candlestick pattern strategy is not defensible as an approved trading rule at this stage. Pattern recognition is subjective unless codified, and predictive value is not established by the current project evidence.
 
@@ -59,8 +59,7 @@ Classification used in this document:
 
 `FACT`: The following are not yet approved in the repository:
 
-- exchange,
-- market-data source,
+- authoritative Bitvavo public-data adequacy and usage policy for the first experiment,
 - eligible spot pairs,
 - candle timeframe,
 - numeric risk limits,
@@ -86,17 +85,17 @@ Classification used in this document:
 - Quote currency and volume field definition must be explicit.
 - Whether historical data are raw exchange candles or vendor-resampled candles must be explicit.
 
-`UNRESOLVED DECISION`: Exchange.
+`UNRESOLVED DECISION`: Whether Bitvavo's own public market data is sufficient as the authoritative initial source for the first research experiment.
 
 Why it matters:
 
-- Fees, tick size, minimum order sizes, and candle semantics differ by exchange.
-- Spread and liquidity quality change whether a scalp is executable.
+- Bitvavo data capabilities determine what can be tested directly from official venue data.
+- Historical spread and liquidity evidence may be limited even if OHLCV and trade history are available.
 
 Recommended choice:
 
-- Approve one liquid spot exchange with reliable historical OHLCV and clear market-rule documentation before implementation.
-- This is required before live-valid cost modeling can be finalized.
+- Prefer Bitvavo's own public market data if it can support the approved first experiment with explicit limitations.
+- If Bitvavo data is insufficient for a required evidence standard, document the gap explicitly before considering any supplementary source.
 
 `UNRESOLVED DECISION`: Primary timeframe.
 

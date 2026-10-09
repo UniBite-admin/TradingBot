@@ -34,15 +34,27 @@ This file records decisions already supported by authoritative repository docume
 - Evidence: `STRATEGY_SPECIFICATION.md` and `TECHNICAL_PLAN.md`
 - Why it matters: Sprint 02 must preserve these distinctions in future experiment planning.
 
+### S2D-006 - Bitvavo Spot is the intended trading venue
+
+- Status: APPROVED HUMAN DECISION
+- Evidence: explicit human instruction in Sprint 02 Bitvavo data-adequacy review.
+- Why it matters: Sprint 02 no longer needs to treat exchange venue selection itself as unresolved.
+
+### S2D-007 - Bitvavo's own public market-data endpoints are the preferred initial research source, subject to adequacy verification
+
+- Status: APPROVED HUMAN DIRECTION WITH UNRESOLVED ADEQUACY
+- Evidence: explicit human instruction in Sprint 02 Bitvavo data-adequacy review.
+- Why it matters: Sprint 02 should evaluate Bitvavo-first data adequacy before considering any other source.
+
 ## Carried-Forward Unresolved Decisions
 
 Sprint 02 carries forward the unresolved first-experiment decisions documented in Sprint 01, including:
 
-- exchange and authoritative market-data source,
 - market universe,
 - primary timeframe,
 - candle timestamp semantics,
 - missing and malformed data handling,
+- authoritative Bitvavo public data adequacy and usage policy,
 - parameter grid for `L` and `N`,
 - signal-expiry policy,
 - execution assumptions,
@@ -114,7 +126,34 @@ These remain unresolved because the authoritative repository documents still do 
 - Recommended next step: resolve `S02-101` through `S02-103`.
 - Human approval required: yes.
 
+### F-008 - Official Bitvavo evidence supports OHLCV research and limited trade-based execution analysis, but not documented historical spread or order-book-depth analysis
+
+- Classification: Confirmed limitation
+- Evidence:
+	- official Bitvavo candlestick docs list public OHLCV intervals, limits, timestamp alignment requirements, chronological ordering, and zero-trade gaps,
+	- official Bitvavo trades docs list public trade fields and the 24-hour time-window limitation per request,
+	- official Bitvavo markets docs list tick size, order-size constraints, decimals, market status, and fee category,
+	- official Bitvavo ticker-book docs document current best bid and ask only,
+	- no inspected official Bitvavo document established a historical bid/ask or order-book-depth endpoint,
+	- a public read-only probe returned BTC-EUR candle data for a historical 24-hour window starting 2024-01-01 and returned historical trades for the same 24-hour window.
+- Impact:
+	- Bitvavo data is evidenced as sufficient for OHLCV-based signal research,
+	- Bitvavo data is evidenced as partially supportive for trade-based execution-cost analysis,
+	- historical spread and order-book-depth analysis is not established from current official evidence.
+- Recommended correction: document Bitvavo adequacy as partial rather than complete, and keep `S02-101` open until adequacy requirements for the first experiment are explicitly satisfied.
+- Human approval required: yes, for acceptance of the data-source adequacy decision.
+
+### F-009 - Bitvavo candlestick completeness behavior is probe-supported but not explicitly established in the inspected candlestick documentation
+
+- Classification: Unresolved question
+- Evidence:
+	- the inspected Bitvavo candlestick documentation defines candle timestamps and ordering but does not explicitly state whether the latest returned candle may be in progress,
+	- a public read-only probe of `BTC-EUR` `1h` candles returned a latest candle whose start timestamp fell within the current hour at query time.
+- Impact: first-experiment anti-lookahead handling must treat the latest returned candle as potentially incomplete unless finalization behavior is otherwise confirmed.
+- Recommended next step: record this as a Bitvavo-specific experiment constraint and require implementation or replay logic to exclude the most recent still-forming candle unless completeness is explicitly proven.
+- Human approval required: no for the constraint itself, yes if later policy changes rely on a stronger assumption.
+
 ## Next Actions
 
-- Resolve `S02-101`, `S02-102`, and `S02-103` to enable the first bounded experiment specification.
+- Resolve the remaining adequacy and approval questions in `S02-101`, `S02-102`, and `S02-103` to enable the first bounded experiment specification.
 - Resolve `S02-104` before any later implementation planning that depends on provisional coding of the proposed strategy.

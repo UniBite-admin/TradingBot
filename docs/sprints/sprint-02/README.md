@@ -76,7 +76,7 @@ Sprint 02 is done only when:
 
 Sprint 02 cannot be fully completed if any of the following remain unresolved:
 
-- the first experiment cannot be frozen because exchange, timeframe, candle semantics, or cost-model policy remain unapproved,
+- the first experiment cannot be frozen because Bitvavo public data adequacy, timeframe, candle semantics, or cost-model policy remain unapproved,
 - `ROADMAP.md` or `TECHNICAL_PLAN.md` still contain repository-state claims contradicted by inspected evidence,
 - cross-document findings are not classified or lack evidence,
 - transferred Sprint 01 work is no longer traceable.

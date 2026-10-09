@@ -63,6 +63,7 @@ Classification used in this document:
 
 - Project mission: research-driven crypto trading system focused on short-term candlestick-based analysis.
 - Scope: spot-only trading.
+- Intended venue: Bitvavo Spot, selected by the human and recorded during Sprint 02.
 - Exclusions: no leverage, no margin, no futures, no perpetuals.
 - Governance: no silent assumptions, evidence over intuition, risk authority over strategy, reproducibility required.
 - Validation path: historical research -> backtesting -> realistic validation -> paper trading -> controlled small live test -> evaluation -> scaling decision.
@@ -74,9 +75,9 @@ Classification used in this document:
 
 `UNRESOLVED DECISION`:
 
-- Exchange.
 - Market universe.
 - Candle timeframe.
+- Authoritative Bitvavo public-data adequacy and usage policy for the first experiment.
 - Candle timestamp semantics.
 - Missing-candle policy.
 - Technology stack.
@@ -1321,8 +1322,8 @@ This is the minimum path to produce credible research evidence.
 | D-01 | Version-control workflow | partially resolved | local repository exists on `main` and tracks `origin/main`; contribution conventions are not yet documented | GitHub, Azure Repos, local-only | retain the current GitHub-backed repository and document workflow conventions | yes | Phase 1 |
 | D-02 | Programming language | unresolved | no code exists | Python, .NET, TypeScript | Python 3.12 | yes | Phase 1 |
 | D-03 | Dependency management | unresolved | no environment exists | `venv`, Poetry, Conda, `uv` | `venv` with pinned dependencies | yes | Phase 1 |
-| D-04 | Exchange | unresolved | repo documents mark it unresolved | liquid spot exchanges | one liquid spot exchange with clear docs | yes | Phase 1 |
-| D-05 | Historical data source | unresolved | no data policy exists | exchange-native, vendor | exchange-native first | yes | Phase 5 |
+| D-04 | Trading venue | partially resolved | Bitvavo Spot is the human-selected intended venue; full Bitvavo data adequacy for the first experiment is not yet accepted | Bitvavo Spot, alternative venues only if later justified | retain Bitvavo Spot as the intended venue | yes | Phase 1 |
+| D-05 | Historical data source adequacy | partially resolved | Bitvavo's own public market-data endpoints are the preferred initial source, but adequacy remains only partially evidenced | Bitvavo-only, Bitvavo plus supplementary source later if justified | Bitvavo public data first, with explicit limitations documented | yes | Phase 5 |
 | D-06 | Primary timeframe | proposed only | strategy spec recommends `5m` | `1m`, `3m`, `5m`, `15m` | `5m` for first study | yes | Phase 5 |
 | D-07 | Candle timestamp semantics | unresolved | explicitly unresolved in strategy spec | open-time, close-time | explicit open and close times with close-based signal evaluation | yes | Phase 5 |
 | D-08 | Missing-candle policy | unresolved | explicitly unresolved | reject gaps, resync, forward-fill | reject for eligibility, resync for recovery, never forward-fill signals | yes | Phase 5 |

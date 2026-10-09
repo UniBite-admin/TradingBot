@@ -11,7 +11,7 @@ This file is the authoritative roadmap for the repository.
 - Stage: Definition and planning.
 - Implementation status: Not started.
 - Strategy status: Specification drafted and pending human review; not approved.
-- Exchange status: Not approved.
+- Exchange status: Bitvavo Spot intended venue selected; Bitvavo public-data adequacy for the first experiment not yet confirmed.
 - Live trading status: Not allowed.
 
 ## Approved Workflow
@@ -51,7 +51,7 @@ Objective:
 
 Required decisions:
 
-- Exchange.
+- Bitvavo public-data adequacy and usage policy for the first experiment.
 - Market universe selection method.
 - Candle intervals.
 - Data sources.
@@ -201,7 +201,7 @@ Objective:
 
 ## Unknowns Requiring Human Decision
 
-- Which exchange will be used.
+- Whether Bitvavo's own public market data is sufficient and acceptable as the authoritative initial research source.
 - Which markets will be monitored.
 - Which candle intervals will be evaluated.
 - Which exact strategy hypothesis will be tested first.

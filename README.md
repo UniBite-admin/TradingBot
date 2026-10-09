@@ -20,7 +20,7 @@ Current status:
 - A proposed technical plan and implementation roadmap exists and is pending human review.
 - Sprint 01 is closed as a documentation-only sprint with deferred experiment-definition work transferred forward.
 - Sprint 02 is in progress for roadmap and technical-plan review, consistency, and decision readiness.
-- No exchange, market universe, or timeframe is approved yet.
+- Bitvavo Spot is the intended trading venue, while Bitvavo public historical-data adequacy, market universe, and timeframe remain unresolved for the first experiment.
 - No implementation has started.
 - Live trading is out of scope until research, validation, and controlled testing gates are passed.
 
