@@ -210,4 +210,4 @@ Objective:
 
 ## Immediate Next Task
 
-Produce the technical plan for Stage 2 without inventing blocked decisions. The plan should present explicit options, tradeoffs, and required approvals.
+Review and reconcile `TECHNICAL_PLAN.md` against the current repository state, then resolve the implementation-blocking Stage 2 decisions recorded there and in Sprint 01 documentation before implementation begins.

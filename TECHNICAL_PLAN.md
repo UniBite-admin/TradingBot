@@ -26,6 +26,11 @@ Classification used in this document:
 - `ROADMAP.md`
 - `README.md`
 - `STRATEGY_SPECIFICATION.md`
+- `TECHNICAL_PLAN.md`
+- `docs/sprints/sprint-01/README.md`
+- `docs/sprints/sprint-01/ACTION_ITEMS.md`
+- `docs/sprints/sprint-01/DECISIONS.md`
+- `docs/sprints/sprint-01/ACCEPTANCE_CRITERIA.md`
 
 `FACT`: No implementation artifacts currently exist.
 
@@ -38,13 +43,14 @@ Classification used in this document:
 - No CI configuration.
 - No persistence schema.
 
-`FACT`: Git is not initialized in the workspace. An attempted `git status --short --branch` returned `fatal: not a git repository`.
+`FACT`: Git is initialized in the workspace. Inspected Git state showed local branch `main`, remote `origin`, and a clean working tree tracking `origin/main`.
 
 ### What Is Authoritative
 
 - `PROJECT_DEFINITION.md`: authoritative for mission, governance, scope, safety boundaries, and engineering principles.
 - `ROADMAP.md`: authoritative roadmap.
 - `STRATEGY_SPECIFICATION.md`: authoritative record of the current proposed strategy specification, but not approved.
+- `TECHNICAL_PLAN.md`: authoritative record of the current proposed technical plan, but not approved.
 - `README.md`: project entrypoint only.
 
 ### What Is Approved
@@ -547,7 +553,7 @@ Why it is appropriate:
 
 - Maintains test discipline once code exists.
 
-Decision status: blocked until version control is established.
+Decision status: recommended, not approved. Version control now exists; CI remains deferred until code work begins.
 
 ### Deployment and Monitoring
 
@@ -968,7 +974,7 @@ The system should enforce:
 ### Phase 1 - Baseline Decisions and Repository Readiness
 
 - Objective: freeze enough decisions to begin implementation safely.
-- Why necessary: current repository has no code and no version-control baseline.
+- Why necessary: current repository has no code and only a documentation baseline.
 - Entry conditions: current documents reviewed.
 - Inputs and dependencies: authoritative docs.
 - Exact work items:
@@ -1020,7 +1026,7 @@ The system should enforce:
 - Entry conditions: architecture interfaces frozen.
 - Inputs and dependencies: approved language and dependency-management choice.
 - Exact work items:
-  - initialize repository under version control,
+  - confirm repository workflow and contribution conventions,
   - set up package structure,
   - set up test runner,
   - set up formatting and linting rules,
@@ -1283,7 +1289,7 @@ This is the minimum path to produce credible research evidence.
 
 | ID | Decision | Current status | Evidence | Alternatives | Recommended option | Human approval | Resolve by |
 |---|---|---|---|---|---|---|---|
-| D-01 | Version-control workflow | unresolved | workspace is not a Git repo | GitHub, Azure Repos, local-only | Git with remote hosting | yes | Phase 1 |
+| D-01 | Version-control workflow | partially resolved | local repository exists on `main` and tracks `origin/main`; contribution conventions are not yet documented | GitHub, Azure Repos, local-only | retain the current GitHub-backed repository and document workflow conventions | yes | Phase 1 |
 | D-02 | Programming language | unresolved | no code exists | Python, .NET, TypeScript | Python 3.12 | yes | Phase 1 |
 | D-03 | Dependency management | unresolved | no environment exists | `venv`, Poetry, Conda, `uv` | `venv` with pinned dependencies | yes | Phase 1 |
 | D-04 | Exchange | unresolved | repo documents mark it unresolved | liquid spot exchanges | one liquid spot exchange with clear docs | yes | Phase 1 |
