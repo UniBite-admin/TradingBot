@@ -8,6 +8,8 @@
 - Implementation state: Not started
 - Strategy approval state: Not approved
 - Live-trading state: Not allowed
+- Backlog snapshot: `DONE=7`, `BLOCKED=1`, `IN_PROGRESS=1`, `NOT_STARTED=4` from the current action register in [ACTION_ITEMS.md](ACTION_ITEMS.md)
+- Local working-tree evidence: the current audit run reports `12/12` canonical-data integrity passes and the focused HSRA/Tardis pytest command reports `18` passing tests; these are uncommitted working-tree results and not repository-truth evidence until committed.
 
 ## Objective
 
@@ -35,6 +37,17 @@ Sprint 02 does not include:
 - paper-trading activation,
 - live-trading activation,
 - invention of exchange choices, assets, timeframes, parameters, risk limits, or cost assumptions.
+
+## Immediate Next Action
+
+The next actionable work is explicit and limited to the remaining unresolved first-experiment decisions:
+
+1. resolve `S02-101` by separating the approved Bitvavo venue decision from the open historical-data adequacy decision,
+2. resolve `S02-102` for timeframe and candle semantics,
+3. resolve `S02-103` for parameter-grid and execution-cost policy,
+4. then proceed to the `S02-006` and `S02-007` specification work only once those dependencies are resolved.
+
+This prevents duplicate sources of truth and keeps `S02-006` blocked while its critical dependencies remain unresolved.
 
 ## Dependencies
 

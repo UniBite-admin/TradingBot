@@ -33,6 +33,8 @@ Sprint 02 can be declared complete only if all of the following are true:
 - confirmation that no strategy rule was silently changed,
 - confirmation that no code or tests were added or modified.
 
+Local working-tree evidence must be labeled accurately: a just-run audit or pytest result may be valid evidence for the current working tree, but it is not repository-truth evidence until it is committed and reproducible from the committed state. In particular, the current local Tardis audit and focused test run do not substitute for an approved first-experiment specification or a committed repository baseline.
+
 ## Explicit Non-Criteria
 
 The following do not satisfy Sprint 02 completion on their own:

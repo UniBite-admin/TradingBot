@@ -38,7 +38,12 @@ This file records decisions already supported by authoritative repository docume
 
 - Status: APPROVED HUMAN DECISION
 - Evidence: explicit human instruction in Sprint 02 review and live-venue planning.
-- Why it matters: Sprint 02 no longer needs to treat exchange venue selection itself as unresolved.
+- Why it matters: this resolves the venue choice but does not resolve the remaining historical-data adequacy question for the first bounded experiment.
+
+### Local Evidence Snapshot (working tree only, not committed repository truth)
+
+- Local working-tree evidence currently available: the Tardis audit run reports `12/12` canonical datasets as passing, and the focused HSRA/Tardis pytest command reports `18` passing tests.
+- This is uncommitted evidence from the current working tree only. It does not upgrade the provisional Tardis sample to final adequacy, does not prove statistical representativeness, and does not authorize strategy implementation or live trading.
 
 ### S2D-007 - The bounded historical research source for the first study is Tardis.dev Binance Jersey BTCEUR quotes and trades
 
@@ -59,7 +64,8 @@ This file records decisions already supported by authoritative repository docume
 - Why it matters: this allows research to proceed without treating the sample as statistically representative or final data-adequacy validated. It also avoids silently authorizing paid access, subscriptions, or any future full-month purchase.
 - Important limitations:
   - Sample selection may introduce bias and may not represent the full month.
-  - Current acceptance supports continued research only; it does not validate strategy profitability or dataset completeness.
+  - Current acceptance supports continued research only; it does not validate strategy profitability, realistic fill costs, historical spread-depth adequacy, or dataset completeness.
+  - The local integrity audit confirms file-level coherence, hash integrity, and provenance coherence for the currently available canonicalized sample; it does not prove statistical adequacy or execution realism.
   - The official Tardis exchange metadata confirms `btceur` availability from 2019-10-30 through 2020-11-10, but direct minimal public checks of the exact candidate URLs for first-of-month BTCEUR trades and quotes files returned HTTP 404 in this environment. The exact file-level availability for the sample set is therefore not yet publicly proved for the candidate dates, and the sample remains provisionally accepted pending explicit adequacy review.
   - A future full-month historical acquisition remains an additional human budget decision and is not authorized by the current provisional scope.
   - No API purchase, subscription, or paid download is authorized by this decision.
