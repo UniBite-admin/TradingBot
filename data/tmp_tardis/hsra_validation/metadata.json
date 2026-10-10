@@ -1,0 +1,12 @@
+{
+  "dataset_status": "REJECTED",
+  "completeness_status": "PARTIAL_WINDOW",
+  "input_quote_count": 0,
+  "input_trade_count": 0,
+  "quotes_path_sha256": "2dc5a6e6c4f19635d472d3a93955219c196e231db131be3d98a7abc2144a46e9",
+  "trades_path_sha256": "409d27de8bc5b11c6d15c2f835dacb13d04854394ee7e5bdbab2293323cd3c64",
+  "adapter_version": "0.1.0",
+  "ordering_rule": "timestamp_asc",
+  "tie_break_rule": "trade_before_quote_when_equal_ts",
+  "reason": "no_trades_in_requested_window"
+}

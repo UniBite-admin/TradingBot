@@ -1,0 +1,15 @@
+{
+  "dataset_status": "CANONICALIZED",
+  "completeness_status": "COMPLETE",
+  "input_quote_count": 22579,
+  "input_trade_count": 664,
+  "quotes_path_sha256": "a079089556c74f0eeafd90ec6eaf79fe8255dc2098a09f18030a63854b2c1c8f",
+  "trades_path_sha256": "e753b5a03864fd117fae114eeff1ecd60af8f657a2142bfb195c49672924518c",
+  "adapter_version": "0.1.0",
+  "ordering_rule": "timestamp_asc",
+  "tie_break_rule": "trade_before_quote_when_equal_ts",
+  "status": "CANONICALIZED",
+  "emitted_canonical_count": 22579,
+  "deterministic_identity": "242740445103903722d23792d972fbd221933f67c871cac1cef33803de44ef76",
+  "generated_at": "2026-09-22T07:33:38.624176+00:00"
+}

@@ -92,6 +92,31 @@ Classification used in this document:
 - Paper-trading design details.
 - Live deployment and authorization details.
 
+`FACT`: The public Tardis exchange metadata confirms `btceur` availability from 2019-10-30 to 2020-11-10, and the documentation states that the CSV files are partitioned by `local_timestamp` while `timestamp` reflects the exchange event time. Direct minimal URL probes against the public dataset endpoints for the exact candidate first-of-month BTCEUR trades and quotes URLs returned HTTP 404 in this environment. The file-level sample is therefore documented as provisional rather than fully file-validated.
+
+`PROPOSED`: For the first bounded exploratory experiment, treat the Tardis first-of-month archive as a daily local-partition sample, not as a complete UTC-day event-time archive. Bar construction should use `timestamp` for event ordering and `local_timestamp` only as arrival metadata; if an event appears on an adjacent local day or if event-time coverage is ambiguous, reject the bar or signal rather than fill the gap by assumption. The same rule should apply to out-of-order records, partial-day files, and duplicate timestamps.
+
+### Proposed Research Policy for S02-102 and S02-103
+
+`PROPOSED (UNAPPROVED)`: Use a single `5m` primary bar timeframe for the first exploratory spot study. This is a conservative compromise that is supported by S02-102 as a plausible initial interval and is not presented as a proven optimal setting.
+
+`PROPOSED (UNAPPROVED)`: Construct 5-minute bars on a UTC-fixed clock (`HH:00, HH:05, ...`) from event-time `timestamp` records; treat `local_timestamp` as arrival metadata only. Exclude any bar whose event-time range is ambiguous because the file is a local-date partition rather than a complete UTC-day archive. Use a bar as final only when all the required event records for the bucket are present and in order; otherwise reject the bar.
+
+`PROPOSED (UNAPPROVED)`: Build OHLCV from the trade stream, not from a vendor-resampled candle feed. The trade schema explicitly defines `price` and `amount` in the trade dataset, while the CSV format details describe timestamps as microseconds since epoch in UTC. For a trade-based bar, `open` is the first trade price in the bucket, `high` and `low` are the highest and lowest trade prices, `close` is the last trade price, and `volume` is the sum of trade amounts in the bucket. Base volume semantics must be declared as sum-of-amount, not an implied order-book volume proxy.
+
+`PROPOSED (UNAPPROVED)`: Candidate grid for the first exploratory research step:
+
+- `L` in `{8, 12, 16}` completed bars for local-structure lookback.
+- `N` in `{4, 8, 12}` completed bars for fixed holding horizon.
+- `signal_expiry` in `{2, 4}` completed bars after the confirmation bar.
+- Any candidate must be evaluated only on the same fixed sample set and the same explicit bar semantics.
+
+`PROPOSED (UNAPPROVED)`: Keep the parameter grid small and predeclared. It is not optimized, not validated, and not evidence-based beyond the need to test a small set of plausible values under a fixed exploratory design. The final holdout set must never be used for parameter selection.
+
+`PROPOSED (UNAPPROVED)`: Separate the cost model into entry fee, exit fee, spread, slippage, liquidity feasibility, order-size constraints, and latency; do not collapse these into one generic fee assumption. The Bitvavo public fee schedule is current and venue-specific, while the historical Binance Jersey sample is not a direct historical Bitvavo execution dataset. Historical Binance Jersey quotes must not be treated as direct evidence of Bitvavo executable fills or spreads.
+
+`PROPOSED (UNAPPROVED)`: For the first bounded exploratory experiment, treat cost realism as a stress-test policy: estimate a conservative spread and fill penalty using current public Bitvavo fee and market constraints, and report historical Tardis sample results separately from any venue-specific execution-cost claim. If the sample cannot support a realistic Bitvavo execution model, state that limitation explicitly and do not claim a realistic venue-specific backtest.
+
 ### Conflict Assessment
 
 `FACT`: No direct contradiction was found across the repository documents.

@@ -23,6 +23,7 @@ Current status:
 - Bitvavo Spot is the intended execution venue and remains separate from the historical research dataset.
 - The historical research dataset for the first experiment is provisionally accepted as Tardis.dev Binance Jersey BTCEUR quotes and trades in daily `.csv.gz` files, limited to the first calendar day of each month only.
 - This provisional acceptance is for continued research under the current data-access and budget constraints; it does not prove statistical representativeness, final dataset adequacy, or strategy profitability.
+- Official Tardis metadata confirms that the `btceur` symbol existed from 2019-10-30 through 2020-11-10, but the exact public dataset URLs for the candidate first-of-month BTCEUR trades/quotes files returned HTTP 404 in direct minimal checks from this environment. The file-level availability remains unverified until a documented access path confirms the exact daily files; the sample therefore remains provisional and is not final adequacy-validated.
 - First-of-month sampling may introduce selection bias and may not represent the full month; a future full-month purchase remains a separate human budget decision and is not authorized by this provisional scope.
 - S02-101 remains in progress because final data-adequacy validation is still pending; the strategy and first experiment remain unapproved.
 - No implementation has started.

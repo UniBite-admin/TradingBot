@@ -100,6 +100,12 @@ Recommended choice:
 - Treat the samples as a bounded research dataset, not as a final or comprehensive market representation.
 - Continue to treat the first experiment as unapproved until adequacy, statistical limits, and execution assumptions are explicitly reviewed.
 
+`FACT`: Tardis CSV files are partitioned by `local_timestamp`, while the `timestamp` column is the exchange-provided event time and falls back to `local_timestamp` when the exchange does not provide one. This means a daily CSV file is an arrival-day partition, not proof that all event-time records for a UTC calendar day are present or complete.
+
+`PROPOSED EXPLORATORY POLICY (NOT APPROVED)`: Because the first-of-month daily-file boundary is intentionally enforced and the full event-time coverage of each UTC trading day cannot be established from the daily file set alone, the project should treat the sample as a bounded local-date archive rather than a complete UTC-day market record. For any bar or signal, use only records whose event `timestamp` is within the approved sampling window when the source file is known to be complete for that window; if the window's coverage is ambiguous, reject the bar instead of inferring a missing interval. This preserves anti-lookahead discipline and prevents false confidence from event-time records that arrive on adjacent local dates.
+
+`PROPOSED EXPLORATORY POLICY (NOT APPROVED)`: For the first research study, avoid claiming that the first-of-month archive establishes complete event-time coverage for a UTC day. The sample is acceptable only as a bounded exploratory dataset with explicit limitations. Reconstructed bars must be based on the provided `timestamp` semantics, and missing or ambiguous event-time coverage must be treated as a data-quality rejection.
+
 `UNRESOLVED DECISION`: Primary timeframe.
 
 Why it matters:

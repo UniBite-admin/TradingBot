@@ -60,6 +60,7 @@ This file records decisions already supported by authoritative repository docume
 - Important limitations:
   - Sample selection may introduce bias and may not represent the full month.
   - Current acceptance supports continued research only; it does not validate strategy profitability or dataset completeness.
+  - The official Tardis exchange metadata confirms `btceur` availability from 2019-10-30 through 2020-11-10, but direct minimal public checks of the exact candidate URLs for first-of-month BTCEUR trades and quotes files returned HTTP 404 in this environment. The exact file-level availability for the sample set is therefore not yet publicly proved for the candidate dates, and the sample remains provisionally accepted pending explicit adequacy review.
   - A future full-month historical acquisition remains an additional human budget decision and is not authorized by the current provisional scope.
   - No API purchase, subscription, or paid download is authorized by this decision.
 
