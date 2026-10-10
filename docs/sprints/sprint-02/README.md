@@ -3,13 +3,39 @@
 ## Sprint Status
 
 - Identifier: Sprint 02
-- Status: IN_PROGRESS
+- Status: CLOSED
+- Closure mode: Documentation and decision-governance review sprint
 - Scope state: Documentation and planning only
 - Implementation state: Not started
 - Strategy approval state: Not approved
 - Live-trading state: Not allowed
-- Backlog snapshot: `DONE=7`, `BLOCKED=1`, `IN_PROGRESS=1`, `NOT_STARTED=4` from the current action register in [ACTION_ITEMS.md](ACTION_ITEMS.md)
+- Backlog snapshot: `DONE=8`, `TRANSFERRED=5`, `BLOCKED=0`, `IN_PROGRESS=0`, `NOT_STARTED=0` from the actual task rows in [ACTION_ITEMS.md](ACTION_ITEMS.md)
 - Local working-tree evidence: the current audit run reports `12/12` canonical-data integrity passes and the focused HSRA/Tardis pytest command reports `18` passing tests; these are uncommitted working-tree results and not repository-truth evidence until committed.
+
+## Closure Decision
+
+Sprint 02 is closed as a review, documentation, and decision-governance sprint.
+
+Completed scope:
+
+- honest closure and traceable carry-forward of unfinished Sprint 01 work,
+- dependency-aware Sprint 02 action tracking,
+- review of `ROADMAP.md`,
+- review of `TECHNICAL_PLAN.md`,
+- cross-document consistency findings,
+- explicit identification of unresolved evidence gates and their handoff to Sprint 03.
+
+Transferred to Sprint 03:
+
+| Source Sprint 02 ID | Destination Sprint 03 ID | Reason |
+|---|---|---|
+| S02-006 | S03-006 | First bounded experiment specification remains blocked by unresolved evidence gates. |
+| S02-007 | S03-007 | Preserve state separation in the future experiment definition. |
+| S02-101 | S03-101 | Historical-data adequacy and representativeness remain unresolved. |
+| S02-102 | S03-102 | Candle semantics and timestamp/completed-candle rules remain unresolved. |
+| S02-104 | S03-104 | Implementation-governance decision remains open. |
+
+The bounded `S02-103` decision remains recorded as a completed policy decision, not as a profitability or implementation approval.
 
 ## Objective
 
@@ -17,21 +43,20 @@ Review and improve the consistency, scope, and decision readiness of the authori
 
 ## Scope
 
-Sprint 02 covers:
+Sprint 02 covered:
 
 - honest closure and traceable carry-forward of unfinished Sprint 01 work,
 - dependency-aware Sprint 02 action tracking,
 - review of `ROADMAP.md`,
 - review of `TECHNICAL_PLAN.md`,
 - cross-document consistency findings,
-- first-experiment planning progress that does not invent unresolved decisions.
+- identification of unresolved first-experiment evidence gaps without inventing unsupported approvals.
 
 ## Explicit Exclusions
 
-Sprint 02 does not include:
+Sprint 02 did not include:
 
 - implementation of application code,
-- test execution,
 - strategy-rule changes without approval,
 - exchange activation,
 - paper-trading activation,
@@ -40,18 +65,16 @@ Sprint 02 does not include:
 
 ## Immediate Next Action
 
-The next actionable work is explicit and limited to the remaining unresolved first-experiment decisions:
+Continue the unresolved first-experiment evidence work in Sprint 03:
 
-1. resolve `S02-101` by separating the approved Bitvavo venue decision from the open historical-data adequacy decision,
-2. resolve `S02-102` for timeframe and candle semantics,
-3. resolve `S02-103` for parameter-grid and execution-cost policy,
-4. then proceed to the `S02-006` and `S02-007` specification work only once those dependencies are resolved.
-
-This prevents duplicate sources of truth and keeps `S02-006` blocked while its critical dependencies remain unresolved.
+1. complete `S03-101` for historical-data adequacy and representativeness,
+2. complete `S03-102` for candle semantics and completed-candle rules,
+3. complete `S03-006` for the first bounded experiment specification,
+4. resolve the remaining implementation-governance and state-separation items only after the evidence gates are satisfied.
 
 ## Dependencies
 
-Sprint 02 depends on:
+Sprint 02 depended on:
 
 - [PROJECT_DEFINITION.md](../../../PROJECT_DEFINITION.md)
 - [README.md](../../../README.md)
@@ -59,7 +82,7 @@ Sprint 02 depends on:
 - [STRATEGY_SPECIFICATION.md](../../../STRATEGY_SPECIFICATION.md)
 - [TECHNICAL_PLAN.md](../../../TECHNICAL_PLAN.md)
 
-Sprint 02 also depends on Sprint 01 closure records:
+Sprint 02 also depended on Sprint 01 closure records:
 
 - [../sprint-01/README.md](../sprint-01/README.md)
 - [../sprint-01/ACTION_ITEMS.md](../sprint-01/ACTION_ITEMS.md)
@@ -84,15 +107,7 @@ Sprint 02 is done only when:
 6. Unresolved human decisions remain explicit and are not silently treated as approved.
 7. Final Git status, `git diff --check`, and full diff inspection have been performed.
 8. No application code or test files have been added or modified.
-
-## Explicit Blockers
-
-Sprint 02 cannot be fully completed if any of the following remain unresolved:
-
-- the first experiment cannot be frozen because the historical-data adequacy, time-range constraints, timeframe, candle semantics, or cost-model policy for the bounded Tardis.dev Binance Jersey BTCEUR sample remain unapproved,
-- `ROADMAP.md` or `TECHNICAL_PLAN.md` still contain repository-state claims contradicted by inspected evidence,
-- cross-document findings are not classified or lack evidence,
-- transferred Sprint 01 work is no longer traceable.
+9. Every unresolved Sprint 02 item is transferred with a traceable Sprint 03 destination.
 
 ## Notes
 

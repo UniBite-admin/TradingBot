@@ -2,6 +2,23 @@
 
 This file records decisions already supported by authoritative repository documents, unresolved decisions carried forward into Sprint 02, and review findings from the roadmap and technical-plan audit.
 
+## Sprint Closure Decision
+
+- Status: CLOSED AS A DOCUMENTATION AND DECISION-GOVERNANCE SPRINT
+- Evidence: all unresolved first-experiment evidence gaps, blocked specification work, and implementation-governance questions have been transferred to Sprint 03 with traceable source/destination references.
+- Why it matters: Sprint 02 satisfied its review and planning scope without silently converting provisional research decisions into approved strategy, implementation, paper-trade, or live-trade approvals.
+- Transfer mapping:
+  - `S02-006` -> `S03-006`
+  - `S02-007` -> `S03-007`
+  - `S02-101` -> `S03-101`
+  - `S02-102` -> `S03-102`
+  - `S02-104` -> `S03-104`
+- Explicit non-claims:
+  - Sprint 02 closure does not approve a profitable strategy.
+  - Sprint 02 closure does not prove positive expectancy.
+  - Sprint 02 closure does not authorize implementation beyond the existing approvals.
+  - Sprint 02 closure does not authorize paper trading or live trading.
+
 ## Supported Decisions And Status Facts
 
 ### S2D-001 - Project trading scope remains SPOT only
@@ -59,16 +76,67 @@ This file records decisions already supported by authoritative repository docume
 
 ### S2D-009 - The Tardis.dev Binance Jersey BTCEUR first-day-of-month sample is provisionally accepted for continued research under current access and budget constraints
 
-- Status: PROVISIONALLY ACCEPTED WITH OPEN FINAL-ADEQUACY REVIEW
+- Status: PROVISIONALLY ACCEPTED FOR BOUNDED EXPLORATORY SIGNAL RESEARCH ONLY
 - Evidence: explicit human acceptance of the current research scope under existing data-access and budget constraints; the dataset remains limited to the first calendar day of each month and continues to be separated from the intended Bitvavo Spot execution venue.
-- Why it matters: this allows research to proceed without treating the sample as statistically representative or final data-adequacy validated. It also avoids silently authorizing paid access, subscriptions, or any future full-month purchase.
+- Why it matters: this allows limited signal-research to proceed without treating the sample as statistically representative, execution-realistic, or sufficient for profitability validation. It also avoids silently authorizing paid access, subscriptions, or any future full-month purchase.
 - Important limitations:
   - Sample selection may introduce bias and may not represent the full month.
-  - Current acceptance supports continued research only; it does not validate strategy profitability, realistic fill costs, historical spread-depth adequacy, or dataset completeness.
+  - This scope accepts the sample only for bounded exploratory signal research under current budget and access constraints; it does not validate strategy profitability, realistic fill costs, historical spread-depth adequacy, or dataset completeness.
   - The local integrity audit confirms file-level coherence, hash integrity, and provenance coherence for the currently available canonicalized sample; it does not prove statistical adequacy or execution realism.
-  - The official Tardis exchange metadata confirms `btceur` availability from 2019-10-30 through 2020-11-10, but direct minimal public checks of the exact candidate URLs for first-of-month BTCEUR trades and quotes files returned HTTP 404 in this environment. The exact file-level availability for the sample set is therefore not yet publicly proved for the candidate dates, and the sample remains provisionally accepted pending explicit adequacy review.
+  - The official Tardis exchange metadata confirms `btceur` availability from 2019-10-30 through 2020-11-10, but direct minimal public checks of the exact candidate URLs for first-of-month BTCEUR trades and quotes files returned HTTP 404 in this environment. The exact file-level availability for the sample set is therefore not yet publicly proved for the candidate dates, and the sample remains provisionally accepted only for bounded exploratory research pending explicit adequacy review.
   - A future full-month historical acquisition remains an additional human budget decision and is not authorized by the current provisional scope.
   - No API purchase, subscription, or paid download is authorized by this decision.
+  - This does not establish realistic Bitvavo historical spread, order-book depth, or fill costs, and it does not authorize paper trading or live trading.
+
+### S2D-010 - Execution-cost realism and profitability validation remain separate acceptance gates from the bounded exploratory-signal-research decision
+
+- Status: APPROVED GATE SEPARATION
+- Evidence: `PROJECT_DEFINITION.md`, `STRATEGY_SPECIFICATION.md`, `TECHNICAL_PLAN.md`, and the human-approved bounded-research direction for Sprint 02.
+- Why it matters: the approved bounded research scope permits exploratory signal work under the current data and budget constraints, but it does not replace the later execution-cost and profitability validation gates.
+- Explicit non-claims:
+  - The sample is not approved as statistically representative.
+  - The sample is not approved as sufficient for profitability validation.
+  - The project is not approved to invent or assume a realistic Bitvavo historical fill model.
+  - The current scope does not authorize paper trading, strategy implementation, or live trading.
+  - Historical spread, order-book depth, latency, slippage, and fill-cost realism remain open until a separate evidence-based acceptance gate is satisfied.
+
+### S2D-011 - The 5-minute timeframe is approved as the primary timeframe for the first bounded historical research experiment only
+
+- Status: APPROVED HUMAN DECISION
+- Evidence: explicit human approval recorded in Sprint 02 review and project planning.
+- Why it matters: this approves the 5-minute primary timeframe for the first bounded historical research experiment only. It does not establish that 5m is optimal, profitable, statistically representative, or suitable for live trading.
+- Scope and non-claims:
+  - Approved for the first bounded historical research experiment only.
+  - This does not authorize implementation, paper trading, or live trading.
+  - This does not claim 5m is superior to other supported intervals.
+  - This does not approve any specific execution-cost model, fill assumptions, or profitability claim.
+  - This does not imply that the first experiment is frozen, validated, or ready to scale.
+- Remaining open items:
+  - fixed UTC interval semantics, if the project chooses to formalize them,
+  - whether timestamps are treated as interval start or close,
+  - completed-candle-only policy,
+  - explicit handling of missing or no-trade intervals,
+  - final incomplete-candle handling,
+  - later approval of parameter-grid, cost-model, and data-validity policy.
+- Human approval required: the 5m timeframe approval is recorded as human-approved. The detailed candle-contract semantics remain proposal-level and must be treated as separate from the timeframe approval unless they are later implemented and verified.
+
+### S2D-012 - S02-103 research boundaries and bounded exploratory parameter policy
+
+- Status: DELEGATED BOUNDED RESEARCH DECISION; FULL PARAMETER APPROVAL REMAINS BLOCKED BY MISSING EVIDENCE
+- Evidence: `TECHNICAL_PLAN.md`, `STRATEGY_SPECIFICATION.md`, and the delegated project-lead research direction for Sprint 02 task `S02-103`.
+- Why it matters: this records the bounded research decisions for the first historical signal-only study without moving those decisions into approved profitability or live-trading authorization.
+- Decision record:
+  - Research boundary: bounded historical signal-only research may proceed before execution-cost realism is established, provided it is explicitly labeled as signal-only and not as proof of profitability, positive net expectancy, representative market behavior, or executable real-world fills.
+  - Parameter candidates: `L ∈ {8, 12, 16}`, `N ∈ {4, 8, 12}`, and `signal_expiry ∈ {2, 4}` are recorded as proposed candidates for a bounded exploratory study only. These are not validated optimal parameters and must not be described as proven or generally approved strategy settings. They are candidate values to review, not a frozen winner.
+  - Volume filter: the optional volume filter is excluded from the initial baseline experiment and must be treated as a separate experimental variant only if the data quality and research evidence justify it later.
+  - Cost sensitivity: any fee, spread, slippage, latency, or fill assumptions must be explicitly labeled as assumptions or stress-test inputs and must not be represented as measured historical Bitvavo execution costs. The available Binance Jersey data does not establish historical Bitvavo execution quality.
+  - No live authorization: these bounded research decisions authorize neither real-money trading nor automatic paper/live execution or scaling. The project's explicit approval gate remains in force.
+- Explicit blockers that remain unresolved:
+  - exact chronological holdout dates or split boundaries before sample adequacy is reviewed,
+  - candle construction, finalization, and missing/no-trade interval handling unless these are already specified and verified,
+  - a cost model claimed to represent actual Bitvavo fills,
+  - any claim that the current sample is representative or sufficient to demonstrate profitability.
+- Human approval required: the delegated research decision is recorded as a bounded project-lead decision for initial signal research only. Any broader approval of a specific parameter set, cost model, or profitability claim remains blocked pending evidence and explicit human approval.
 
 ## Carried-Forward Unresolved Decisions
 
@@ -177,26 +245,25 @@ These remain unresolved because the authoritative repository documents still do 
 - Recommended next step: record this as a Bitvavo-specific experiment constraint and require implementation or replay logic to exclude the most recent still-forming candle unless completeness is explicitly proven.
 - Human approval required: no for the constraint itself, yes if later policy changes rely on a stronger assumption.
 
-### F-010 - A 5-minute primary timeframe remains a provisional candidate for the first historical SPOT experiment, not a comparative superiority claim
+### F-010 - 5-minute primary timeframe is approved for the first bounded historical research experiment only; detailed candle semantics remain proposal-level unless implemented and verified
 
-- Classification: Proposed recommendation, not approved
+- Classification: Approved timeframe; detailed candle semantics remain proposed rather than approved implementation contract
 - Evidence:
+  - The project now records `5m` as the approved primary timeframe for the first bounded historical research experiment only.
   - Bitvavo candlestick docs list valid intervals including `1m`, `5m`, `15m`, `30m`, `1h`, `2h`, `4h`, `6h`, `8h`, `12h`, `1d`, `1W`, and `1M`.
   - Bitvavo docs state that candle timestamps are Unix milliseconds and that the `timestamp` is the start time of the candle interval.
   - Bitvavo docs state that candle data are returned newest-to-oldest and that a no-trade interval may appear as a gap in data flow rather than a fabricated zero-volume candle.
   - The project strategy specification already defines a minimal two-candle bullish rejection hypothesis and requires completed-candle validation.
-  - The currently inspected documentation does not include comparative evidence that `5m` is superior to `1m` or other supported intervals.
+  - The currently inspected documentation still does not establish comparative superiority of `5m` over `1m` or other supported intervals.
 - Impact:
-  - `5m` is a defensible provisional default only because it is compatible with the project’s short-horizon spot research objective and is less sensitive to microstructure noise than `1m`.
-  - It is not yet a proven superior timeframe, and comparative performance data are still required before calling it a justified default.
-- Recommended proposal:
-  - Treat `5m` as the provisional primary timeframe for the first historical SPOT experiment only.
-  - Treat each candle timestamp as the interval start time in UTC milliseconds.
-  - Evaluate only completed candles; do not evaluate any still-forming bar.
-  - Use contiguous completed-candle context only; reject signals when required candles are missing, duplicated, or ambiguous.
-  - Require a stable replay sort order by `(timestamp, symbol)` and reject any signal that depends on look-ahead or on data that was unavailable at the decision point.
-  - Continue to regard the 5-minute recommendation as provisional until human approval and empirical evidence justify a stronger preference.
-- Human approval required: yes. This recommendation remains proposed, not approved.
+  - The 5-minute timeframe is approved as the primary timeframe for the first bounded historical research experiment only.
+  - This approval does not claim that `5m` is optimal, profitable, or statistically representative.
+  - The detailed candle contract remains proposal-level unless and until it is implemented and verified in code and tests.
+- Recommended treatment:
+  - Keep the approved 5m timeframe as the first bounded historical research default.
+  - Keep the following candle-contract rules as proposed policy only unless they are already implemented and validated: UTC-aligned fixed intervals, timestamp as interval start, completed-candle-only evaluation, explicit missing/no-trade gap handling, and final incomplete-candle handling.
+  - Do not treat those detailed candle semantics as approved operational requirements merely because the timeframe is approved.
+- Human approval required: the timeframe approval is already recorded. Any further tightening of the candle contract must remain separate from the timeframe approval and must be treated as an implementation decision after code and test verification.
 
 ### F-011 - Bitvavo public data supports a bounded historical OHLCV and trade-based research experiment, but not a fully evidenced historical spread-depth cost model
 

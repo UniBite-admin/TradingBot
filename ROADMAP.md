@@ -44,7 +44,7 @@ Exit evidence:
 
 ### Stage 2 - Technical planning
 
-Status: In progress.
+Status: Handover to Sprint 03.
 
 Objective:
 
@@ -70,10 +70,12 @@ Required outputs:
 Current repository evidence:
 
 - `TECHNICAL_PLAN.md` records the proposed comprehensive technical plan and implementation roadmap for review.
+- Sprint 02 closed after documenting the unresolved Stage 2 evidence gaps and transferring them to Sprint 03.
 
 Blocked by:
 
 - Human approval of the unresolved technical choices listed above.
+- Continued evidence-gate work under Sprint 03 before the first bounded experiment can be honestly frozen.
 
 ### Stage 3 - Strategy specification
 
