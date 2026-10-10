@@ -63,7 +63,10 @@ Classification used in this document:
 
 - Project mission: research-driven crypto trading system focused on short-term candlestick-based analysis.
 - Scope: spot-only trading.
-- Intended venue: Bitvavo Spot, selected by the human and recorded during Sprint 02.
+- Intended execution venue: Bitvavo Spot, selected by the human and recorded during Sprint 02.
+- Historical research source: provisionally accepted Tardis.dev Binance Jersey BTCEUR quotes and trades in daily `.csv.gz` archives, limited to the first calendar day of each month only for the first bounded study.
+- Provisional-scope limitation: this acceptance is for continued research under the current data-access and budget constraints; it does not prove statistical representativeness, final dataset adequacy, or strategy profitability.
+- Future full-month acquisition: a complete month of historical data remains a possible future option requiring a separate human budget decision and is not authorized by the current provisional scope.
 - Exclusions: no leverage, no margin, no futures, no perpetuals.
 - Governance: no silent assumptions, evidence over intuition, risk authority over strategy, reproducibility required.
 - Validation path: historical research -> backtesting -> realistic validation -> paper trading -> controlled small live test -> evaluation -> scaling decision.
@@ -77,7 +80,7 @@ Classification used in this document:
 
 - Market universe.
 - Candle timeframe.
-- Authoritative Bitvavo public-data adequacy and usage policy for the first experiment.
+- Historical-data adequacy and statistical validity of the bounded Tardis.dev Binance Jersey BTCEUR sample for the first experiment.
 - Candle timestamp semantics.
 - Missing-candle policy.
 - Technology stack.
@@ -1323,7 +1326,7 @@ This is the minimum path to produce credible research evidence.
 | D-02 | Programming language | unresolved | no code exists | Python, .NET, TypeScript | Python 3.12 | yes | Phase 1 |
 | D-03 | Dependency management | unresolved | no environment exists | `venv`, Poetry, Conda, `uv` | `venv` with pinned dependencies | yes | Phase 1 |
 | D-04 | Trading venue | partially resolved | Bitvavo Spot is the human-selected intended venue; full Bitvavo data adequacy for the first experiment is not yet accepted | Bitvavo Spot, alternative venues only if later justified | retain Bitvavo Spot as the intended venue | yes | Phase 1 |
-| D-05 | Historical data source adequacy | partially resolved | Bitvavo's own public market-data endpoints are the preferred initial source, but adequacy remains only partially evidenced | Bitvavo-only, Bitvavo plus supplementary source later if justified | Bitvavo public data first, with explicit limitations documented | yes | Phase 5 |
+| D-05 | Historical data source adequacy | partially resolved | Tardis.dev Binance Jersey BTCEUR quotes and trades are the selected bounded historical research dataset, but adequacy and sample-statistical limits remain open for explicit review | Bitvavo-only public data, Tardis historical only, combined source approach | Tardis historical Binance Jersey BTCEUR first-day-of-month sample with explicit limitations documented | yes | Phase 5 |
 | D-06 | Primary timeframe | proposed only | strategy spec recommends `5m` | `1m`, `3m`, `5m`, `15m` | `5m` for first study | yes | Phase 5 |
 | D-07 | Candle timestamp semantics | unresolved | explicitly unresolved in strategy spec | open-time, close-time | explicit open and close times with close-based signal evaluation | yes | Phase 5 |
 | D-08 | Missing-candle policy | unresolved | explicitly unresolved | reject gaps, resync, forward-fill | reject for eligibility, resync for recovery, never forward-fill signals | yes | Phase 5 |

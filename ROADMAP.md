@@ -11,7 +11,8 @@ This file is the authoritative roadmap for the repository.
 - Stage: Definition and planning.
 - Implementation status: Not started.
 - Strategy status: Specification drafted and pending human review; not approved.
-- Exchange status: Bitvavo Spot intended venue selected; Bitvavo public-data adequacy for the first experiment not yet confirmed.
+- Exchange status: Bitvavo Spot intended execution venue selected; historical research source provisionally set to Tardis.dev Binance Jersey BTCEUR quotes and trades with daily `.csv.gz` files limited to the first calendar day of each month only; the first experiment remains unapproved.
+- Historical-sample status: the first-of-month sample is provisionally accepted for continued research under current data-access and budget constraints, but it is not yet a final adequacy validation and may not represent the full month.
 - Live trading status: Not allowed.
 
 ## Approved Workflow
@@ -51,7 +52,7 @@ Objective:
 
 Required decisions:
 
-- Bitvavo public-data adequacy and usage policy for the first experiment.
+- Historical-data adequacy and statistical validity of the bounded Tardis.dev Binance Jersey BTCEUR sample for the first experiment.
 - Market universe selection method.
 - Candle intervals.
 - Data sources.
@@ -198,11 +199,14 @@ Objective:
 - The initial capital ceiling is EUR 50.
 - The first live test should remain very small and controlled.
 - The system must prioritize reproducibility, risk control, and honest evaluation over speed of deployment.
+- The current historical dataset is provisionally accepted for continued research under current access and budget constraints, but first-of-month sampling may introduce selection bias and may not represent the full month.
+- A future full-month data acquisition remains a separate human budget decision and does not follow automatically from this provisional scope.
 
 ## Unknowns Requiring Human Decision
 
-- Whether Bitvavo's own public market data is sufficient and acceptable as the authoritative initial research source.
-- Which markets will be monitored.
+- Whether the bounded Tardis.dev Binance Jersey BTCEUR historical sample is sufficient for the first experiment and what statistical limitations it imposes.
+- Whether a full-month historical purchase through the appropriate Tardis.dev access method is warranted under a separate future budget decision.
+- Which markets will be monitored beyond the controlled research dataset.
 - Which candle intervals will be evaluated.
 - Which exact strategy hypothesis will be tested first.
 - Which numerical risk limits will govern live behavior.

@@ -20,7 +20,11 @@ Current status:
 - A proposed technical plan and implementation roadmap exists and is pending human review.
 - Sprint 01 is closed as a documentation-only sprint with deferred experiment-definition work transferred forward.
 - Sprint 02 is in progress for roadmap and technical-plan review, consistency, and decision readiness.
-- Bitvavo Spot is the intended trading venue, while Bitvavo public historical-data adequacy, market universe, and timeframe remain unresolved for the first experiment.
+- Bitvavo Spot is the intended execution venue and remains separate from the historical research dataset.
+- The historical research dataset for the first experiment is provisionally accepted as Tardis.dev Binance Jersey BTCEUR quotes and trades in daily `.csv.gz` files, limited to the first calendar day of each month only.
+- This provisional acceptance is for continued research under the current data-access and budget constraints; it does not prove statistical representativeness, final dataset adequacy, or strategy profitability.
+- First-of-month sampling may introduce selection bias and may not represent the full month; a future full-month purchase remains a separate human budget decision and is not authorized by this provisional scope.
+- S02-101 remains in progress because final data-adequacy validation is still pending; the strategy and first experiment remain unapproved.
 - No implementation has started.
 - Live trading is out of scope until research, validation, and controlled testing gates are passed.
 

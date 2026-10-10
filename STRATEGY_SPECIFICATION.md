@@ -17,7 +17,7 @@ Classification used in this document:
 
 ## 1. Executive Summary
 
-`FACT`: The project is spot-only, capital-constrained, research-driven, and not allowed to claim profitability without evidence. Bitvavo Spot is the intended venue for planning purposes, while the market universe, timeframe, Bitvavo data-adequacy policy, and numeric risk limits are not yet approved.
+`FACT`: The project is spot-only, capital-constrained, research-driven, and not allowed to claim profitability without evidence. Bitvavo Spot is the intended execution venue, while the first historical research dataset is provisionally accepted as a bounded Tardis.dev Binance Jersey BTCEUR archive of quotes and trades in daily `.csv.gz` files limited to the first calendar day of each month only. This provisional acceptance allows research to continue under current data-access and budget constraints, but it does not prove statistical representativeness, final dataset adequacy, or strategy profitability. The market universe, timeframe, sample adequacy, and numeric risk limits remain unapproved.
 
 `RESEARCH CONCLUSION`: A standalone named candlestick pattern strategy is not defensible as an approved trading rule at this stage. Pattern recognition is subjective unless codified, and predictive value is not established by the current project evidence.
 
@@ -59,7 +59,7 @@ Classification used in this document:
 
 `FACT`: The following are not yet approved in the repository:
 
-- authoritative Bitvavo public-data adequacy and usage policy for the first experiment,
+- definitive historical-data adequacy and statistical validity of the bounded Tardis.dev Binance Jersey BTCEUR sample,
 - eligible spot pairs,
 - candle timeframe,
 - numeric risk limits,
@@ -85,17 +85,20 @@ Classification used in this document:
 - Quote currency and volume field definition must be explicit.
 - Whether historical data are raw exchange candles or vendor-resampled candles must be explicit.
 
-`UNRESOLVED DECISION`: Whether Bitvavo's own public market data is sufficient as the authoritative initial source for the first research experiment.
+`UNRESOLVED DECISION`: Whether the bounded Tardis.dev Binance Jersey BTCEUR historical sample is sufficient for the first research experiment and what statistical limitations it imposes.
 
 Why it matters:
 
-- Bitvavo data capabilities determine what can be tested directly from official venue data.
-- Historical spread and liquidity evidence may be limited even if OHLCV and trade history are available.
+- The selected historical source determines the available quote and trade coverage, the time range, and the cross-market comparability of the research sample.
+- Sampling only the first calendar day of each month introduces statistical and regime-coverage limitations that must be assessed before the experiment is treated as valid.
+- Bitvavo remains the intended execution venue, but the historical research archive is intentionally separate from the live venue.
 
 Recommended choice:
 
-- Prefer Bitvavo's own public market data if it can support the approved first experiment with explicit limitations.
-- If Bitvavo data is insufficient for a required evidence standard, document the gap explicitly before considering any supplementary source.
+- Use Tardis.dev historical Binance Jersey BTCEUR quotes and trades as the bounded data source for the first research study.
+- Limit collection to the first calendar day of each month only, with daily `.csv.gz` files and explicit documentation of the resulting sampling constraints.
+- Treat the samples as a bounded research dataset, not as a final or comprehensive market representation.
+- Continue to treat the first experiment as unapproved until adequacy, statistical limits, and execution assumptions are explicitly reviewed.
 
 `UNRESOLVED DECISION`: Primary timeframe.
 
@@ -103,17 +106,34 @@ Why it matters:
 
 - Signal frequency, noise, spread burden, and holding time depend on timeframe.
 
-Recommended choice:
+`PROPOSED RECOMMENDATION (NOT APPROVED)`: use `5m` as the provisional primary timeframe for the first historical SPOT research experiment.
 
-- Start with exactly one execution timeframe for the first study.
-- Recommended starting candidate: `5m`.
+Reasoning:
 
-Reason:
+- The official Bitvavo documentation confirms that `5m` is a supported interval, but it does not provide comparative performance evidence that `5m` is superior to `1m` or other available intervals.
+- The project requires a single-timeframe starting point for a bounded research experiment, and `5m` is a reasonable compromise between noise and signal frequency for a short-horizon spot strategy.
+- At this stage, this is a provisional candidate rather than a comparative conclusion. The project still needs measurement of signal count, cost drag, and net expectancy to justify the timeframe beyond plausibility.
 
-- `1m` is more microstructure-sensitive and more vulnerable to fees and slippage.
-- `5m` remains compatible with scalping while reducing single-bar noise.
+This remains a decision proposal until the human explicitly approves it.
 
-This remains a recommendation, not an approved choice.
+`PROPOSED CANDLE POLICY FOR THE FIRST EXPERIMENT`:
+
+- `FACT`: Bitvavo candle timestamps are Unix milliseconds and the `timestamp` value represents the start time of the candle interval.
+- `FACT`: Bitvavo docs state that data are returned newest-to-oldest and that a no-trade interval can appear as a gap in data flow rather than a fabricated zero-volume candle.
+- `FACT`: The inspected documentation does not establish a published semantic distinction between a confirmed no-trade gap and a data-loss or fetch-gap at the source level.
+- `PROPOSED RULE`: normalize every candle timestamp to UTC before any replay, storage, or feature generation; treat the timestamp as the interval start in UTC, and treat `timestamp + interval` as the nominal candle close time for replay ordering only.
+- `PROPOSED RULE`: for the first experiment, use fixed 5-minute boundaries aligned to the UTC clock. A candle with a start timestamp of `HH:MM:00` is assigned to that 5-minute bucket; the signal decision occurs only after the bar is finalized and the record is available to the replay process.
+- `PROPOSED RULE`: only completed candles are eligible for entry evaluation. The most recent candle is treated as incomplete until the source confirms the interval is closed; no entry signal may depend on the current still-forming bar.
+- `PROPOSED RULE`: the earliest permissible signal-decision time is after the close of candle `C` as represented in the finalized historical record; this does not imply any numerical latency buffer or assume that a nominal end time equals the moment the live process received the bar.
+- `PROPOSED RULE`: reject any setup that relies on look-ahead, a still-forming candle, or a non-contiguous historical context window. Missing bars are not backfilled by assumption.
+- `PROPOSED RULE`: duplicate timestamps are a data-integrity issue. If identical duplicates are confirmed as exact repeated rows from the same source, they may be collapsed only under a documented canonical rule; if the source semantics do not prove that they are harmless duplicates, the affected record set must be rejected rather than silently merged. Conflicting duplicates are never silently selected; they are treated as invalid and quarantined until the source or the ingest process resolves them.
+- `PROPOSED RULE`: a no-trade gap is permitted only when the source semantics clearly indicate that the market was active and the interval simply had no trades. If the data cannot distinguish a no-trade gap from data loss, the gap is treated as missing/ambiguous data and the affected warm-up or signal window is rejected.
+- `EVIDENCE NOTE`: the exact public Bitvavo trade request for `2024-01-01 05:35:00Z` to `2024-01-01 05:40:00Z` returned 0 trades. The adjacent 05:30:00Z to 05:35:00Z window returned 4 trades, and the following 05:40:00Z to 05:45:00Z window returned 18 trades. This is consistent with Bitvavo’s documented zero-trade-gap behavior, where no trades in an interval can appear as a gap in data flow. The conservative policy remains to treat the missing candle as unresolved historical completeness risk unless the source semantics and the chosen replay policy explicitly accept the gap, and to reject any signal that depends on silently inferring or filling the interval.
+- `PROPOSED RULE`: historical warm-up for the first experiment requires `L + 2` completed candles immediately preceding the setup candle; if the required context is missing or ambiguous, the signal is rejected rather than interpolated.
+- `PROPOSED RULE`: invalid OHLCV records are rejected if any of the following holds: non-finite values, `high < max(open, close)`, `low > min(open, close)`, `high < low`, or zero-range candle with an undefined structure. These diagnostics are deterministic and must be enforced before any strategy rule can evaluate.
+- `PROPOSED RULE`: deterministic replay must sort by `(timestamp, symbol)` in ascending order, quarantine conflicting duplicates, and commit one consistent history per symbol before evaluating any entry. The policy does not invent exchange guarantees about duplicate semantics that were not documented.
+
+This policy is a recommendation for the first experiment and remains subject to explicit human approval.
 
 `UNRESOLVED DECISION`: Eligible pairs.
 
