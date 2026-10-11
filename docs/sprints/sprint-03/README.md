@@ -9,7 +9,8 @@
 - Implementation state: Not started
 - Strategy approval state: Not approved
 - Live-trading state: Not allowed
-- Backlog snapshot: `OPEN=5` from the current task register in [ACTION_ITEMS.md](ACTION_ITEMS.md)
+- Research specification state: FROZEN for bounded exploratory signal research only; not a validation of implementation, profitability, or execution realism
+- Backlog snapshot: `OPEN=2`, `DONE=3` from the current task register in [ACTION_ITEMS.md](ACTION_ITEMS.md)
 
 ## Objective
 
