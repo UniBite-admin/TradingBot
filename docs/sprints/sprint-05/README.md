@@ -3,9 +3,9 @@
 ## Sprint Status
 
 - Identifier: Sprint 05
-- Status: OPEN
+- Status: OPEN - approved for bounded historical research implementation only
 - Scope: stage-gated historical research implementation only
-- Implementation state: conditional on the approved 5-minute candle contract and data-integrity policy
+- Implementation state: S05-001 contract and policy are implemented and validated; S05-002 trade-based OHLCV builder is implemented and passing tests; S05-003 empty-gap rejection is enforced; S05-004 deterministic replay kernel is implemented and passing tests; S05-005 candle validation tests are passing; S05-006 gate is documented and enforced within the approved research scope
 - Live-trading state: Not allowed
 
 ## Objective

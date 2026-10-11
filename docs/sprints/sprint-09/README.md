@@ -3,10 +3,10 @@
 ## Sprint Status
 
 - Identifier: Sprint 09
-- Status: OPEN
+- Status: BLOCKED - awaiting explicit human approval for live test and scale decisions
 - Scope: final validation stage defined by the roadmap and technical plan
-- Implementation state: only after all earlier evidence gates pass
-- Live-trading state: conditional on explicit human authorization and conditions
+- Implementation state: final evaluation gate is implemented and validated; live testing and scaling remain blocked
+- Live-trading state: not authorized until the approval gate is satisfied
 
 ## Objective
 

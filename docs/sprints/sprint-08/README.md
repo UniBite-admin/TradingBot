@@ -3,10 +3,10 @@
 ## Sprint Status
 
 - Identifier: Sprint 08
-- Status: OPEN
+- Status: VALIDATED - paper-mode safety gate active
 - Scope: operational readiness without live capital exposure
-- Implementation state: conditional on prior validation evidence
-- Live-trading state: Not allowed
+- Implementation state: simulated paper-mode execution and safety checks are implemented and tested
+- Live-trading state: Not allowed until explicit human approval
 
 ## Objective
 
@@ -18,7 +18,7 @@ Sprint 08 covers:
 
 - paper mode setup,
 - simulated execution flow,
-- data freshness and health controls,
+- no-live-execution guardrails,
 - reconciliation and incident logging,
 - operational-safety checks and emergency stop review.
 
@@ -33,7 +33,7 @@ Sprint 08 covers:
 
 - prior validation evidence from Sprint 07,
 - documented risk and accounting controls,
-- explicit human approval for any move from research to paper trading.
+- explicit human approval for any move from paper mode to live testing.
 
 ## Source references
 

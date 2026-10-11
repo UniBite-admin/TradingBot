@@ -3,9 +3,9 @@
 ## Sprint Status
 
 - Identifier: Sprint 07
-- Status: OPEN
+- Status: IMPLEMENTED - historical validation gate active
 - Scope: validation and risk controls before paper trading
-- Implementation state: conditional on historical replay and deterministic data
+- Implementation state: S07-001 cost model implemented; S07-002 risk boundary implemented; S07-003 ledger model implemented; S07-004 validation stress checks in place; final realism approval remains blocked until human review
 - Live-trading state: Not allowed
 
 ## Objective

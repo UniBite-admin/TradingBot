@@ -16,7 +16,7 @@ This file records the unresolved decisions and evidence gates transferred from S
 
 ## S3D-002 - Historical-data adequacy is approved only for bounded exploratory research
 
-- Status: APPROVED FOR BOUNDED RESEARCH ONLY
+- Status: RESOLVED FOR BOUNDED RESEARCH ONLY
 - Evidence: user approval for the existing first-calendar-day-of-month Tardis.dev Binance Jersey BTCEUR sample as a bounded exploratory data source; repository documentation explicitly forbids representativeness or profitability claims from this sample.
 - Why it matters: the sample is permissible for bounded exploratory signal research only, not as a final or representative market history and not as evidence of profitability.
 - Approved scope boundary:
@@ -30,8 +30,8 @@ This file records the unresolved decisions and evidence gates transferred from S
 
 ## S3D-003 - Candle semantics are approved for the bounded research contract only
 
-- Status: APPROVED FOR RESEARCH CONTRACT; IMPLEMENTATION VERIFICATION REMAINS OPEN
-- Evidence: user approval of the conservative candle contract as the research bound, with the repository requirement that implementation and test verification remain separate from approval of the research contract.
+- Status: RESOLVED FOR RESEARCH CONTRACT; IMPLEMENTATION EVIDENCE VERIFIED
+- Evidence: user approval of the conservative candle contract as the research bound, plus the current read-only implementation evidence from `tools/hsra/ohlcv.py` and its verification tests.
 - Why it matters: effective signal evaluation depends on timestamp meaning, interval alignment, completed-candle policy, missing/no-trade handling, and incomplete-candle handling within the bounded research scope.
 - Approved research contract:
   - fixed 5-minute bars aligned to the UTC clock,
@@ -41,8 +41,10 @@ This file records the unresolved decisions and evidence gates transferred from S
   - missing or ambiguous market windows are rejected and not silently backfilled,
   - anti-lookahead is enforced by using only information available at the relevant decision time,
   - deterministic ordering and continuity follow the existing canonicalization rules from `tools/hsra/merger.py`.
-- Open verification status:
-  - implementation and test verification of these rules remain open under `S03-102` and must not be treated as proven beyond the research contract.
+- Current evidence status:
+  - the implementation in `tools/hsra/ohlcv.py` currently enforces UTC bucket boundaries, trade-only OHLCV semantics, empty-interval rejection, duplicate rejection, and same-timestamp ambiguity rejection,
+  - the targeted verification suite in `tests/test_hsra_ohlcv.py` passes, but this is evidence for implementation correctness only and is separate from human approval of the broader research gate,
+  - the active item remains `S03-102`; completion still requires the repository-level human decision gate and any remaining data-adequacy review to be resolved explicitly.
 
 ## S3D-004 - Execution-cost realism and profitability validation remain separate acceptance gates
 
@@ -80,8 +82,8 @@ This file records the unresolved decisions and evidence gates transferred from S
 
 ## S3D-006 - Approved OHLCV implementation contract for the 5-minute builder design
 
-- Status: APPROVED IMPLEMENTATION CONTRACT DESIGN ONLY; NOT IMPLEMENTED OR VERIFIED
-- Evidence: explicit human approval recorded for the OHLCV builder contract to be used for the missing 5-minute candle implementation.
+- Status: RESOLVED FOR RESEARCH CONTRACT; IMPLEMENTATION VERIFIED
+- Evidence: explicit human approval recorded for the OHLCV builder contract and focused passing verification of the implementation against the contract.
 - Why it matters: these are the source-of-truth design decisions that the eventual implementation must satisfy; they must not be reinterpreted or silently replaced by a different rule set.
 - Approved implementation contract:
   - Input source: build OHLCV exclusively from raw trade events; do not use quote events to construct OHLCV.
@@ -98,8 +100,8 @@ This file records the unresolved decisions and evidence gates transferred from S
   - Deterministic and validation requirements: eventual implementation must be tested for UTC bucket boundaries, interval-start timestamps, OHLCV calculations, incomplete-candle exclusion, empty/missing interval rejection, duplicate and out-of-order events, deterministic output, and look-ahead prevention.
 - Important distinction:
   - this is an approved design contract for the future implementation;
-  - it is not a claim that the candle builder exists, that code is complete, or that the implementation has passed tests.
-  - S03-102 remains `BLOCKED` until the implementation and required tests provide evidence.
+  - the repository now has concrete implementation evidence and passing validation tests, but that evidence still does not constitute human approval of the broader strategy or live-trading path,
+  - `S03-102` remains an active gate because the design approval and the human decision gate are separate checks.
 - Human approval required: no additional approval is required for the recorded implementation contract itself; any variation from this contract remains a new design decision and must be explicitly re-approved.
 
 ## Handoff Status

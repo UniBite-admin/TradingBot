@@ -3,14 +3,30 @@
 ## Sprint Status
 
 - Identifier: Sprint 03
-- Status: OPEN
-- Closure mode: continuation of unresolved evidence-gate work transferred from Sprint 02
-- Scope state: Documentation and decision-governance continuation only
-- Implementation state: Not started
+- Status: CLOSED
+- Closure mode: evidence-backed completion of the transferred Sprint 02 issues under the bounded research-only scope
+- Scope state: Resolved and recorded within the approved bounded-research boundary
+- Implementation state: The 5-minute OHLCV contract is implemented and verified for the current research scope; broader strategy, paper, and live-trading approval remain explicitly out of scope
 - Strategy approval state: Not approved
 - Live-trading state: Not allowed
 - Research specification state: FROZEN for bounded exploratory signal research only; not a validation of implementation, profitability, or execution realism
-- Backlog snapshot: `OPEN=2`, `DONE=3` from the current task register in [ACTION_ITEMS.md](ACTION_ITEMS.md)
+- Backlog snapshot: `OPEN=0`, `IN_PROGRESS=0`, `DONE=5` from the current task register in [ACTION_ITEMS.md](ACTION_ITEMS.md)
+
+## Closure Decision
+
+Sprint 03 is closed as a bounded evidence-and-governance sprint. The transferred issues were resolved with explicit documentation and implementation evidence only within the research scope:
+
+- the sample adequacy is recorded as provisional and bounded,
+- the OHLCV contract is recorded and verified for the current research-bound implementation,
+- the first bounded experiment remains explicit about its assumptions and evidence limits,
+- no broader approval is inferred from the evidence.
+
+## Relevant Sprint Records
+
+- [ACTION_ITEMS.md](ACTION_ITEMS.md)
+- [DECISIONS.md](DECISIONS.md)
+- [ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md)
+- [S03-102-OHLCV-VERIFICATION.md](S03-102-OHLCV-VERIFICATION.md)
 
 ## Objective
 

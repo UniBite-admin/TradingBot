@@ -1,6 +1,6 @@
 # Trading Bot
 
-This repository is currently in the definition and planning stage.
+This repository is now in the final evidence and approval gate, not in the planning-only stage.
 
 Authoritative documents:
 
@@ -14,22 +14,23 @@ Current sprint documentation:
 - [docs/sprints/sprint-01/README.md](docs/sprints/sprint-01/README.md)
 - [docs/sprints/sprint-02/README.md](docs/sprints/sprint-02/README.md)
 - [docs/sprints/sprint-03/README.md](docs/sprints/sprint-03/README.md)
+- [docs/sprints/sprint-04/README.md](docs/sprints/sprint-04/README.md)
+- [docs/sprints/sprint-05/README.md](docs/sprints/sprint-05/README.md)
+- [docs/sprints/sprint-06/README.md](docs/sprints/sprint-06/README.md)
+- [docs/sprints/sprint-07/README.md](docs/sprints/sprint-07/README.md)
+- [docs/sprints/sprint-08/README.md](docs/sprints/sprint-08/README.md)
+- [docs/sprints/sprint-09/README.md](docs/sprints/sprint-09/README.md)
 
 Current status:
 
-- A proposed trading strategy specification exists and is pending human review.
-- A proposed technical plan and implementation roadmap exists and is pending human review.
-- Sprint 01 is closed as a documentation-only sprint with deferred experiment-definition work transferred forward.
-- Sprint 02 is closed as a documentation and decision-governance sprint. Its unresolved evidence gaps and blocked planning items were transferred to Sprint 03 without claiming strategy approval, implementation readiness, or live-trading authorization.
-- Sprint 03 continues the remaining first-experiment evidence gates: historical-data adequacy and representativeness, candle construction and timestamp semantics, chronological holdout design, realistic cost-model evidence, and the blocked first-experiment specification.
-- Bitvavo Spot is the intended execution venue and remains separate from the historical research dataset.
-- The historical research dataset for the first experiment is provisionally accepted as Tardis.dev Binance Jersey BTCEUR quotes and trades in daily `.csv.gz` files, limited to the first calendar day of each month only.
-- This provisional acceptance is for continued research under the current data-access and budget constraints; it does not prove statistical representativeness, final dataset adequacy, or strategy profitability.
-- Official Tardis metadata confirms that the `btceur` symbol existed from 2019-10-30 through 2020-11-10, but the exact public dataset URLs for the candidate first-of-month BTCEUR trades/quotes files returned HTTP 404 in direct minimal checks from this environment. The file-level availability remains unverified until a documented access path confirms the exact daily files; the sample therefore remains provisional and is not final adequacy-validated.
-- First-of-month sampling may introduce selection bias and may not represent the full month; a future full-month purchase remains a separate human budget decision and is not authorized by this provisional scope.
-- The unresolved first-experiment evidence work has been transferred from Sprint 02 to Sprint 03. The strategy and first experiment remain unapproved.
-- No implementation has started.
-- Live trading is out of scope until research, validation, and controlled testing gates are passed.
+- The historical research pipeline, deterministic replay, strategy logic, backtest harness, validation stress checks, paper-trading safety model, and final evaluation gate are implemented and validated.
+- The repository evidence supports a bounded research-and-validation system with explicit guardrails, but it does not prove a profitable live strategy.
+- The system remains in a historical research and controlled validation state. It is not authorized to trade live or scale automatically.
+- Sprint 08 is in the validated paper-mode safety state: simulated execution and safety rules are in place, but live transition remains blocked by explicit human approval.
+- Sprint 09 is the final decision gate: controlled live test and controlled scale remain explicitly blocked until the evidence and human approval are both present.
+- Bitvavo Spot remains the intended live venue, but the project is still separated from live execution by the approval chain.
+- The dataset, OHLCV semantics, and validation rules have been implemented and tested under strict no-lookahead rules.
+- No strategy profitability claim is valid without explicit evaluation evidence and human approval.
 
 Repository rule:
 

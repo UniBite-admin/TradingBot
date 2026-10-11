@@ -5,7 +5,7 @@
 - Identifier: Sprint 04
 - Status: OPEN
 - Scope state: Documentation and research-environment setup only
-- Implementation state: Not started
+- Implementation state: S04-001 provenance record complete, S04-002 raw-data ingestion contract implemented and verified, S04-003 canonical validation policy implemented and tested, S04-004 bounded-sample adequacy decision documented, S04-005 data-quality regression suite implemented and tested, and S04-006 stage gate recorded; the only remaining Sprint 04 item is the human approval gate for progression beyond bounded research
 - Strategy approval state: Not approved
 - Live-trading state: Not allowed
 - Dependency gate: this sprint remains blocked if `S03-101` and `S03-102` remain unresolved or if the bounded-sample boundary is exceeded.

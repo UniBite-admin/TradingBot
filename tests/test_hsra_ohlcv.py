@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from tools.hsra.ohlcv import build_ohlcv_window
+from tools.hsra.ohlcv_cli import main
 from tools.hsra.merger import HSRAError
 
 
@@ -255,6 +256,31 @@ def test_rejects_repeated_source_id_different_price(tmp_path):
 
     info = json.loads(str(ei.value))
     assert info["reason"] == "conflicting_duplicate_source_id"
+
+
+def test_ohlcv_cli_writes_candles_and_metadata(tmp_path):
+    trades = tmp_path / "trades.csv"
+    _write_csv(trades, [
+        "timestamp,market,price,amount,trade_id",
+        "2020-01-01T00:00:00Z,BTC-EUR,100.0,1.0,t1",
+        "2020-01-01T00:02:00Z,BTC-EUR,102.0,0.5,t2",
+        "2020-01-01T00:05:00Z,BTC-EUR,103.0,2.0,t3",
+    ])
+
+    outdir = tmp_path / "out"
+    rc = main([
+        "--trades", str(trades),
+        "--start", "2020-01-01T00:00:00Z",
+        "--end", "2020-01-01T00:10:00Z",
+        "--outdir", str(outdir),
+    ])
+
+    assert rc == 0
+    candles = [json.loads(line) for line in (outdir / "ohlcv.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert len(candles) == 2
+    assert candles[0]["interval_start"] == "2020-01-01T00:00:00+00:00"
+    assert candles[0]["close"] == 102.0
+    assert (outdir / "metadata.json").exists()
 
 
 def test_fallback_id_collision_not_treated_as_duplicate_proof(tmp_path):

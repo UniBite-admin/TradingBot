@@ -3,9 +3,9 @@
 ## Sprint Status
 
 - Identifier: Sprint 06
-- Status: OPEN
+- Status: OPEN - bounded historical research only
 - Scope: historical research and deterministic backtesting only
-- Implementation state: conditional on `S05-001` to `S05-006` passing evidence gates
+- Implementation state: S06-001 feature and signal contract implemented and validated; S06-002 local-structure signal generation implemented and passing tests; S06-003 deterministic strategy engine implemented and tested; S06-004 replay-backed historical backtest harness implemented and tested; remaining Stage 6 items stay behind the bounded-research gate
 - Live-trading state: Not allowed
 
 ## Objective
