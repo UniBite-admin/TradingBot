@@ -81,14 +81,15 @@ def _extract_valid_run_windows(trade_path: Path) -> list[dict]:
     return valid_runs
 
 
-def _extract_valid_run_windows_for_source(candles_path: Path, *, source_kind: str) -> list[dict]:
+def _extract_valid_run_windows_for_source(candles_path: Path, *, source_kind: str, candles: list[OHLCVCandle] | None = None) -> list[dict]:
     if source_kind != "kraken":
         return _extract_valid_run_windows(candles_path)
 
-    try:
-        candles = load_kraken_ohlcv(candles_path)
-    except HSRAError:
-        return []
+    if candles is None:
+        try:
+            candles = load_kraken_ohlcv(candles_path)
+        except HSRAError:
+            return []
 
     windows: list[dict] = []
     for run in extract_contiguous_kraken_windows(candles):
@@ -216,6 +217,8 @@ def _signal_observations_for_window(
     ordered = sorted(candles, key=lambda candle: candle.interval_start)
     if len(ordered) < lookback + 2:
         return []
+    if not _is_intervals_contiguous(ordered):
+        return []
 
     observations: list[dict] = []
     for setup_index in range(lookback, len(ordered) - 1):
@@ -223,8 +226,6 @@ def _signal_observations_for_window(
         confirmation = ordered[setup_index + 1]
         context = ordered[setup_index - lookback:setup_index]
         if len(context) < lookback:
-            continue
-        if not _is_intervals_contiguous(ordered):
             continue
 
         prior_low = min(candle.low for candle in context)
@@ -319,34 +320,34 @@ def run_second_strategy_experiment(*, manifest_path: str | Path | None = None, o
             rejected_windows.append({"trade_file": str(trade_path), "reason": "missing_trade_file"})
             continue
 
-        windows = _extract_valid_run_windows_for_source(trade_path, source_kind=source_kind)
+        if source_kind == "kraken":
+            try:
+                candles = load_kraken_ohlcv(trade_path)
+            except HSRAError:
+                rejected_windows.append({"trade_file": str(trade_path), "reason": "no_valid_contiguous_run_under_research_contract"})
+                continue
+            windows = _extract_valid_run_windows_for_source(trade_path, source_kind=source_kind, candles=candles)
+        else:
+            windows = _extract_valid_run_windows_for_source(trade_path, source_kind=source_kind)
+
         if not windows:
             rejected_windows.append({"trade_file": str(trade_path), "reason": "no_valid_contiguous_run_under_research_contract"})
             continue
 
         valid_runs.extend({"trade_file": str(trade_path), **window} for window in windows)
-        for window in windows:
-            if source_kind == "kraken":
-                try:
-                    candles = load_kraken_ohlcv(trade_path)
-                except HSRAError:
-                    rejected_windows.append({
-                        "trade_file": str(trade_path),
-                        "run_start": window["run_start"],
-                        "run_end": window["run_end"],
-                        "reason": "window_validation_failed",
-                    })
-                    continue
-                relevant = []
-                for run in extract_contiguous_kraken_windows(candles):
-                    if run[0].interval_start.isoformat() == window["run_start"] and run[-1].interval_end.isoformat() == window["run_end"]:
-                        relevant = run
-                        break
-                if not relevant:
+        if source_kind == "kraken":
+            window_lookup = {
+                (run[0].interval_start.isoformat(), run[-1].interval_end.isoformat()): run
+                for run in extract_contiguous_kraken_windows(candles)
+            }
+            for window in windows:
+                relevant = window_lookup.get((window["run_start"], window["run_end"]))
+                if relevant is None:
                     continue
                 observations.extend(_signal_observations_for_window(relevant, lookback=lookback, hold_period=hold_period))
-                continue
+            continue
 
+        for window in windows:
             try:
                 candles = build_ohlcv_window(
                     trade_path,
