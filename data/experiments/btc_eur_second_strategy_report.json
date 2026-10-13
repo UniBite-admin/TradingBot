@@ -1,0 +1,14 @@
+{
+  "entry_reference": "next_candle_open",
+  "execution_status": "BLOCKED",
+  "experiment_name": "btc_eur_local_rejection_confirmation_experiment",
+  "forward_horizon_candles": 3,
+  "lookback": 12,
+  "manifest_status": "PROVISIONAL_BOUND_RESEARCH_ONLY",
+  "reason": "The approved bounded sample produced no eligible forward-return observations under the fail-closed strategy contract.",
+  "rejected_windows": [],
+  "sample_rule": "first calendar day of each month only",
+  "signal_validity": "immediately_following_confirmation_candle",
+  "status_detail": "no_valid_observations",
+  "valid_window_count": 114
+}

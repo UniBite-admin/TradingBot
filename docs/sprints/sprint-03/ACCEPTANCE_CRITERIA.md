@@ -9,11 +9,13 @@ Sprint 03 may be declared complete only if all of the following are true:
 1. Every unresolved Sprint 02 item has a traceable Sprint 03 destination and a clear reason for transfer.
 2. Historical-data adequacy and sample limitations are documented without pretending the bounded sample is final or representative.
 3. Candle construction, timestamps, completed-candle rules, missing/no-trade handling, and incomplete-candle rules are explicitly documented and, if accepted, verified in code and tests.
-4. The first bounded experiment specification remains explicit about assumptions, validation split, and evidence thresholds rather than silently acting as an approval document.
+4. The first bounded experiment specification remains explicit about assumptions, validation split, and descriptive-only interpretation rather than silently acting as an approval document or an inferential-evidence claim.
+4a. The exact file/sample-selection rule, the UTC-boundary blocker where it is not authenticated, the canonical output contract, and the precedence-ordered classification rules are either explicitly specified or recorded as unresolved blockers; they are not silently assumed.
 5. Execution-cost realism and profitability validation remain separate gates and are not conflated with exploratory signal research.
 6. No implementation, paper-trading, or live-trading approval is inferred from documentation work alone.
-7. No application code, tests, market-data files, dependencies, or configuration files are added or modified.
-8. Final Git status, `git diff --check`, and full diff inspection have been performed.
+7. Inference, statistical significance, confidence intervals, and profitability claims remain blocked unless a separate, justified sampling and dependence methodology is explicitly approved before the confirmatory evaluation.
+8. No application code, tests, market-data files, dependencies, or configuration files are added or modified.
+9. Final Git status, `git diff --check`, and full diff inspection have been performed.
 
 ## Explicit Non-Criteria
 

@@ -72,25 +72,28 @@ Classification used in this document:
 - Validation path: historical research -> backtesting -> realistic validation -> paper trading -> controlled small live test -> evaluation -> scaling decision.
 - Multi-asset intent: the system should be able to monitor multiple markets and compare opportunities under documented rules.
 
+`APPROVED (HUMAN-AUTHORIZED DELEGATED DECISION, 2026-10-11)`:
+
+- `S3D-007`: the first experiment is a bounded, reproducible exploratory signal-research experiment using the accepted research boundary only; it is not a profitability validation or a paper/live-trading authorization.
+- `S3D-008`: BTC-EUR only for the first bounded experiment; multi-asset monitoring remains a future system objective.
+- `S3D-009`: Python 3.12 for the initial research environment; compatibility and verification remain required before claiming the environment is ready for broader implementation.
+- `S3D-010`: file-based, reproducible artifacts for the bounded experiment; canonical source data remain immutable; no new database is required solely for this experiment.
+- `S3D-011`: Python standard logging plus structured, machine-readable experiment records using JSON Lines and per-run manifests in the repo's existing suitable formats.
+- `S3D-012`: exploratory results remain exploratory; execution-cost realism and positive-expectancy validation remain separate unresolved evidence gates.
+- `S3D-013`: these decisions resolve the Stage 2 planning gap only within the bounded research scope and do not authorize wider implementation, paper trading, live trading, or scaling.
+
 ### What Is Not Approved
 
 `FACT`: The current strategy document explicitly states that it is proposed for human review and not approved.
 
 `UNRESOLVED DECISION`:
 
-- Market universe.
-- Candle timeframe.
-- Historical-data adequacy and statistical validity of the bounded Tardis.dev Binance Jersey BTCEUR sample for the first experiment.
-- Candle timestamp semantics.
-- Missing-candle policy.
-- Technology stack.
-- Storage approach.
-- Logging and experiment tracking approach.
-- Numerical risk limits.
-- Position sizing policy.
-- Maximum simultaneous positions.
-- Paper-trading design details.
-- Live deployment and authorization details.
+- Final historical-data adequacy and statistical validity beyond the bounded exploratory research sample.
+- Realistic Bitvavo execution-cost modeling and positive-expectancy validation.
+- Candle semantics beyond the already frozen bounded research contract.
+- Numerical risk limits and position sizing for anything beyond the research-only scope.
+- Paper-trading design details and live deployment approval.
+- Future market expansion beyond the BTC-EUR first bounded experiment.
 
 `FACT`: The public Tardis exchange metadata confirms `btceur` availability from 2019-10-30 to 2020-11-10, and the documentation states that the CSV files are partitioned by `local_timestamp` while `timestamp` reflects the exchange event time. Direct minimal URL probes against the public dataset endpoints for the exact candidate first-of-month BTCEUR trades and quotes URLs returned HTTP 404 in this environment. The file-level sample is therefore documented as provisional rather than fully file-validated.
 
@@ -864,6 +867,17 @@ Authoritative-state guidance:
 - fill records own executed quantity and fee evidence,
 - positions own local exposure state,
 - the ledger owns realized economic interpretation.
+
+`APPROVED ACCOUNTING POLICY (CURRENT RESEARCH SCOPE)`:
+
+- SPOT-ONLY: no short positions are modeled in the current ledger contract.
+- Weighted-average cost basis is the accounting basis used for position valuation and partial closes.
+- Buy fees are included in acquisition cost basis.
+- Sell fees are deducted from realized proceeds, not added as a separate profit component.
+- A partial sell realizes P&L only on the quantity sold, using the same proportional weighted-average cost basis.
+- A sell that exceeds the held quantity is rejected; a negative inventory state is not allowed.
+- Rejected or invalid fills do not partially mutate ledger state.
+- Position quantity, cost basis, fees, and realized P&L must remain internally consistent and auditable.
 
 `PROPOSED`: SQLite is the simplest persistence approach that satisfies current requirements.
 

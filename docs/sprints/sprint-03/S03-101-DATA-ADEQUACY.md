@@ -46,14 +46,14 @@ The current sample does not establish any of the following:
 
 The bounded Tardis.dev Binance Jersey BTCEUR first-of-month sample is provisionally acceptable only for exploratory research under the current project constraints. It remains a limited dataset with a non-random sample boundary and cannot be elevated to a final adequacy claim without separate evidence.
 
-This decision is therefore recorded as a bounded, provisional adequacy status only. It is not a claim that the sample is representative, complete, or profitable.
+This decision is therefore recorded as a bounded, provisional adequacy status only. It is not a claim that the sample is representative, complete, or profitable, and it does not authorize a Bitvavo execution-realism or profitability claim. Final historical-data adequacy and representativeness remain unresolved; Bitvavo execution realism and profitability remain separate, unapproved gates.
 
 ## Impact on Sprint 03
 
 This keeps the project aligned with the explicit gate:
 
-- `S03-101` remains a live evidence item,
+- `S03-101` is complete only for the bounded exploratory research decision,
 - the dataset can be used for bounded testing and signal research only,
-- any broader adequacy claim remains blocked until additional evidence is produced and explicitly approved.
+- any broader adequacy, representativeness, Bitvavo realism, or profitability claim remains blocked until additional evidence is produced and explicitly approved.
 
-The current evidence supports continuation of the project within the bounded research scope only. It does not authorize broader strategy validation or execution approval.
+The current evidence supports continuation of the project within the bounded research scope only. It does not authorize broader strategy validation, paper trading, or live trading.

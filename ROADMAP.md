@@ -14,6 +14,8 @@ This file is the authoritative roadmap for the repository.
 - Exchange status: Bitvavo Spot intended execution venue selected; historical research source provisionally set to Tardis.dev Binance Jersey BTCEUR quotes and trades with daily `.csv.gz` files limited to the first calendar day of each month only; the first experiment remains unapproved.
 - Historical-sample status: the first-of-month sample is provisionally accepted for continued research under current data-access and budget constraints, but it is not yet a final adequacy validation and may not represent the full month.
 - Live trading status: Not allowed.
+- Decision authority: delegated by the project owner to ChatGPT on 2026-10-11. Classification: human-authorized delegated decision. The project owner delegated the decision; the specific choice was made under that delegation.
+- Delegated-scope limitation: this delegation does not authorize live trading activation, real-money trading, exchange orders, deployment, or advancement to later project phases beyond the bounded research scope recorded in `S3D-007` through `S3D-013`.
 
 ## Approved Workflow
 
@@ -74,8 +76,18 @@ Current repository evidence:
 
 Blocked by:
 
-- Human approval of the unresolved technical choices listed above.
-- Continued evidence-gate work under Sprint 03 before the first bounded experiment can be honestly frozen.
+- unresolved evidence gates beyond the bounded research scope,
+- the remaining validation, realism, and profitability requirements for later project stages,
+- continued stage-gate discipline before broader implementation or paper/live activation.
+
+Previously unowned Stage 2 decisions are now resolved for the bounded research scope under the delegated authority recorded in `S3D-007` through `S3D-013`:
+
+- `S3D-008` - BTC-EUR only for the first bounded experiment.
+- `S3D-009` - Python 3.12 for the initial research environment, with compatibility and verification still required.
+- `S3D-010` - file-based, reproducible artifacts for the bounded experiment; no new database required solely for this experiment.
+- `S3D-011` - Python standard logging plus structured, machine-readable experiment records using existing repository conventions.
+
+These delegated decisions resolve the earlier ownership gap only within the bounded, exploratory research scope. They do not authorize broader implementation, paper trading, live trading, or scaling.
 
 ### Stage 3 - Strategy specification
 

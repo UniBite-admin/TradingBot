@@ -156,6 +156,256 @@ Recommended choice:
 - Start with a small set of liquid spot pairs on the approved exchange, selected by transparent liquidity criteria.
 - Criteria should be documented before testing.
 
+## 3A. First Bounded Candlestick Research Experiment
+
+`STATUS`: Proposed, bounded exploratory candidate only; not a production strategy and not a profitability claim.
+
+`AUTHORITY`: Project-owner-authorized delegated research decision under the repository's delegated technical authority. This is a documented research decision made under the project owner's delegation and is not a claim that the owner personally selected each technical detail.
+
+### Hypothesis
+
+“When a completed 5-minute BTC-EUR candle closes above its open, the following 5-minute period has a greater-than-baseline tendency to produce a positive price return.”
+
+### Signal definition
+
+- `bullish_signal_k = 1` if and only if the completed BTC-EUR 5-minute candle `k` has `close_k > open_k`.
+- `bullish_signal_k = 0` if `close_k = open_k`.
+- No signal is generated for a candle with an equal open and close.
+- No signal is generated from a still-forming or incomplete candle.
+- The signal uses only completed, valid BTC-EUR 5-minute candles and must not rely on any future bar.
+
+### Observation target
+
+For each eligible signal candle `k`, define the following target return using the completed candle close as the representative price for the interval:
+
+- `r_k = (close_{k+1} - close_k) / close_k`
+
+where:
+
+- `close_k` is the close of the completed source candle `k` in BTC-EUR,
+- `close_{k+1}` is the close of the next completed 5-minute BTC-EUR candle,
+- the experiment uses the close-to-close period return as the target observation,
+- the idealized assumption is that each completed candle is summarized by its close price, and this close is the one price used in the return calculation; the experiment does not assume a fill or execution at the close, and it does not imply a realistic order transaction cost or slippage model.
+
+Define the positive-return label as:
+
+- `label_k = 1` if `r_k > 0`, else `0`.
+
+### Timing and anti-lookahead boundary
+
+- The signal is formed only after source candle `k` is complete and valid under the approved 5-minute UTC candle contract.
+- The return target is measured over the next completed 5-minute period, `k+1`.
+- The signal therefore uses only information available at the moment the source candle is known to be complete and the target period is not yet evaluated; no look-ahead, no future-data leakage, and no silent backfill are permitted.
+- A period is eligible only if both the source candle and the following 5-minute candle are valid, completed, and contained within the approved UTC evaluation window.
+- If the next period is missing, ambiguous, or invalid under the repository's existing data-quality policy, the observation is rejected rather than repaired by assumption.
+
+### Baseline
+
+The baseline is the unconditional positive-return rate of the same eligible target observations:
+
+- `baseline_rate = count(label_k = 1) / count(eligible observations)`
+
+for the same eligible set of completed BTC-EUR 5-minute target intervals used in the signal study.
+
+Compare the conditional signal-positive-return rate against this unconditional baseline on the same eligible observation set:
+
+- `signal_rate = count(label_k = 1 | bullish_signal_k = 1) / count(bullish_signal_k = 1)`
+- `difference_pp = signal_rate - baseline_rate` in percentage points.
+
+This keeps the comparison simple, transparent, and reproducible without introducing a parameter search, threshold search, or an optimized holdout selection rule.
+
+### Metrics
+
+For the eligible observations, report the following descriptive metrics:
+
+- eligible sample count,
+- positive-return frequency for the signal set,
+- baseline positive-return frequency for the same eligible target observations,
+- difference in percentage points between the signal rate and the baseline rate,
+- mean target return,
+- median target return,
+- distribution summary of target returns if useful for interpretation,
+- the number of ineligible, rejected, missing, duplicate, or ambiguous windows removed from evaluation.
+
+Where the data allow, report variation transparently both pooled across the eligible observations and separately for each sampled calendar-day segment. These segment summaries are descriptive only and do not become independent statistical evidence without a separately justified inferential method. Do not report inferential confidence intervals, p-values, statistical significance, or a statistical pass/fail verdict for this bounded sample. The sparse sampling design and the possibility of serial dependence do not yet justify such a method under the current repository evidence.
+
+No minimum sample count, significance threshold, effect-size threshold, or profitability threshold is approved in the current repository. The project must not claim the data support the hypothesis merely because the observed difference is positive, and it must not label the result as a proven or profitable market edge.
+
+The metrics are descriptive and exploratory. They do not count as proof of profitability, edge, or general market validity.
+
+### Data integrity and eligibility
+
+The experiment follows the existing frozen policies and must not invent a conflicting repair policy:
+
+- use only BTC-EUR 5-minute bars aligned to the UTC clock,
+- candle timestamps represent interval start,
+- incomplete, still-forming, missing, duplicate, out-of-order, or ambiguous windows are excluded,
+- no silent backfill or future-data leakage is allowed,
+- empty or no-trade intervals are rejected under the existing empty-interval and ambiguity rules,
+- the canonical validation and ambiguous-window rejection policies remain authoritative,
+- candles with invalid OHLC relations, non-finite values, zero-range invalidity, or contradictory duplicated records are rejected rather than silently corrected.
+
+The candidate experiment therefore eliminates invalid or ambiguous windows from the eligible sample rather than using a data-repair policy that would conflict with the repository's current contract.
+
+### Reproducibility requirements
+
+A run is not considered reproducible until an actual run verifies it. Each run must record a manifest containing at least:
+
+- hypothesis/specification version,
+- dataset and provenance identity,
+- exact input file identities and, where available, file hashes,
+- software and Python version,
+- UTC evaluation start/end boundaries,
+- validation counts and rejection counts,
+- an output artifact identity or location,
+- the exact signal-definition and baseline logic used,
+- any excluded windows and the reason for exclusion.
+
+### Contract clarifications for the bounded descriptive experiment
+
+`DELEGATED DECISION`: The project owner delegated technical and research decision authority to ChatGPT for the bounded research scope. The repository treats the decisions below as human-authorized delegated decisions, not as claims that the owner personally selected each technical detail.
+
+`INPUT SCOPE`: The authoritative input set for the bounded experiment is exactly the files listed in the manifest at `data/provenance/tardis_btc_eur_first_of_month_manifest.json`. The manifest records 12 file pairs for BTC-EUR and does not independently reselect or reinterpret the file set. For this contract, file selection is therefore the manifest-defined file set; observation eligibility is a separate filter.
+
+`TIMEZONE BLOCKER`: The repository evidence does not prove that the phrase “first calendar day of each month only” is a UTC-defined boundary. The manifest states the sample rule but does not prove the exact timezone semantics for the evaluation boundary. The current contract therefore records this as an explicit blocker: a run may only claim a UTC evaluation boundary if the source metadata or explicit run configuration establishes it; otherwise the boundary remains `blocked` and the run must reject or flag the boundary as unresolved rather than silently converting local dates to UTC.
+
+`OBSERVATION ELIGIBILITY`: A signal and its following target candle are eligible only when both are fully completed, valid, and contained within the permitted input/evaluation scope. Observation eligibility is separate from file selection: a manifest-selected file may still produce an ineligible observation when a required source record, valid next-period candle, or valid completed interval is missing, ambiguous, or invalid. A target observation must not extend beyond the permitted input/evaluation boundary and must not use records outside the declared file set or run window.
+
+`CANDLE SEMANTICS AND GAPS`: The repository already requires UTC-aligned 5-minute interval semantics, completed-candle validation, no silent backfill, and rejection of duplicate, ambiguous, or invalid windows. The bounded experiment therefore keeps the existing frozen rule: missing, still-forming, empty, or ambiguous intervals are rejected, not repaired by assumption. A target candle may not cross the allowed boundary, and it may not be created by carrying forward a previous close or an inferred empty candle.
+
+`MINIMAL OUTPUT CONTRACT`: The bounded descriptive experiment must emit a minimal deterministic result package in UTF-8 with `\n` line endings. The canonical files are:
+
+- `results_pooled.json` — pooled summary for the eligible observation set,
+- `results_by_day.json` — one object per sampled day in ascending date order,
+- `run_manifest.json` — execution metadata and provenance for the run.
+
+Each JSON document must be a UTF-8 encoded object with `allow_nan=False` and no `NaN`, `Infinity`, or `-0` values. The canonical serialization policy is:
+
+- emit JSON using a fixed field order by insertion order,
+- sort list-valued objects by deterministic keys (`day` ascending for daily summaries; file paths ascending for input manifest entries),
+- serialize floating-point values with `Decimal` quantization to 12 decimal places and then emit numeric JSON values only,
+- normalize negative zero to `0.0` before writing,
+- reject or null any non-finite numeric output rather than writing a non-standard JSON value.
+
+`POOLED SUMMARY FIELD CONTRACT`: `results_pooled.json` must contain all of the following fields in this exact order and type set:
+
+- `spec_version`: string
+- `dataset_name`: string
+- `market`: string
+- `timeframe_minutes`: integer
+- `evaluation_start_utc`: string or null
+- `evaluation_end_utc`: string or null
+- `eligible_observations`: integer
+- `signal_count`: integer
+- `positive_return_count`: integer
+- `baseline_positive_rate`: number or null
+- `signal_positive_rate`: number or null
+- `difference_pp`: number or null
+- `mean_return`: number or null
+- `median_return`: number or null
+- `rejected_window_count`: integer
+- `validation_rejections`: integer
+- `status`: string
+- `notes`: string or null
+
+`PER-DAY SUMMARY FIELD CONTRACT`: each object in `results_by_day.json` must contain all of the following fields in this exact order and type set:
+
+- `day`: string (`YYYY-MM-DD`)
+- `eligible_observations`: integer
+- `signal_count`: integer
+- `baseline_positive_rate`: number or null
+- `signal_positive_rate`: number or null
+- `difference_pp`: number or null
+- `mean_return`: number or null
+- `median_return`: number or null
+- `validation_rejections`: integer
+- `status`: string
+
+`RUN MANIFEST FIELD CONTRACT`: `run_manifest.json` must contain all of the following fields in this exact order and type set:
+
+- `spec_version`: string
+- `dataset_name`: string
+- `dataset_manifest_path`: string
+- `input_files`: array of objects with `path` and `sha256` (string or `null`)
+- `software_name`: string
+- `software_version`: string or null
+- `python_version`: string or null
+- `platform`: string or null
+- `evaluation_start_utc`: string or null
+- `evaluation_end_utc`: string or null
+- `signal_definition`: string
+- `baseline_definition`: string
+- `validation_counts`: object
+- `rejection_counts`: object
+- `output_artifacts`: object with `pooled_summary`, `per_day_summary`, and `manifest`
+- `hash_status`: string (`available` or `unavailable`)
+- `comparison_method`: string
+- `notes`: string or null
+
+`INPUT HASHING`: For each manifest-listed input file, the implementation must hash the exact raw file bytes using SHA-256. The hash is computed over the file bytes only; the file path string is not part of the digest. If a file cannot be read, the hash is recorded as `null` and the manifest field `hash_status` is set to `unavailable`; the implementation must not fabricate a value.
+
+`REPEATABILITY`: Semantic equivalence for repeat runs is defined as equality of the normalized result payloads after canonicalization, not byte-by-byte identity of the entire file. The canonicalization procedure is:
+
+1. parse JSON content,
+2. sort object keys in the fixed field order specified above,
+3. sort `input_files` by path ascending and `results_by_day` by `day` ascending,
+4. normalize float values using the same Decimal quantization policy and reject non-finite values,
+5. compare the canonical payloads,
+6. ignore volatile metadata such as wall-clock timestamps, file-write timestamps, and absolute local path prefixes when comparing semantic equivalence.
+
+The project must not compute a hash of an artifact and then compare that hash to itself as a form of validation. A hash may be stored as a metadata value, but it is not a substitute for a canonical normalized comparison.
+
+`ORDERED CLASSIFICATION PROCEDURE`: The result status must be assigned in this order and must be mutually exclusive:
+
+1. `Unusable`: required inputs are missing, unreadable, or invalid; the configuration is invalid; or all candidate windows are rejected by the data-integrity and eligibility rules.
+2. `Descriptive but inconclusive`: no valid eligible target observations exist, or eligible target observations exist but there are no bullish signals.
+3. `Descriptive sample result in the hypothesized direction`: eligible targets and bullish signals exist, and `signal_positive_rate > baseline_positive_rate` under the same eligible observation set.
+4. `Descriptive sample result opposite to the hypothesized direction`: eligible targets and bullish signals exist, and `signal_positive_rate < baseline_positive_rate` under the same eligible observation set.
+5. `Descriptive but inconclusive`: if the result cannot be assigned to either directional category under the existing metric definitions or if the difference is exactly equal to the baseline within the defined serialization tolerance.
+
+This classification is descriptive only; it does not create a minimum sample threshold, inferential claim, profitability claim, or a strategy-approval claim.
+
+`GOVERNANCE BOUNDARY`: The bounded descriptive experiment remains a research-only signal check. It does not authorize implementation beyond this experiment, paper trading, live trading, order placement, or scaling. It does not authorize inferential confidence intervals, p-values, significance claims, or profitability conclusions for the sparse first-of-month sample.
+
+### No tuning and no generalization claim
+
+This bounded first experiment is deliberately small and fixed. It must not:
+
+- optimize thresholds over the same sample,
+- tune on the final holdout,
+- re-select the hypothesis after observing results,
+- claim that the sample is representative of the whole BTC-EUR market,
+- claim that the first-of-month sample is a full-month or full-market adequacy decision,
+- treat the result as a validated trading strategy or a proven positive expectancy.
+
+### Cost boundary and spot boundary
+
+This is a gross signal-predictiveness experiment only.
+
+It does not establish:
+
+- realistic Bitvavo execution costs,
+- net expectancy after spreads, fees, latency, slippage, and partial fills,
+- trading profitability,
+- executable fills,
+- paper-trading or live-trading readiness,
+- any scaling decision.
+
+The experiment is strictly spot-only and must not introduce short selling, leverage, margin, futures, perpetuals, or live exchange orders.
+
+### Acceptance and failure criteria
+
+The project should interpret results only as follows:
+
+- `Unusable`: the eligible sample is too small, data integrity is compromised, the source-window policy is violated, or the observation set is too sparse to support a meaningful descriptive summary.
+- `Descriptive but inconclusive`: the signal and baseline rates are directionally uncertain, the sample is limited, the descriptive variation is large, or the outcome is consistent with noise rather than a defensible directional reading.
+- `Descriptive sample result in the hypothesized direction`: the signal-positive-return frequency is higher than the unconditional baseline on the same eligible observation set, and the result is explicitly described as a sample description only, with no inferential claim, profitability claim, or generalization beyond the bounded data.
+- `Descriptive sample result opposite to the hypothesized direction`: the signal-positive-return frequency is lower than the unconditional baseline on the same eligible observation set, and the result is reported as a descriptive contrary sample outcome only.
+
+No minimum sample count, effect-size threshold, significance threshold, or profitability threshold is currently approved. Any future inferential acceptance criteria must be specified before confirmatory evaluation and supported by a justified sampling and dependence methodology. These labels are not statistical confirmation, statistical rejection, strategy acceptance, or positive expectancy.
+
+`CONCLUSION`: This is a bounded exploratory candlestick research decision, not a validated strategy. It exists to measure whether a simple bullish-close candidate has any descriptive predictive signal in the approved historical sample before any later cost, execution, or profitability gates are considered.
+
 ## 4. Exact Candidate Entry Rules
 
 Base strategy scope:
