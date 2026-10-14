@@ -6,12 +6,13 @@ from datetime import timedelta
 from pathlib import Path
 from statistics import mean, median
 
+from .kraken_ohlcv import extract_contiguous_kraken_windows, load_kraken_ohlcv
 from .merger import HSRAError
 from .ohlcv import _bucket_start, build_ohlcv_window
 from .reader import iter_trades
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MANIFEST_PATH = ROOT / "data" / "provenance" / "tardis_btc_eur_first_of_month_manifest.json"
+DEFAULT_MANIFEST_PATH = ROOT / "data" / "provenance" / "kraken_btc_eur_5m_manifest.json"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "experiments"
 
 
@@ -30,6 +31,26 @@ def _load_manifest(manifest_path: Path) -> dict:
 
 def _normalize_relative_path(raw: str) -> Path:
     return Path(raw.replace("\\", "/"))
+
+
+def _manifest_file_path(entry: dict) -> str:
+    for key in ("trade_file", "file"):
+        candidate = entry.get(key)
+        if isinstance(candidate, dict):
+            path = candidate.get("path")
+            if path is not None:
+                return str(path)
+    if "path" in entry:
+        return str(entry["path"])
+    raise KeyError(f"Manifest entry does not contain a file path: {entry}")
+
+
+def _is_kraken_manifest(manifest: dict) -> bool:
+    source = str(manifest.get("source", "")).lower()
+    dataset = str(manifest.get("dataset_name", "")).lower()
+    status = str(manifest.get("status", "")).lower()
+    market = str(manifest.get("market", "")).lower()
+    return "kraken" in source or "kraken" in dataset or "kraken" in status or "kraken" in market
 
 
 def _extract_valid_run_windows(trade_path: Path) -> list[dict]:
@@ -165,18 +186,54 @@ def run_manifest_experiment(*, manifest_path: str | Path | None = None, output_d
         (output_dir / "btc_eur_bounded_experiment_report.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
         return result
 
+    use_kraken_loader = _is_kraken_manifest(manifest)
     valid_runs: list[dict] = []
     all_observations: list[dict] = []
     rejected_windows: list[dict] = []
 
     for entry in source_files:
-        trade_path = ROOT / _normalize_relative_path(entry["trade_file"]["path"])
+        file_path = _manifest_file_path(entry)
+        trade_path = ROOT / _normalize_relative_path(file_path)
         if not trade_path.exists():
             rejected_windows.append({
                 "trade_file": str(trade_path),
                 "reason": "missing_trade_file",
             })
             continue
+
+        if use_kraken_loader:
+            try:
+                candles = load_kraken_ohlcv(trade_path)
+            except HSRAError:
+                rejected_windows.append({
+                    "trade_file": str(trade_path),
+                    "reason": "no_valid_contiguous_run_under_research_contract",
+                })
+                continue
+
+            windows = extract_contiguous_kraken_windows(candles)
+            if not windows:
+                rejected_windows.append({
+                    "trade_file": str(trade_path),
+                    "reason": "no_valid_contiguous_run_under_research_contract",
+                })
+                continue
+
+            valid_runs.extend({
+                "trade_file": str(trade_path),
+                "run_start": run[0].interval_start.isoformat(),
+                "run_end": run[-1].interval_end.isoformat(),
+                "candle_count": len(run),
+                "candle_starts": [c.interval_start.isoformat() for c in run],
+            } for run in windows if len(run) >= 2)
+
+            for run in windows:
+                if len(run) < 2:
+                    continue
+                metric = _build_signal_metrics(run)
+                all_observations.extend(metric["observations"])
+            continue
+
         windows = _extract_valid_run_windows(trade_path)
         if not windows:
             rejected_windows.append({

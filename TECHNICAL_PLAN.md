@@ -2,10 +2,10 @@
 
 ## Document Status
 
-- Status: Proposed for human review.
-- Approval state: Not approved.
-- Implementation state: Not implemented.
-- Repository state: Planning only.
+- Status: Repository implementation audit in progress.
+- Approval state: The bounded historical-data and first-backtest implementation are present locally, but live, paper, and scaling approvals remain blocked.
+- Implementation state: Implemented for the bounded research scope.
+- Repository state: Local working tree contains implementation artifacts and validation evidence; the original planning-only status no longer matches the live repo state.
 - Live-readiness state: Not ready.
 
 Classification used in this document:
@@ -36,16 +36,16 @@ Classification used in this document:
 - `docs/sprints/sprint-02/DECISIONS.md`
 - `docs/sprints/sprint-02/ACCEPTANCE_CRITERIA.md`
 
-`FACT`: No implementation artifacts currently exist.
+`FACT`: The local working tree contains implementation artifacts for the bounded historical-data and first-backtest scope.
 
-- No source code.
-- No tests.
-- No configuration files.
-- No environment files.
-- No dependency manifest.
-- No data files.
-- No CI configuration.
-- No persistence schema.
+- Source code under `tools/hsra/`.
+- Test files under `tests/`.
+- Provenance manifests under `data/provenance/`.
+- Historical research data under `data/`.
+- Experiment artifacts under `data/experiments/`.
+- Deterministic validation code for OHLCV, source rejection, and bounded signal logic.
+
+The repository is therefore no longer in the original planning-only state described by the earlier draft documents; the current state is an implementation-in-progress within the bounded research scope, not a live-ready or profitability-validated deployment stage.
 
 `FACT`: Git is initialized in the workspace. Inspected Git state showed local branch `main`, remote `origin`, and a clean working tree tracking `origin/main`.
 

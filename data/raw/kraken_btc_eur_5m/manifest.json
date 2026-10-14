@@ -12,7 +12,7 @@
   "last_ts": 1791789600,
   "file": "data\\raw\\kraken_btc_eur_5m\\XBTEUR_5m_recent.csv",
   "downloaded_at_utc": "2026-10-12T07:23:35.697746Z",
-  "notes": "Official public Kraken OHLC endpoint; no historical archive beyond rolling recent window; separate from the Tardis bounded sample.",
+  "notes": "Official public Kraken OHLC endpoint; no historical archive beyond rolling recent window; bounded descriptive research sample only.",
   "public_api_constraints": "Kraken public OHLC endpoint exposes a rolling recent window and does not provide a full-year archive in this public endpoint.",
   "count": 721
 }

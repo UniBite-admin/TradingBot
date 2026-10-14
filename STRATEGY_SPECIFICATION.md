@@ -1,263 +1,69 @@
-# Trading Bot - Candlestick Strategy Specification
+# Trading Bot - Strategy Specification
 
-## Document Status
+## Status
 
-- Status: Proposed for human review.
-- Approval state: Not approved.
-- Implementation state: Not implemented.
-- Validation state: Not validated.
-- Profitability state: Unknown.
+- Status: descriptive and provider-specific research only
+- Approval: not a live-trading approval
+- Profitability claim: not authorized
+- Historical source: Kraken BTC/EUR 5-minute OHLCV export
 
-Classification used in this document:
+## Research objective
 
-- `FACT`: established by repository documents or exchange-style data semantics.
-- `HYPOTHESIS`: an unvalidated trading claim to be tested.
-- `PROPOSED RULE`: a deterministic candidate rule for research and later implementation.
-- `UNRESOLVED DECISION`: materially affects the strategy and requires human approval.
+The repository studies a simple descriptive bullish-signal question on the Kraken BTC/EUR 5-minute OHLCV stream:
 
-## 1. Executive Summary
+- Does a completed candle with close > open tend to be followed by a positive next-period return relative to the same eligible observation set?
 
-`FACT`: The project is spot-only, capital-constrained, research-driven, and not allowed to claim profitability without evidence. Bitvavo Spot is the intended execution venue, while the first historical research dataset is provisionally accepted as a bounded Tardis.dev Binance Jersey BTCEUR archive of quotes and trades in daily `.csv.gz` files limited to the first calendar day of each month only. This provisional acceptance allows research to continue under current data-access and budget constraints, but it does not prove statistical representativeness, final dataset adequacy, or strategy profitability. The market universe, timeframe, sample adequacy, and numeric risk limits remain unapproved.
+This is a descriptive question only. It is not a profitability or execution claim.
 
-`RESEARCH CONCLUSION`: A standalone named candlestick pattern strategy is not defensible as an approved trading rule at this stage. Pattern recognition is subjective unless codified, and predictive value is not established by the current project evidence.
+## Descriptive mechanics
 
-`RECOMMENDATION`: Start with one minimal, deterministic long-only candlestick hypothesis for spot crypto.
+The signal, target, and baseline follow the frozen experimental contract:
 
-- `HYPOTHESIS H1`: A completed downside rejection candle that sweeps a recent local low, then receives one completed-candle bullish confirmation, may have positive short-horizon expectancy after realistic costs in liquid spot crypto markets.
-
-`PROPOSED BASE STRATEGY`: Test a two-candle bullish rejection setup with structural context, no discretionary chart drawing, no ML, and no extra indicators in the initial specification.
-
-`STATUS OF STRATEGY`: Proposed for research only. Not approved, not implemented, not validated, not profitable by virtue of this document.
-
-## 2. Research Basis and Limitations
-
-`FACT`: Repository documents require simplicity, deterministic logic, anti-lookahead handling, realistic execution modeling, and no silent assumptions.
-
-`FACT`: At least one major exchange OHLC API explicitly returns an in-progress candle alongside committed candles. That makes candle-close confirmation and exclusion of the current uncommitted candle mandatory for both live logic and backtests.
-
-`FACT`: Candlestick naming and recognition are subjective unless explicit geometric rules are defined.
-
-`LIMITATION`: This document does not establish empirical profitability for named candlestick patterns in crypto. It establishes only that:
-
-- candlestick rules must be explicit,
-- completed versus in-progress candles matter,
-- execution costs can erase apparent edge,
-- a minimal structure-first hypothesis is more defensible than a catalog of named patterns.
-
-`RESEARCH POSITION`:
-
-- Individual named patterns alone: not recommended as the primary research object.
-- Consecutive-candle confirmation: recommended.
-- Price-action structure: recommended.
-- Support/resistance as hand-drawn zones: not recommended.
-- Support/resistance as rolling local extrema: recommended.
-- Trend filter: not included in the base strategy.
-- Volume filter: optional, only if data quality is verified.
-- Extra indicators: excluded from the base strategy.
-
-## 3. Required Data and Unresolved Dependencies
-
-`FACT`: The following are not yet approved in the repository:
-
-- definitive historical-data adequacy and statistical validity of the bounded Tardis.dev Binance Jersey BTCEUR sample,
-- eligible spot pairs,
-- candle timeframe,
-- numeric risk limits,
-- implementation stack.
-
-`REQUIRED DATA`:
-
-- Symbol identifier and exchange identifier.
-- Candle timestamps.
-- `open`, `high`, `low`, `close`, `volume`.
-- Confirmation that candles are complete versus still forming.
-- Tick size and lot-size constraints.
-- Fee schedule for maker and taker executions.
-- Minimum notional and minimum quantity rules.
-- If available: bid/ask quotes, spread snapshots, trade count, and order-book depth.
-
-`REQUIRED DATA SEMANTICS`:
-
-- Candle timestamp meaning must be approved: open-time or close-time.
-- Candle timezone must be approved.
-- Missing-candle convention must be explicit.
-- Duplicate and out-of-order event policy must be explicit.
-- Quote currency and volume field definition must be explicit.
-- Whether historical data are raw exchange candles or vendor-resampled candles must be explicit.
-
-`UNRESOLVED DECISION`: Whether the bounded Tardis.dev Binance Jersey BTCEUR historical sample is sufficient for the first research experiment and what statistical limitations it imposes.
-
-Why it matters:
-
-- The selected historical source determines the available quote and trade coverage, the time range, and the cross-market comparability of the research sample.
-- Sampling only the first calendar day of each month introduces statistical and regime-coverage limitations that must be assessed before the experiment is treated as valid.
-- Bitvavo remains the intended execution venue, but the historical research archive is intentionally separate from the live venue.
-
-Recommended choice:
-
-- Use Tardis.dev historical Binance Jersey BTCEUR quotes and trades as the bounded data source for the first research study.
-- Limit collection to the first calendar day of each month only, with daily `.csv.gz` files and explicit documentation of the resulting sampling constraints.
-- Treat the samples as a bounded research dataset, not as a final or comprehensive market representation.
-- Continue to treat the first experiment as unapproved until adequacy, statistical limits, and execution assumptions are explicitly reviewed.
-
-`FACT`: Tardis CSV files are partitioned by `local_timestamp`, while the `timestamp` column is the exchange-provided event time and falls back to `local_timestamp` when the exchange does not provide one. This means a daily CSV file is an arrival-day partition, not proof that all event-time records for a UTC calendar day are present or complete.
-
-`PROPOSED EXPLORATORY POLICY (NOT APPROVED)`: Because the first-of-month daily-file boundary is intentionally enforced and the full event-time coverage of each UTC trading day cannot be established from the daily file set alone, the project should treat the sample as a bounded local-date archive rather than a complete UTC-day market record. For any bar or signal, use only records whose event `timestamp` is within the approved sampling window when the source file is known to be complete for that window; if the window's coverage is ambiguous, reject the bar instead of inferring a missing interval. This preserves anti-lookahead discipline and prevents false confidence from event-time records that arrive on adjacent local dates.
-
-`PROPOSED EXPLORATORY POLICY (NOT APPROVED)`: For the first research study, avoid claiming that the first-of-month archive establishes complete event-time coverage for a UTC day. The sample is acceptable only as a bounded exploratory dataset with explicit limitations. Reconstructed bars must be based on the provided `timestamp` semantics, and missing or ambiguous event-time coverage must be treated as a data-quality rejection.
-
-`UNRESOLVED DECISION`: Primary timeframe.
-
-Why it matters:
-
-- Signal frequency, noise, spread burden, and holding time depend on timeframe.
-
-`PROPOSED RECOMMENDATION (NOT APPROVED)`: use `5m` as the provisional primary timeframe for the first historical SPOT research experiment.
-
-Reasoning:
-
-- The official Bitvavo documentation confirms that `5m` is a supported interval, but it does not provide comparative performance evidence that `5m` is superior to `1m` or other available intervals.
-- The project requires a single-timeframe starting point for a bounded research experiment, and `5m` is a reasonable compromise between noise and signal frequency for a short-horizon spot strategy.
-- At this stage, this is a provisional candidate rather than a comparative conclusion. The project still needs measurement of signal count, cost drag, and net expectancy to justify the timeframe beyond plausibility.
-
-This remains a decision proposal until the human explicitly approves it.
-
-`APPROVED OHLCV IMPLEMENTATION CONTRACT (DESIGN ONLY; NOT IMPLEMENTED OR VERIFIED)`:
-
-- `FACT`: Bitvavo candle timestamps are Unix milliseconds and the `timestamp` value represents the start time of the candle interval.
-- `FACT`: Bitvavo docs state that data are returned newest-to-oldest and that a no-trade interval can appear as a gap in data flow rather than a fabricated zero-volume candle.
-- `FACT`: The inspected documentation does not establish a published semantic distinction between a confirmed no-trade gap and a data-loss or fetch-gap at the source level.
-- `APPROVED RULE`: build OHLCV exclusively from raw trade events; do not use quote events to construct OHLCV.
-- `APPROVED RULE`: for each UTC-aligned 5-minute interval, `open` is the first eligible trade price, `high` is the maximum eligible trade price, `low` is the minimum eligible trade price, and `close` is the last eligible trade price.
-- `APPROVED RULE`: volume is the sum of trade amounts expressed in the base asset. Do not use quote-asset volume or order-book-derived volume.
-- `APPROVED RULE`: normalize every candle timestamp to UTC before any replay, storage, or feature generation; treat the timestamp as the interval start in UTC, and treat `timestamp + interval` as the nominal candle close time for replay ordering only.
-- `APPROVED RULE`: use fixed 5-minute boundaries aligned to the UTC clock. A candle with a start timestamp of `HH:MM:00` is assigned to that 5-minute bucket; the signal decision occurs only after the bar is finalized and the record is available to the replay process.
-- `APPROVED RULE`: only completed and valid candles are eligible for entry evaluation. The most recent candle is treated as incomplete until the source confirms the interval is closed; no entry signal may depend on the current still-forming bar.
-- `APPROVED RULE`: reject any setup that relies on look-ahead, a still-forming candle, or a non-contiguous historical context window. Missing bars are not backfilled by assumption.
-- `APPROVED RULE`: in the first version, reject the affected interval if no eligible trade events exist in that 5-minute bucket; do not synthesize an empty candle, carry forward a previous close, or silently fill the gap.
-- `APPROVED RULE`: if the source data cannot establish validity for an interval, reject the affected research interval rather than silently backfilling. Invalid timestamps, duplicate or out-of-order events, and ambiguous coverage are treated as invalid data for that interval.
-- `APPROVED RULE`: duplicate timestamps are a data-integrity issue. If identical duplicates are confirmed as exact repeated rows from the same source, they may be collapsed only under a documented canonical rule; if the source semantics do not prove that they are harmless duplicates, the affected record set must be rejected rather than silently merged. Conflicting duplicates are never silently selected; they are treated as invalid and quarantined until the source or the ingest process resolves them.
-- `EVIDENCE NOTE`: the exact public Bitvavo trade request for `2024-01-01 05:35:00Z` to `2024-01-01 05:40:00Z` returned 0 trades. The adjacent 05:30:00Z to 05:35:00Z window returned 4 trades, and the following 05:40:00Z to 05:45:00Z window returned 18 trades. This is consistent with Bitvavo’s documented zero-trade-gap behavior, where no trades in an interval can appear as a gap in data flow. The conservative policy remains to reject the interval when the source does not prove validity, and to reject any signal that depends on silently inferring or filling the interval.
-- `APPROVED RULE`: historical warm-up for the first experiment requires `L + 2` completed candles immediately preceding the setup candle; if the required context is missing or ambiguous, the signal is rejected rather than interpolated.
-- `APPROVED RULE`: invalid OHLCV records are rejected if any of the following holds: non-finite values, `high < max(open, close)`, `low > min(open, close)`, `high < low`, or zero-range candle with an undefined structure. These diagnostics are deterministic and must be enforced before any strategy rule can evaluate.
-- `APPROVED RULE`: deterministic replay must sort by `(timestamp, symbol)` in ascending order, quarantine conflicting duplicates, and commit one consistent history per symbol before evaluating any entry. The policy does not invent exchange guarantees about duplicate semantics that were not documented.
-- `REQUIREMENT`: the eventual implementation must be tested for UTC bucket boundaries, interval-start timestamps, OHLCV calculations, incomplete-candle exclusion, empty and missing interval rejection, duplicate and out-of-order events, deterministic output, and look-ahead prevention.
-
-This contract is approved for implementation design only. It does not claim that the candle builder exists, that any implementation is complete, or that the required tests have passed.
-
-`UNRESOLVED DECISION`: Eligible pairs.
-
-Why it matters:
-
-- Small, illiquid pairs can make candle patterns look attractive but untradeable.
-
-Recommended choice:
-
-- Start with a small set of liquid spot pairs on the approved exchange, selected by transparent liquidity criteria.
-- Criteria should be documented before testing.
-
-## 3A. First Bounded Candlestick Research Experiment
-
-`STATUS`: Proposed, bounded exploratory candidate only; not a production strategy and not a profitability claim.
-
-`AUTHORITY`: Project-owner-authorized delegated research decision under the repository's delegated technical authority. This is a documented research decision made under the project owner's delegation and is not a claim that the owner personally selected each technical detail.
-
-### Hypothesis
-
-“When a completed 5-minute BTC-EUR candle closes above its open, the following 5-minute period has a greater-than-baseline tendency to produce a positive price return.”
-
-### Signal definition
-
-- `bullish_signal_k = 1` if and only if the completed BTC-EUR 5-minute candle `k` has `close_k > open_k`.
-- `bullish_signal_k = 0` if `close_k = open_k`.
-- No signal is generated for a candle with an equal open and close.
-- No signal is generated from a still-forming or incomplete candle.
-- The signal uses only completed, valid BTC-EUR 5-minute candles and must not rely on any future bar.
-
-### Observation target
-
-For each eligible signal candle `k`, define the following target return using the completed candle close as the representative price for the interval:
-
+- `signal_k = 1` if `close_k > open_k`, otherwise `0`
 - `r_k = (close_{k+1} - close_k) / close_k`
-
-where:
-
-- `close_k` is the close of the completed source candle `k` in BTC-EUR,
-- `close_{k+1}` is the close of the next completed 5-minute BTC-EUR candle,
-- the experiment uses the close-to-close period return as the target observation,
-- the idealized assumption is that each completed candle is summarized by its close price, and this close is the one price used in the return calculation; the experiment does not assume a fill or execution at the close, and it does not imply a realistic order transaction cost or slippage model.
-
-Define the positive-return label as:
-
-- `label_k = 1` if `r_k > 0`, else `0`.
-
-### Timing and anti-lookahead boundary
-
-- The signal is formed only after source candle `k` is complete and valid under the approved 5-minute UTC candle contract.
-- The return target is measured over the next completed 5-minute period, `k+1`.
-- The signal therefore uses only information available at the moment the source candle is known to be complete and the target period is not yet evaluated; no look-ahead, no future-data leakage, and no silent backfill are permitted.
-- A period is eligible only if both the source candle and the following 5-minute candle are valid, completed, and contained within the approved UTC evaluation window.
-- If the next period is missing, ambiguous, or invalid under the repository's existing data-quality policy, the observation is rejected rather than repaired by assumption.
-
-### Baseline
-
-The baseline is the unconditional positive-return rate of the same eligible target observations:
-
+- `label_k = 1` if `r_k > 0`, otherwise `0`
 - `baseline_rate = count(label_k = 1) / count(eligible observations)`
+- `signal_rate = count(label_k = 1 | signal_k = 1) / count(signal_k = 1)`
 
-for the same eligible set of completed BTC-EUR 5-minute target intervals used in the signal study.
+The comparison is descriptive and bounded to the same valid observation set.
 
-Compare the conditional signal-positive-return rate against this unconditional baseline on the same eligible observation set:
+## Data and validity rules
 
-- `signal_rate = count(label_k = 1 | bullish_signal_k = 1) / count(bullish_signal_k = 1)`
-- `difference_pp = signal_rate - baseline_rate` in percentage points.
+- Use only the Kraken BTC/EUR 5-minute OHLCV source.
+- Treat timestamps as the interval start in UTC.
+- Require structurally valid OHLCV rows: finite numeric values, aligned 5-minute timestamps, valid OHLC relation, no duplicate bars.
+- Treat missing 5-minute intervals as gaps.
+- Never backfill, bridge, or repair missing bars by assumption.
+- Reject ambiguous or invalid windows instead of inferring missing semantics.
+- Keep the study bounded to the actual retained source range; do not claim full-market or full-archive coverage.
 
-This keeps the comparison simple, transparent, and reproducible without introducing a parameter search, threshold search, or an optimized holdout selection rule.
+## Rejection and anti-lookahead rules
 
-### Metrics
+- No look-ahead.
+- No using future candle data to define a signal.
+- No silent gap repair.
+- Only completed bars are eligible.
+- Any uncertain source semantics cause exclusion or a blocked run.
 
-For the eligible observations, report the following descriptive metrics:
+## Interpretation rules
 
-- eligible sample count,
-- positive-return frequency for the signal set,
-- baseline positive-return frequency for the same eligible target observations,
-- difference in percentage points between the signal rate and the baseline rate,
-- mean target return,
-- median target return,
-- distribution summary of target returns if useful for interpretation,
-- the number of ineligible, rejected, missing, duplicate, or ambiguous windows removed from evaluation.
+- Results are descriptive only.
+- They do not prove profitability, execution viability, or live readiness.
+- They only support a statement about the observed sample under the documented source and validation rules.
 
-Where the data allow, report variation transparently both pooled across the eligible observations and separately for each sampled calendar-day segment. These segment summaries are descriptive only and do not become independent statistical evidence without a separately justified inferential method. Do not report inferential confidence intervals, p-values, statistical significance, or a statistical pass/fail verdict for this bounded sample. The sparse sampling design and the possibility of serial dependence do not yet justify such a method under the current repository evidence.
+## Required run metadata
 
-No minimum sample count, significance threshold, effect-size threshold, or profitability threshold is approved in the current repository. The project must not claim the data support the hypothesis merely because the observed difference is positive, and it must not label the result as a proven or profitable market edge.
+Every run must record:
 
-The metrics are descriptive and exploratory. They do not count as proof of profitability, edge, or general market validity.
+- source identity
+- exact UTC bounds
+- file identity
+- row counts and validation counts
+- rejected-window counts
+- known limitations and gap handling
+- explicit descriptive interpretation
 
-### Data integrity and eligibility
-
-The experiment follows the existing frozen policies and must not invent a conflicting repair policy:
-
-- use only BTC-EUR 5-minute bars aligned to the UTC clock,
-- candle timestamps represent interval start,
-- incomplete, still-forming, missing, duplicate, out-of-order, or ambiguous windows are excluded,
-- no silent backfill or future-data leakage is allowed,
-- empty or no-trade intervals are rejected under the existing empty-interval and ambiguity rules,
-- the canonical validation and ambiguous-window rejection policies remain authoritative,
-- candles with invalid OHLC relations, non-finite values, zero-range invalidity, or contradictory duplicated records are rejected rather than silently corrected.
-
-The candidate experiment therefore eliminates invalid or ambiguous windows from the eligible sample rather than using a data-repair policy that would conflict with the repository's current contract.
-
-### Reproducibility requirements
-
-A run is not considered reproducible until an actual run verifies it. Each run must record a manifest containing at least:
-
-- hypothesis/specification version,
-- dataset and provenance identity,
-- exact input file identities and, where available, file hashes,
-- software and Python version,
-- UTC evaluation start/end boundaries,
-- validation counts and rejection counts,
-- an output artifact identity or location,
+This keeps the study consistent with the repository's risk and governance standards.
 - the exact signal-definition and baseline logic used,
 - any excluded windows and the reason for exclusion.
 

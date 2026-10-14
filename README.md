@@ -1,6 +1,6 @@
 # Trading Bot
 
-This repository is now in the final evidence and approval gate, not in the planning-only stage.
+This repository is focused on a Kraken-backed historical research workflow for a descriptive BTC/EUR 5-minute signal study.
 
 Authoritative documents:
 
@@ -9,28 +9,13 @@ Authoritative documents:
 - [STRATEGY_SPECIFICATION.md](STRATEGY_SPECIFICATION.md)
 - [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md)
 
-Current sprint documentation:
-
-- [docs/sprints/sprint-01/README.md](docs/sprints/sprint-01/README.md)
-- [docs/sprints/sprint-02/README.md](docs/sprints/sprint-02/README.md)
-- [docs/sprints/sprint-03/README.md](docs/sprints/sprint-03/README.md)
-- [docs/sprints/sprint-04/README.md](docs/sprints/sprint-04/README.md)
-- [docs/sprints/sprint-05/README.md](docs/sprints/sprint-05/README.md)
-- [docs/sprints/sprint-06/README.md](docs/sprints/sprint-06/README.md)
-- [docs/sprints/sprint-07/README.md](docs/sprints/sprint-07/README.md)
-- [docs/sprints/sprint-08/README.md](docs/sprints/sprint-08/README.md)
-- [docs/sprints/sprint-09/README.md](docs/sprints/sprint-09/README.md)
-
 Current status:
 
-- The historical research pipeline, deterministic replay, strategy logic, backtest harness, validation stress checks, paper-trading safety model, and final evaluation gate are implemented and validated.
-- The repository evidence supports a bounded research-and-validation system with explicit guardrails, but it does not prove a profitable live strategy.
-- The system remains in a historical research and controlled validation state. It is not authorized to trade live or scale automatically.
-- Sprint 08 is in the validated paper-mode safety state: simulated execution and safety rules are in place, but live transition remains blocked by explicit human approval.
-- Sprint 09 is the final decision gate: controlled live test and controlled scale remain explicitly blocked until the evidence and human approval are both present.
-- Bitvavo Spot remains the intended live venue, but the project is still separated from live execution by the approval chain.
-- The dataset, OHLCV semantics, and validation rules have been implemented and tested under strict no-lookahead rules.
-- No strategy profitability claim is valid without explicit evaluation evidence and human approval.
+- Kraken BTC/EUR 5-minute OHLCV is the active historical research source.
+- The repository retains the provider-neutral Experiment A-equivalent descriptive mechanics: bullish signal on close > open, next-period return, baseline comparison, and fail-closed gap handling.
+- The project remains descriptive-only and does not claim live trading, execution feasibility, or profitability.
+- Bitvavo Spot remains the intended live venue conceptually, but no orders or live deployment are authorized by this repository state.
+- Any new result must be documented with source provenance, UTC bounds, validation counts, and known limitations.
 
 Repository rule:
 

@@ -42,7 +42,7 @@ def _parse_iso_ts(s: str) -> Optional[datetime]:
     return dt.astimezone(timezone.utc)
 
 
-def _parse_tardis_epoch_microseconds(s: str) -> Optional[datetime]:
+def _parse_epoch_microseconds(s: str) -> Optional[datetime]:
     if s is None:
         return None
     value = str(s).strip()
@@ -54,7 +54,6 @@ def _parse_tardis_epoch_microseconds(s: str) -> Optional[datetime]:
         ts_int = int(value)
     except ValueError:
         return None
-    # Tardis is explicit: integer epoch timestamps in microseconds.
     try:
         return datetime.fromtimestamp(ts_int / 1_000_000, tz=timezone.utc)
     except (OverflowError, OSError, ValueError):
@@ -67,9 +66,8 @@ def _parse_ts_value(s: str) -> Optional[datetime]:
     normalized = str(s).strip()
     if not normalized:
         return None
-    # Explicit Tardis epoch-microseconds support. Keep ISO parsing for contract-compatible inputs.
     if normalized.isdigit():
-        return _parse_tardis_epoch_microseconds(normalized)
+        return _parse_epoch_microseconds(normalized)
     iso_dt = _parse_iso_ts(normalized)
     if iso_dt is not None:
         return iso_dt

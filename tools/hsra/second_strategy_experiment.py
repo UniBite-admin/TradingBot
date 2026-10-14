@@ -12,14 +12,14 @@ from .ohlcv import OHLCVCandle, _bucket_start, build_ohlcv_window
 from .reader import iter_trades
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MANIFEST_PATH = ROOT / "data" / "provenance" / "tardis_btc_eur_first_of_month_manifest.json"
+DEFAULT_MANIFEST_PATH = ROOT / "data" / "provenance" / "kraken_btc_eur_5m_manifest.json"
 DEFAULT_KRAKEN_MANIFEST_PATH = ROOT / "data" / "provenance" / "kraken_btc_eur_5m_manifest.json"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "experiments"
 DEFAULT_LOOKBACK = 12
 DEFAULT_HOLD_PERIOD = 3
 
 
-def _manifest_path(path: str | Path | None, *, source_kind: str = "tardis") -> Path:
+def _manifest_path(path: str | Path | None, *, source_kind: str = "kraken") -> Path:
     if path is not None:
         return Path(path)
     if source_kind == "kraken":
@@ -266,7 +266,7 @@ def _signal_observations_for_window(
     return observations
 
 
-def run_second_strategy_experiment(*, manifest_path: str | Path | None = None, output_dir: str | Path | None = None, lookback: int = DEFAULT_LOOKBACK, hold_period: int = DEFAULT_HOLD_PERIOD, source_kind: str = "tardis") -> dict:
+def run_second_strategy_experiment(*, manifest_path: str | Path | None = None, output_dir: str | Path | None = None, lookback: int = DEFAULT_LOOKBACK, hold_period: int = DEFAULT_HOLD_PERIOD, source_kind: str = "kraken") -> dict:
     manifest_path = _manifest_path(manifest_path, source_kind=source_kind)
     output_dir = Path(output_dir) if output_dir is not None else DEFAULT_OUTPUT_DIR
 
@@ -437,7 +437,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--outdir", default=str(DEFAULT_OUTPUT_DIR), help="Directory for the generated report.")
     parser.add_argument("--lookback", type=int, default=DEFAULT_LOOKBACK, help="Approved local downside sweep lookback in completed candles.")
     parser.add_argument("--horizon", type=int, default=DEFAULT_HOLD_PERIOD, help="Fixed holding horizon in completed candles for the descriptive forward-return measurement.")
-    parser.add_argument("--source-kind", default="tardis", choices=["tardis", "kraken"], help="Select the explicit research data source for the experiment.")
+    parser.add_argument("--source-kind", default="kraken", choices=["kraken"], help="Select the explicit research data source for the experiment.")
     args = parser.parse_args(argv)
 
     manifest_path = args.manifest if args.manifest is not None else _manifest_path(None, source_kind=args.source_kind)

@@ -1,0 +1,30 @@
+{
+  "dataset_name": "kraken_btc_eur_5m_ohlcv_rerun_2026_10_14",
+  "source": "Kraken public OHLC export",
+  "market": "BTC-EUR",
+  "status": "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY",
+  "scope": {
+    "sample_rule": "explicit Kraken BTC/EUR 5-minute OHLCV source only",
+    "allowed_use": "isolated descriptive research only; no venue mixing, no execution claims, no fusion with legacy Tardis source records",
+    "excluded_claims": [
+      "raw-trade ingestion equivalence",
+      "Bitvavo execution validity",
+      "statistical representativeness",
+      "profitability proof",
+      "paper-trading approval",
+      "live-trading approval"
+    ]
+  },
+  "file_count": 1,
+  "files": [
+    {
+      "date": "2026-10-12",
+      "market": "BTC-EUR",
+      "file": {
+        "path": "data\\kraken\\XBTEUR_5.csv",
+        "size_bytes": 80269660,
+        "sha256": null
+      }
+    }
+  ]
+}

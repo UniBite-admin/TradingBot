@@ -1,211 +1,89 @@
-# Trading Bot - Authoritative Roadmap
+# Trading Bot - Kraken-Only Research Roadmap
 
 ## Purpose
 
-This roadmap defines the approved project sequence and the current blocked decisions required before implementation begins.
+This roadmap defines the current, provider-specific research path for the repository: Kraken BTC/EUR 5-minute OHLCV is the historical source, and all descriptive study work remains bounded and non-trading.
 
-This file is the authoritative roadmap for the repository.
+## Current status
 
-## Current Status
+- Historical source: Kraken BTC/EUR 5-minute OHLCV export under `data/kraken/`.
+- Research scope: descriptive, sparse-sample, non-execution, and provider-specific.
+- Implementation status: the repository contains Kraken validation and signal-analysis utilities, but no live-trading deployment or profitability claim is authorized.
+- Live trading status: not allowed.
+- Scaling status: not allowed without fresh evidence and human approval.
 
-- Stage: Definition and planning.
-- Implementation status: Not started.
-- Strategy status: Specification drafted and pending human review; not approved.
-- Exchange status: Bitvavo Spot intended execution venue selected; historical research source provisionally set to Tardis.dev Binance Jersey BTCEUR quotes and trades with daily `.csv.gz` files limited to the first calendar day of each month only; the first experiment remains unapproved.
-- Historical-sample status: the first-of-month sample is provisionally accepted for continued research under current data-access and budget constraints, but it is not yet a final adequacy validation and may not represent the full month.
-- Live trading status: Not allowed.
-- Decision authority: delegated by the project owner to ChatGPT on 2026-10-11. Classification: human-authorized delegated decision. The project owner delegated the decision; the specific choice was made under that delegation.
-- Delegated-scope limitation: this delegation does not authorize live trading activation, real-money trading, exchange orders, deployment, or advancement to later project phases beyond the bounded research scope recorded in `S3D-007` through `S3D-013`.
+## Research workflow
 
-## Approved Workflow
+1. Validate source schema and timestamp semantics.
+2. Keep the Experiment A-equivalent mechanics fixed and provider-neutral.
+3. Reject ambiguous or missing windows instead of backfilling.
+4. Record provenance, UTC bounds, validation counts, and limitations.
+5. Assess descriptive outcome only.
+6. Only after explicit approval may later stages consider broader validation or execution.
 
-The project advances only through the following sequence:
+## Stage gates
 
-1. Project definition and governance.
-2. Technical planning.
-3. Strategy specification.
-4. Market data and research environment setup.
-5. Backtesting implementation.
-6. Validation with realistic costs and constraints.
-7. Paper trading.
-8. Controlled small live test.
-9. Evaluation.
-10. Controlled scaling only if evidence supports it.
+### Stage 1 - Governance and scope
 
-## Stage Gates
+Status: complete.
 
-### Stage 1 - Project definition and governance
+Evidence:
 
-Status: Complete.
+- Project mission, risk boundaries, and no-assumptions rules are documented.
+- Kraken is the active research source and Tardis is removed from the active repository contract.
 
-Exit evidence:
+### Stage 2 - Data validation and source contract
 
-- Project mission, boundaries, and operating principles documented.
-- Capital protection and no-assumptions governance documented.
-- Authoritative definition and roadmap created.
-
-### Stage 2 - Technical planning
-
-Status: Handover to Sprint 03.
+Status: active.
 
 Objective:
 
-- Define the minimum system architecture required for research and controlled execution.
-
-Required decisions:
-
-- Historical-data adequacy and statistical validity of the bounded Tardis.dev Binance Jersey BTCEUR sample for the first experiment.
-- Market universe selection method.
-- Candle intervals.
-- Data sources.
-- Initial language and runtime.
-- Storage requirements.
-- Logging and experiment tracking approach.
-
-Required outputs:
-
-- Technical architecture outline.
-- Component boundaries.
-- Initial repository layout.
-- Environment and secret-handling rules.
-
-Current repository evidence:
-
-- `TECHNICAL_PLAN.md` records the proposed comprehensive technical plan and implementation roadmap for review.
-- Sprint 02 closed after documenting the unresolved Stage 2 evidence gaps and transferring them to Sprint 03.
-
-Blocked by:
-
-- unresolved evidence gates beyond the bounded research scope,
-- the remaining validation, realism, and profitability requirements for later project stages,
-- continued stage-gate discipline before broader implementation or paper/live activation.
-
-Previously unowned Stage 2 decisions are now resolved for the bounded research scope under the delegated authority recorded in `S3D-007` through `S3D-013`:
-
-- `S3D-008` - BTC-EUR only for the first bounded experiment.
-- `S3D-009` - Python 3.12 for the initial research environment, with compatibility and verification still required.
-- `S3D-010` - file-based, reproducible artifacts for the bounded experiment; no new database required solely for this experiment.
-- `S3D-011` - Python standard logging plus structured, machine-readable experiment records using existing repository conventions.
-
-These delegated decisions resolve the earlier ownership gap only within the bounded, exploratory research scope. They do not authorize broader implementation, paper trading, live trading, or scaling.
+- Keep a single, valid source contract for Kraken OHLCV: row semantics, 5-minute alignment, sparse-gap handling, and fail-closed rejection rules.
 
 ### Stage 3 - Strategy specification
 
-Status: In progress.
+Status: active.
 
 Objective:
 
-- Define one explicit candlestick-based strategy hypothesis without silent parameters.
+- Keep the descriptive signal mechanics provider-independent:
+  - signal = 1 if close > open
+  - next-period return = (close_{k+1} - close_k) / close_k
+  - baseline = unconditional positive-return rate on the same eligible observations
+  - no look-ahead
+  - no silent gap repair
 
-Required decisions:
+### Stage 4 - Historical analysis
 
-- Entry conditions.
-- Exit conditions.
-- Invalidation rules.
-- Timeframe.
-- Candidate assets or asset-selection rules.
-- Position sizing method.
-- Risk constraints.
-
-Required outputs:
-
-- Testable strategy specification.
-- Clear distinction between hypothesis, approved rule, implemented rule, and validated result.
-
-Current repository evidence:
-
-- `STRATEGY_SPECIFICATION.md` records the proposed candlestick strategy specification for review.
-
-Blocked by:
-
-- Human approval of a concrete strategy specification.
-
-### Stage 4 - Market data and research environment setup
-
-Status: Not started.
+Status: enabled for the Kraken sample.
 
 Objective:
 
-- Build the minimum data pipeline required to collect and inspect historical candlestick data for approved markets.
+- Run only bounded descriptive analysis over the retained Kraken OHLCV source and record all limits explicitly.
 
-Required outputs:
+### Stage 5 - Realistic validation and paper-trading readiness
 
-- Verified data ingestion path.
-- Reproducible research environment.
-- Initial data quality checks.
-
-### Stage 5 - Backtesting implementation
-
-Status: Not started.
+Status: not started.
 
 Objective:
 
-- Implement a reproducible backtest for the approved strategy.
+- Determine whether the strategy can survive realistic cost and execution constraints before any broader decision.
 
-Required outputs:
+### Stage 6 - Controlled live test
 
-- Strategy evaluation against historical data.
-- Versioned configurations and run metadata.
-- Reproducible result artifacts.
-
-### Stage 6 - Validation with realistic costs and constraints
-
-Status: Not started.
+Status: not started.
 
 Objective:
 
-- Determine whether the strategy remains viable after fees, spread, slippage, latency, liquidity limits, and order constraints.
+- Permit only a tightly controlled spot test under explicit human approval and risk controls.
 
-Required outputs:
+### Stage 7 - Controlled scaling
 
-- Validation report with explicit assumptions.
-- Failure analysis where profitability degrades under realistic execution.
-
-### Stage 7 - Paper trading
-
-Status: Not started.
+Status: not started.
 
 Objective:
 
-- Verify operational behavior without risking capital.
-
-Required outputs:
-
-- Decision logs.
-- Order simulation evidence.
-- Operational incident log.
-
-### Stage 8 - Controlled small live test
-
-Status: Not started.
-
-Objective:
-
-- Run a tightly constrained live spot test only after paper-trading evidence supports it.
-
-Hard preconditions:
-
-- Spot-only exchange configuration.
-- No withdrawal permission on API keys.
-- Approved numeric risk limits.
-- Emergency stop tested.
-- Human approval for live deployment.
-
-### Stage 9 - Evaluation
-
-Status: Not started.
-
-Objective:
-
-- Compare research, paper, and live results and decide whether the strategy has repeatable positive expectancy.
-
-### Stage 10 - Controlled scaling
-
-Status: Not started.
-
-Objective:
-
-- Scale only if evidence supports it and risk controls remain effective.
+- Scale only after approval, evidence, and persistent risk checks.
 
 ## Known Facts
 

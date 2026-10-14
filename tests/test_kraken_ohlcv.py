@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from tools.hsra.bounded_experiment import run_manifest_experiment
 from tools.hsra.kraken_ohlcv import extract_contiguous_kraken_windows, load_kraken_ohlcv
 from tools.hsra.merger import HSRAError
 from tools.hsra.second_strategy_experiment import _signal_observations_for_window, run_second_strategy_experiment
@@ -83,10 +84,39 @@ def test_kraken_ohlcv_keeps_sparse_gaps_and_excludes_incomplete_final_candle(tmp
     assert windows[1][0].interval_start == datetime(2024, 1, 1, 0, 20, tzinfo=timezone.utc)
 
 
-def test_second_strategy_experiment_default_tardis_manifest_stays_unchanged(tmp_path):
+def test_manifest_experiment_uses_kraken_loader_for_kraken_ohlcv_manifest(tmp_path):
+    csv_path = tmp_path / "XBTEUR_5.csv"
+    _write_kraken_csv(csv_path, [
+        "1704067200,100.0,101.0,99.0,100.0,1.0,1",
+        "1704067500,100.0,102.0,98.5,101.5,1.1,1",
+        "1704067800,101.5,103.0,100.0,102.0,1.2,1",
+        "1704068100,102.0,102.5,101.0,101.2,1.0,1",
+        "1704068400,101.2,101.5,100.0,100.5,0.9,1",
+        "1704068700,100.5,101.0,99.8,100.8,0.8,1",
+    ])
+
+    manifest = {
+        "dataset_name": "kraken_btc_eur_5m_ohlcv",
+        "source": "Kraken public OHLC export",
+        "market": "BTC-EUR",
+        "status": "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY",
+        "scope": {"sample_rule": "explicit Kraken BTC/EUR 5-minute OHLCV source only"},
+        "files": [{"file": {"path": str(csv_path).replace("\\", "/")}}],
+    }
+    manifest_path = tmp_path / "kraken_manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    report = run_manifest_experiment(manifest_path=manifest_path, output_dir=tmp_path / "results")
+
+    assert report["execution_status"] == "PARTIALLY_WORKING"
+    assert report["manifest_status"] == "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY"
+    assert report["eligible_observation_count"] > 0
+
+
+def test_second_strategy_experiment_default_kraken_manifest_stays_kraken_only(tmp_path):
     report = run_second_strategy_experiment(output_dir=tmp_path / "results")
-    assert report["manifest_status"] == "PROVISIONAL_BOUND_RESEARCH_ONLY"
-    assert report["source_kind"] == "tardis"
+    assert report["manifest_status"] == "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY"
+    assert report["source_kind"] == "kraken"
 
 
 def test_second_strategy_experiment_kraken_manifest_is_explicitly_isolated(tmp_path):

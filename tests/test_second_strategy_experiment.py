@@ -88,12 +88,13 @@ def test_local_rejection_signal_rejects_missing_forward_outcome():
 
 def test_second_strategy_experiment_runs_on_manifest_and_is_reproducible(tmp_path):
     report = run_second_strategy_experiment(output_dir=tmp_path / "results")
-    assert report["execution_status"] == "BLOCKED"
+    assert report["execution_status"] == "PARTIALLY_WORKING"
     assert report["lookback"] == 12
     assert report["forward_horizon_candles"] == 3
     assert report["entry_reference"] == "next_candle_open"
     assert report["signal_validity"] == "immediately_following_confirmation_candle"
-    assert report["reason"].startswith("The approved bounded sample produced no eligible forward-return observations")
+    assert report["manifest_status"] == "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY"
+    assert report["source_kind"] == "kraken"
 
     second = run_second_strategy_experiment(output_dir=tmp_path / "results")
     assert second == report

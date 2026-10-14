@@ -5,7 +5,7 @@
   "status": "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY",
   "scope": {
     "sample_rule": "explicit Kraken BTC/EUR 5-minute OHLCV source only",
-    "allowed_use": "isolated descriptive research only; no venue mixing, no execution claims, no fusion with the Tardis manifest",
+    "allowed_use": "isolated descriptive research only; no venue mixing, no execution claims, no fusion with legacy Tardis source records",
     "excluded_claims": [
       "raw-trade ingestion equivalence",
       "Bitvavo execution validity",

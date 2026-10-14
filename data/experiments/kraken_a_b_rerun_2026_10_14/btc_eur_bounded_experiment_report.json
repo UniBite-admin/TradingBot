@@ -1,0 +1,250 @@
+{
+  "allowed_use": "isolated descriptive research only; no venue mixing, no execution claims, no fusion with legacy Tardis source records",
+  "baseline_positive_count": 622562,
+  "baseline_positive_rate": 0.4844919644601196,
+  "difference_pp": -1.2415206927838374,
+  "eligible_observation_count": 1284979,
+  "execution_status": "PARTIALLY_WORKING",
+  "experiment_name": "bounded_btc_eur_5m_descriptive_signal",
+  "files_processed": 1,
+  "manifest_status": "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY",
+  "max_next_period_return": 0.17155760571377923,
+  "mean_next_period_return": 7.000726899490301e-06,
+  "median_next_period_return": 0.0,
+  "min_next_period_return": -0.17777777777777778,
+  "rejected_windows": [],
+  "sample_rule": "explicit Kraken BTC/EUR 5-minute OHLCV source only",
+  "signal_observation_count": 613360,
+  "signal_positive_count": 289553,
+  "signal_positive_rate": 0.47207675753228123,
+  "status_detail": "bounded_manifest_sample_processed",
+  "utc_boundary_status": {
+    "reason": "The sample is limited to the first calendar day of each month and the event timestamps are UTC epoch microseconds; the file names and timestamps do not prove full UTC-day completeness. Valid windows are extracted only from contiguous observed trade buckets, and these are reported as bounded descriptive observations rather than complete UTC-day coverage.",
+    "status": "UNVERIFIED"
+  },
+  "valid_window_count": 17522,
+  "valid_windows": [
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-09-13T15:20:00+00:00",
+        "2013-09-13T15:25:00+00:00"
+      ],
+      "run_end": "2013-09-13T15:30:00+00:00",
+      "run_start": "2013-09-13T15:20:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-09-17T21:15:00+00:00",
+        "2013-09-17T21:20:00+00:00"
+      ],
+      "run_end": "2013-09-17T21:25:00+00:00",
+      "run_start": "2013-09-17T21:15:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-09-29T19:40:00+00:00",
+        "2013-09-29T19:45:00+00:00"
+      ],
+      "run_end": "2013-09-29T19:50:00+00:00",
+      "run_start": "2013-09-29T19:40:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-02T14:10:00+00:00",
+        "2013-10-02T14:15:00+00:00"
+      ],
+      "run_end": "2013-10-02T14:20:00+00:00",
+      "run_start": "2013-10-02T14:10:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-02T17:30:00+00:00",
+        "2013-10-02T17:35:00+00:00"
+      ],
+      "run_end": "2013-10-02T17:40:00+00:00",
+      "run_start": "2013-10-02T17:30:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-03T01:15:00+00:00",
+        "2013-10-03T01:20:00+00:00"
+      ],
+      "run_end": "2013-10-03T01:25:00+00:00",
+      "run_start": "2013-10-03T01:15:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-03T09:00:00+00:00",
+        "2013-10-03T09:05:00+00:00"
+      ],
+      "run_end": "2013-10-03T09:10:00+00:00",
+      "run_start": "2013-10-03T09:00:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 17,
+      "candle_starts": [
+        "2013-10-08T20:45:00+00:00",
+        "2013-10-08T20:50:00+00:00",
+        "2013-10-08T20:55:00+00:00",
+        "2013-10-08T21:00:00+00:00",
+        "2013-10-08T21:05:00+00:00",
+        "2013-10-08T21:10:00+00:00",
+        "2013-10-08T21:15:00+00:00",
+        "2013-10-08T21:20:00+00:00",
+        "2013-10-08T21:25:00+00:00",
+        "2013-10-08T21:30:00+00:00",
+        "2013-10-08T21:35:00+00:00",
+        "2013-10-08T21:40:00+00:00",
+        "2013-10-08T21:45:00+00:00",
+        "2013-10-08T21:50:00+00:00",
+        "2013-10-08T21:55:00+00:00",
+        "2013-10-08T22:00:00+00:00",
+        "2013-10-08T22:05:00+00:00"
+      ],
+      "run_end": "2013-10-08T22:10:00+00:00",
+      "run_start": "2013-10-08T20:45:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 4,
+      "candle_starts": [
+        "2013-10-08T22:15:00+00:00",
+        "2013-10-08T22:20:00+00:00",
+        "2013-10-08T22:25:00+00:00",
+        "2013-10-08T22:30:00+00:00"
+      ],
+      "run_end": "2013-10-08T22:35:00+00:00",
+      "run_start": "2013-10-08T22:15:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-09T18:50:00+00:00",
+        "2013-10-09T18:55:00+00:00"
+      ],
+      "run_end": "2013-10-09T19:00:00+00:00",
+      "run_start": "2013-10-09T18:50:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-09T19:10:00+00:00",
+        "2013-10-09T19:15:00+00:00"
+      ],
+      "run_end": "2013-10-09T19:20:00+00:00",
+      "run_start": "2013-10-09T19:10:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 5,
+      "candle_starts": [
+        "2013-10-09T20:25:00+00:00",
+        "2013-10-09T20:30:00+00:00",
+        "2013-10-09T20:35:00+00:00",
+        "2013-10-09T20:40:00+00:00",
+        "2013-10-09T20:45:00+00:00"
+      ],
+      "run_end": "2013-10-09T20:50:00+00:00",
+      "run_start": "2013-10-09T20:25:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 3,
+      "candle_starts": [
+        "2013-10-09T22:10:00+00:00",
+        "2013-10-09T22:15:00+00:00",
+        "2013-10-09T22:20:00+00:00"
+      ],
+      "run_end": "2013-10-09T22:25:00+00:00",
+      "run_start": "2013-10-09T22:10:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-10T20:00:00+00:00",
+        "2013-10-10T20:05:00+00:00"
+      ],
+      "run_end": "2013-10-10T20:10:00+00:00",
+      "run_start": "2013-10-10T20:00:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-13T14:50:00+00:00",
+        "2013-10-13T14:55:00+00:00"
+      ],
+      "run_end": "2013-10-13T15:00:00+00:00",
+      "run_start": "2013-10-13T14:50:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-14T06:10:00+00:00",
+        "2013-10-14T06:15:00+00:00"
+      ],
+      "run_end": "2013-10-14T06:20:00+00:00",
+      "run_start": "2013-10-14T06:10:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-14T08:45:00+00:00",
+        "2013-10-14T08:50:00+00:00"
+      ],
+      "run_end": "2013-10-14T08:55:00+00:00",
+      "run_start": "2013-10-14T08:45:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 3,
+      "candle_starts": [
+        "2013-10-16T07:00:00+00:00",
+        "2013-10-16T07:05:00+00:00",
+        "2013-10-16T07:10:00+00:00"
+      ],
+      "run_end": "2013-10-16T07:15:00+00:00",
+      "run_start": "2013-10-16T07:00:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-16T09:40:00+00:00",
+        "2013-10-16T09:45:00+00:00"
+      ],
+      "run_end": "2013-10-16T09:50:00+00:00",
+      "run_start": "2013-10-16T09:40:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    },
+    {
+      "candle_count": 2,
+      "candle_starts": [
+        "2013-10-17T11:35:00+00:00",
+        "2013-10-17T11:40:00+00:00"
+      ],
+      "run_end": "2013-10-17T11:45:00+00:00",
+      "run_start": "2013-10-17T11:35:00+00:00",
+      "trade_file": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv"
+    }
+  ]
+}
