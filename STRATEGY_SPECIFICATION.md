@@ -145,17 +145,13 @@ Minimum evidence required before the next controlled rerun:
 
 The repository must not claim verified archive coverage or exact UTC bounds unless this evidence exists.
 
-### Stale wording requiring correction in the generated A report
+### Resolved stale-wording status for the generated A report
 
-The stale wording is generated in `tools/hsra/bounded_experiment.py` inside the `utc_boundary_status.reason` field and is asserted by `tests/test_bounded_experiment.py` for the old first-of-month wording. The current output still refers to a first-calendar-day sample and Tardis-style event semantics, even though the active source is Kraken OHLCV.
+The generator wording and the focused validation contract for the bounded A report have been corrected in the repository. This resolves the stale wording issue only.
 
-The minimal required correction, when the report is regenerated under an approved rerun, is:
+This does not prove that the report was regenerated, nor does it independently establish raw archive identity, exact UTC coverage, or complete day-level data coverage. The current descriptive result remains bounded research evidence only and does not constitute execution evidence or proof of profitability.
 
-- replace the first-of-month/Tardis wording with a Kraken-specific note,
-- state that the raw archive identity and exact UTC coverage are not independently verified unless the manifest and raw-byte SHA-256 evidence exist,
-- keep the result explicitly descriptive and non-execution.
-
-This task does not rerun the experiment or regenerate reports, and it does not claim that the Kraken archive has been fully verified or that the old Tardis sample has been replicated on Kraken.
+The repository continues to preserve the historical Tardis provenance notes and must not imply that historical Tardis artifacts were deleted or that the Kraken dataset has been fully verified.
 
 ## 4. Exact Candidate Entry Rules
 

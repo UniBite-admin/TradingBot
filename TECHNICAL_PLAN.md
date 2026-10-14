@@ -81,6 +81,7 @@ The repository is therefore no longer in the original planning-only state descri
 - `S3D-011`: the repository must preserve distinct source provenance for active Kraken results and historical Tardis artifacts.
 - `S3D-012`: exploratory results remain exploratory; execution-cost realism and positive-expectancy validation remain separate unresolved evidence gates.
 - `S3D-013`: these decisions resolve the active-source contract only for the current Kraken research scope and do not authorize wider implementation, paper trading, live trading, or scaling.
+- `S3D-014`: approved holistic research direction for evidence-driven evaluation of complementary strategy components and integrated spot-trading candidates, documented in `STRATEGY_SPECIFICATION.md`; this authorizes research-design documentation only and does not authorize a trading strategy, code implementation, experiment execution, backtests, paper trading, live trading, or scaling.
 
 ### What Is Not Approved
 
