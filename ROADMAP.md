@@ -9,6 +9,7 @@ This roadmap defines the current, provider-specific research path for the reposi
 - Active source: Kraken BTC/EUR 5-minute OHLCV export under `data/kraken/`.
 - Historical artifacts retained as evidence only: legacy Tardis first-of-month files and their associated reports are preserved for provenance and comparison, but they are not the active repository input contract.
 - Research scope: descriptive, provider-specific, non-execution, and fail-closed against ambiguous source semantics.
+- Approved research direction: holistic component evaluation using the explicitly documented existing rules, baselines, and validation constraints, while keeping Experiment A and Experiment B distinct descriptive studies. This is a research-design approval only; it does not authorize code changes, experiments, paper trading, live trading, or scaling.
 - Live trading status: not allowed.
 - Scaling status: not allowed without fresh evidence and human approval.
 
@@ -50,7 +51,13 @@ Objective:
 - Keep the descriptive mechanics explicit and separate by experiment:
   - Experiment A: bullish-close signal, next-period return, baseline comparison, and same-eligible-observation logic.
   - Experiment B: local rejection/confirmation signal using the current implementation defaults, reported as a descriptive signal evaluation only.
+  - Baselines B1 and B2 remain comparison methods, not approved production strategies.
+  - Use the existing documented entry, confirmation, filter, exit, position-management, risk, and data-quality rules as the inventory for a holistic component-research design.
   - No look-ahead; no silent gap repair; no strategy-approval claim.
+
+Required next dependency:
+
+- Define the comparison semantics and candidate-combination protocol for justified component combinations before any integrated backtest, paper-trading design, or implementation change.
 
 ### Stage 4 - Historical analysis
 

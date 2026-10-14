@@ -20,9 +20,13 @@ def test_manifest_experiment_runs_on_default_kraken_sample(tmp_path):
 def test_manifest_experiment_marks_kraken_utc_boundary_limitation_explicitly(tmp_path):
     report = run_manifest_experiment(output_dir=tmp_path / "results")
 
-    assert "UTC" in report["utc_boundary_status"]["reason"]
+    reason = report["utc_boundary_status"]["reason"]
+    assert "manifest-listed Kraken BTC/EUR 5-minute OHLCV sample" in reason
+    assert "UTC coverage and complete day-level completeness have not been independently verified" in reason
+    assert "Only valid contiguous observed candle windows are evaluated" in reason
+    assert "bounded descriptive observations" in reason
+    assert "tardis" not in reason.lower()
     assert "explicit Kraken BTC/EUR 5-minute OHLCV source only" in report["sample_rule"]
-    assert "bounded descriptive observations" in report["utc_boundary_status"]["reason"]
 
 
 def test_manifest_experiment_rejects_missing_manifest_cleanly(tmp_path):

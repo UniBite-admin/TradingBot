@@ -300,7 +300,7 @@ def run_manifest_experiment(*, manifest_path: str | Path | None = None, output_d
         "allowed_use": manifest.get("scope", {}).get("allowed_use"),
         "utc_boundary_status": {
             "status": "UNVERIFIED",
-            "reason": "The sample is limited to the first calendar day of each month and the event timestamps are UTC epoch microseconds; the file names and timestamps do not prove full UTC-day completeness. Valid windows are extracted only from contiguous observed trade buckets, and these are reported as bounded descriptive observations rather than complete UTC-day coverage.",
+            "reason": "The active input is the manifest-listed Kraken BTC/EUR 5-minute OHLCV sample. UTC coverage and complete day-level completeness have not been independently verified. Only valid contiguous observed candle windows are evaluated, and the output represents bounded descriptive observations rather than proof of complete UTC-day coverage. Missing intervals are not filled or bridged by assumption.",
         },
         "files_processed": len(source_files),
         "valid_window_count": len(valid_runs),

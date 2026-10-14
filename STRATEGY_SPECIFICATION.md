@@ -87,6 +87,27 @@ The following historical items remain preserved as evidence only and must not be
 
 The repository may retain those artifacts for traceability, but they must be explicitly labeled historical, not active.
 
+### Approved research-direction decision: holistic component evaluation (2026-10-14)
+
+`APPROVED (HUMAN-AUTHORIZED DELEGATED DECISION, 2026-10-14)`
+
+- `S3D-014`: The repository approves a holistic, evidence-driven research direction for identifying complementary strategy components and evaluating integrated spot-trading candidates. This decision authorizes research-design documentation only; it does not authorize code changes, experiment execution, backtests, paper trading, live trading, or scaling.
+
+This decision is an approved research-direction decision, not an approved trading strategy.
+
+1. Research objective: identify and validate useful combinations of existing strategy components, rather than selecting a winner between Experiment A and Experiment B alone.
+2. Experiment A and Experiment B: retain their current definitions and distinct descriptive-research purposes. They remain separate research questions and are not silently redefined or collapsed into a single winner-takes-all comparison.
+3. Baselines B1 and B2: treat them as comparison methods only, not as approved production strategies.
+4. Component research: inventory and verify the exact existing entry, confirmation, filter, exit, position-management, risk, and data-quality rules before selecting combinations.
+5. Incremental evaluation: investigate the contribution of individual components and justified combinations. Do not assume that adding a filter improves performance or that all components should be combined.
+6. Fair comparison: use a documented common data and evaluation framework where comparisons are valid, while preserving each method's legitimate signal eligibility and entry/return semantics. Do not force incompatible experiments onto an artificially identical observation set.
+7. Overfitting controls: define parameter choices and the evaluation protocol before examining final evaluation results. Keep parameter selection separate from final out-of-sample evaluation. Do not invent arbitrary acceptance thresholds or statistical claims.
+8. Integrated backtest: only after the candidate rules and protocol are explicitly specified and the required approvals are recorded, evaluate candidates with realistic fees, spread, slippage, execution assumptions, and relevant capital/risk constraints.
+9. Evidence standard: distinguish descriptive signal observations from executable trades and net profitability. No profitability claim is justified without reproducible, appropriately controlled, cost-aware validation.
+10. Scope boundary: SPOT only. This decision grants no paper-trading, live-trading, or scaling authorization. Those remain separate approval gates.
+
+The approved research direction is therefore: document and validate the existing rule inventory, define a fair comparison protocol for justified combinations, and treat the integrated candidate as a proposal pending explicit approval and evidence from cost-aware validation. This does not approve a live strategy, a parameter grid, or a profitability claim.
+
 ### Experiment A contract
 
 Experiment A is the descriptive bullish-close signal study currently implemented in `tools/hsra/bounded_experiment.py`.
