@@ -63,24 +63,24 @@ The repository is therefore no longer in the original planning-only state descri
 
 - Project mission: research-driven crypto trading system focused on short-term candlestick-based analysis.
 - Scope: spot-only trading.
-- Intended execution venue: Bitvavo Spot, selected by the human and recorded during Sprint 02.
-- Historical research source: provisionally accepted Tardis.dev Binance Jersey BTCEUR quotes and trades in daily `.csv.gz` archives, limited to the first calendar day of each month only for the first bounded study.
-- Provisional-scope limitation: this acceptance is for continued research under the current data-access and budget constraints; it does not prove statistical representativeness, final dataset adequacy, or strategy profitability.
-- Future full-month acquisition: a complete month of historical data remains a possible future option requiring a separate human budget decision and is not authorized by the current provisional scope.
+- Intended execution venue: Bitvavo Spot remains a future venue concept, but it is not the active research source for this repository state.
+- Historical research source: Kraken BTC/EUR 5-minute OHLCV export under `data/kraken/` is the active source for the current descriptive research contract.
+- Historical artifacts retained: legacy Tardis first-of-month files, manifests, and reports remain preserved for traceability and audit, but they are not active input requirements for the current Kraken contract.
+- Provisional-scope limitation: any current descriptive result remains sample-limited and must not be treated as representative, execution-realistic, or profitable.
 - Exclusions: no leverage, no margin, no futures, no perpetuals.
 - Governance: no silent assumptions, evidence over intuition, risk authority over strategy, reproducibility required.
 - Validation path: historical research -> backtesting -> realistic validation -> paper trading -> controlled small live test -> evaluation -> scaling decision.
 - Multi-asset intent: the system should be able to monitor multiple markets and compare opportunities under documented rules.
 
-`APPROVED (HUMAN-AUTHORIZED DELEGATED DECISION, 2026-10-11)`:
+`APPROVED (HUMAN-AUTHORIZED DELEGATED DECISION, 2026-10-14)`:
 
-- `S3D-007`: the first experiment is a bounded, reproducible exploratory signal-research experiment using the accepted research boundary only; it is not a profitability validation or a paper/live-trading authorization.
-- `S3D-008`: BTC-EUR only for the first bounded experiment; multi-asset monitoring remains a future system objective.
-- `S3D-009`: Python 3.12 for the initial research environment; compatibility and verification remain required before claiming the environment is ready for broader implementation.
-- `S3D-010`: file-based, reproducible artifacts for the bounded experiment; canonical source data remain immutable; no new database is required solely for this experiment.
-- `S3D-011`: Python standard logging plus structured, machine-readable experiment records using JSON Lines and per-run manifests in the repo's existing suitable formats.
+- `S3D-007`: the current active descriptive research contract is Kraken BTC/EUR 5-minute OHLCV; Tardis material is historical evidence only.
+- `S3D-008`: Experiment A and Experiment B remain separate descriptive research questions unless a future comparison protocol is explicitly approved.
+- `S3D-009`: Python 3.12 remains the active environment assumption for the current repo state, but environment readiness must still be verified before broader implementation claims.
+- `S3D-010`: files remain immutable and run artifacts must keep clear provenance boundaries; no raw data is modified by this documentation-only task.
+- `S3D-011`: the repository must preserve distinct source provenance for active Kraken results and historical Tardis artifacts.
 - `S3D-012`: exploratory results remain exploratory; execution-cost realism and positive-expectancy validation remain separate unresolved evidence gates.
-- `S3D-013`: these decisions resolve the Stage 2 planning gap only within the bounded research scope and do not authorize wider implementation, paper trading, live trading, or scaling.
+- `S3D-013`: these decisions resolve the active-source contract only for the current Kraken research scope and do not authorize wider implementation, paper trading, live trading, or scaling.
 
 ### What Is Not Approved
 
@@ -88,17 +88,16 @@ The repository is therefore no longer in the original planning-only state descri
 
 `UNRESOLVED DECISION`:
 
-- Final historical-data adequacy and statistical validity beyond the bounded exploratory research sample.
+- Final historical-data adequacy and statistical validity beyond the bounded descriptive sample.
 - Realistic Bitvavo execution-cost modeling and positive-expectancy validation.
-- Candle semantics beyond the already frozen bounded research contract.
+- Candle semantics beyond the already enforced Kraken contract.
 - Numerical risk limits and position sizing for anything beyond the research-only scope.
 - Paper-trading design details and live deployment approval.
-- Future market expansion beyond the BTC-EUR first bounded experiment.
+- Future market expansion beyond the BTC-EUR research study.
 
-`FACT`: The public Tardis exchange metadata confirms `btceur` availability from 2019-10-30 to 2020-11-10, and the documentation states that the CSV files are partitioned by `local_timestamp` while `timestamp` reflects the exchange event time. Direct minimal URL probes against the public dataset endpoints for the exact candidate first-of-month BTCEUR trades and quotes URLs returned HTTP 404 in this environment. The file-level sample is therefore documented as provisional rather than fully file-validated.
+`FACT`: The current repository state does not establish a raw-byte SHA-256 identity for the Kraken archive, and the exact UTC coverage of the raw CSV is not independently proven by the available artifacts alone. In other words, the active Kraken contract may be operationally valid for the current research scope without yet having cryptographically established input identity or full archive-boundary proof.
 
-`PROPOSED`: For the first bounded exploratory experiment, treat the Tardis first-of-month archive as a daily local-partition sample, not as a complete UTC-day event-time archive. Bar construction should use `timestamp` for event ordering and `local_timestamp` only as arrival metadata; if an event appears on an adjacent local day or if event-time coverage is ambiguous, reject the bar or signal rather than fill the gap by assumption. The same rule should apply to out-of-order records, partial-day files, and duplicate timestamps.
-
+`PROPOSED`: Keep the current active research contract explicitly Kraken-only and descriptive-only. Treat historical Tardis files and first-of-month sample wording as archived evidence, not as a live input requirement. A future clarified rerun may replace stale report wording only after the exact raw file identity, UTC coverage, and manifest identity have been verified.
 ### Proposed Research Policy for S02-102 and S02-103
 
 `PROPOSED (UNAPPROVED)`: Use a single `5m` primary bar timeframe for the first exploratory spot study. This is a conservative compromise that is supported by S02-102 as a plausible initial interval and is not presented as a proven optimal setting.
@@ -1365,7 +1364,7 @@ This is the minimum path to produce credible research evidence.
 | D-02 | Programming language | unresolved | no code exists | Python, .NET, TypeScript | Python 3.12 | yes | Phase 1 |
 | D-03 | Dependency management | unresolved | no environment exists | `venv`, Poetry, Conda, `uv` | `venv` with pinned dependencies | yes | Phase 1 |
 | D-04 | Trading venue | partially resolved | Bitvavo Spot is the human-selected intended venue; full Bitvavo data adequacy for the first experiment is not yet accepted | Bitvavo Spot, alternative venues only if later justified | retain Bitvavo Spot as the intended venue | yes | Phase 1 |
-| D-05 | Historical data source adequacy | partially resolved | Tardis.dev Binance Jersey BTCEUR quotes and trades are the selected bounded historical research dataset, but adequacy and sample-statistical limits remain open for explicit review | Bitvavo-only public data, Tardis historical only, combined source approach | Tardis historical Binance Jersey BTCEUR first-day-of-month sample with explicit limitations documented | yes | Phase 5 |
+| D-05 | Historical data source adequacy | partially resolved | The active repository contract is Kraken BTC/EUR 5-minute OHLCV; legacy Tardis first-of-month files remain preserved as historical evidence only and are not the active source requirement | Bitvavo-only public data, Kraken-only OHLCV, legacy Tardis evidence only | Kraken-only research contract with legacy Tardis retained as historical evidence only | yes | Phase 5 |
 | D-06 | Primary timeframe | proposed only | strategy spec recommends `5m` | `1m`, `3m`, `5m`, `15m` | `5m` for first study | yes | Phase 5 |
 | D-07 | Candle timestamp semantics | unresolved | explicitly unresolved in strategy spec | open-time, close-time | explicit open and close times with close-based signal evaluation | yes | Phase 5 |
 | D-08 | Missing-candle policy | unresolved | explicitly unresolved | reject gaps, resync, forward-fill | reject for eligibility, resync for recovery, never forward-fill signals | yes | Phase 5 |

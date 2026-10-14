@@ -67,150 +67,74 @@ This keeps the study consistent with the repository's risk and governance standa
 - the exact signal-definition and baseline logic used,
 - any excluded windows and the reason for exclusion.
 
-### Contract clarifications for the bounded descriptive experiment
+### Current active source contract
 
-`DELEGATED DECISION`: The project owner delegated technical and research decision authority to ChatGPT for the bounded research scope. The repository treats the decisions below as human-authorized delegated decisions, not as claims that the owner personally selected each technical detail.
+The current repository contract is:
 
-`INPUT SCOPE`: The authoritative input set for the bounded experiment is exactly the files listed in the manifest at `data/provenance/tardis_btc_eur_first_of_month_manifest.json`. The manifest records 12 file pairs for BTC-EUR and does not independently reselect or reinterpret the file set. For this contract, file selection is therefore the manifest-defined file set; observation eligibility is a separate filter.
+- Active source: Kraken BTC/EUR 5-minute OHLCV export under `data/kraken/`.
+- Active scope: descriptive research only, non-execution, fail-closed against ambiguous or invalid input.
+- Historical artifacts retained: the legacy Tardis first-of-month manifest and reports are preserved for provenance and audit, but they are not active source requirements for the current Kraken research contract.
+- No active-source claim is made that the current Kraken archive is fully representative, complete, or execution-ready.
 
-`TIMEZONE BLOCKER`: The repository evidence does not prove that the phrase “first calendar day of each month only” is a UTC-defined boundary. The manifest states the sample rule but does not prove the exact timezone semantics for the evaluation boundary. The current contract therefore records this as an explicit blocker: a run may only claim a UTC evaluation boundary if the source metadata or explicit run configuration establishes it; otherwise the boundary remains `blocked` and the run must reject or flag the boundary as unresolved rather than silently converting local dates to UTC.
+### Historical artifact classification
 
-`OBSERVATION ELIGIBILITY`: A signal and its following target candle are eligible only when both are fully completed, valid, and contained within the permitted input/evaluation scope. Observation eligibility is separate from file selection: a manifest-selected file may still produce an ineligible observation when a required source record, valid next-period candle, or valid completed interval is missing, ambiguous, or invalid. A target observation must not extend beyond the permitted input/evaluation boundary and must not use records outside the declared file set or run window.
+The following historical items remain preserved as evidence only and must not be described as the active Kraken input contract:
 
-`CANDLE SEMANTICS AND GAPS`: The repository already requires UTC-aligned 5-minute interval semantics, completed-candle validation, no silent backfill, and rejection of duplicate, ambiguous, or invalid windows. The bounded experiment therefore keeps the existing frozen rule: missing, still-forming, empty, or ambiguous intervals are rejected, not repaired by assumption. A target candle may not cross the allowed boundary, and it may not be created by carrying forward a previous close or an inferred empty candle.
+- Tardis first-of-month sampling rules.
+- Tardis manifest paths and associated first-day-of-month file selection criteria.
+- Historical reports generated from Tardis-style trade data.
+- Any wording that implies those historical files are the authoritative input for current Kraken work.
 
-`MINIMAL OUTPUT CONTRACT`: The bounded descriptive experiment must emit a minimal deterministic result package in UTF-8 with `\n` line endings. The canonical files are:
+The repository may retain those artifacts for traceability, but they must be explicitly labeled historical, not active.
 
-- `results_pooled.json` — pooled summary for the eligible observation set,
-- `results_by_day.json` — one object per sampled day in ascending date order,
-- `run_manifest.json` — execution metadata and provenance for the run.
+### Experiment A contract
 
-Each JSON document must be a UTF-8 encoded object with `allow_nan=False` and no `NaN`, `Infinity`, or `-0` values. The canonical serialization policy is:
+Experiment A is the descriptive bullish-close signal study currently implemented in `tools/hsra/bounded_experiment.py`.
 
-- emit JSON using a fixed field order by insertion order,
-- sort list-valued objects by deterministic keys (`day` ascending for daily summaries; file paths ascending for input manifest entries),
-- serialize floating-point values with `Decimal` quantization to 12 decimal places and then emit numeric JSON values only,
-- normalize negative zero to `0.0` before writing,
-- reject or null any non-finite numeric output rather than writing a non-standard JSON value.
+- Signal: `signal_k = 1 if close_k > open_k else 0`
+- Target return: `r_k = (close_{k+1} - close_k) / close_k`
+- Baseline: positive-return frequency across all eligible observations in the same valid observation set.
+- Signal rate: positive-return frequency among eligible bullish-signal observations.
+- Eligibility: valid adjacent completed candles within contiguous Kraken windows; missing, ambiguous, or invalid windows are rejected rather than repaired by assumption.
+- Interpretation: descriptive only; no profitability, execution, or live-trading approval.
 
-`POOLED SUMMARY FIELD CONTRACT`: `results_pooled.json` must contain all of the following fields in this exact order and type set:
+### Experiment B contract
 
-- `spec_version`: string
-- `dataset_name`: string
-- `market`: string
-- `timeframe_minutes`: integer
-- `evaluation_start_utc`: string or null
-- `evaluation_end_utc`: string or null
-- `eligible_observations`: integer
-- `signal_count`: integer
-- `positive_return_count`: integer
-- `baseline_positive_rate`: number or null
-- `signal_positive_rate`: number or null
-- `difference_pp`: number or null
-- `mean_return`: number or null
-- `median_return`: number or null
-- `rejected_window_count`: integer
-- `validation_rejections`: integer
-- `status`: string
-- `notes`: string or null
+Experiment B is the local rejection/confirmation signal study currently implemented in `tools/hsra/second_strategy_experiment.py`.
 
-`PER-DAY SUMMARY FIELD CONTRACT`: each object in `results_by_day.json` must contain all of the following fields in this exact order and type set:
+- Signal family: local downside sweep + rejection candle + bullish confirmation.
+- Current implementation defaults: `lookback=12`, `hold_period=3`.
+- Implementation contract: the signal is evaluated on completed, contiguous Kraken windows; it requires sufficient lookback and forward observations, and it uses the next-candle open as the entry reference for the fixed forward return calculation.
+- Return definition: the fixed-horizon forward return is computed from the entry reference open to the close at `entry_reference_index + hold_period - 1`.
+- Strictness: it has stricter eligibility requirements than Experiment A, and it is still a descriptive signal evaluation only, not an execution-aware backtest or live-trading model.
 
-- `day`: string (`YYYY-MM-DD`)
-- `eligible_observations`: integer
-- `signal_count`: integer
-- `baseline_positive_rate`: number or null
-- `signal_positive_rate`: number or null
-- `difference_pp`: number or null
-- `mean_return`: number or null
-- `median_return`: number or null
-- `validation_rejections`: integer
-- `status`: string
+### Provenance and reproducibility blockers
 
-`RUN MANIFEST FIELD CONTRACT`: `run_manifest.json` must contain all of the following fields in this exact order and type set:
+The current Kraken manifest records `sha256: null`. This means the raw archive identity has not yet been cryptographically established.
 
-- `spec_version`: string
-- `dataset_name`: string
-- `dataset_manifest_path`: string
-- `input_files`: array of objects with `path` and `sha256` (string or `null`)
-- `software_name`: string
-- `software_version`: string or null
-- `python_version`: string or null
-- `platform`: string or null
-- `evaluation_start_utc`: string or null
-- `evaluation_end_utc`: string or null
-- `signal_definition`: string
-- `baseline_definition`: string
-- `validation_counts`: object
-- `rejection_counts`: object
-- `output_artifacts`: object with `pooled_summary`, `per_day_summary`, and `manifest`
-- `hash_status`: string (`available` or `unavailable`)
-- `comparison_method`: string
-- `notes`: string or null
+Minimum evidence required before the next controlled rerun:
 
-`INPUT HASHING`: For each manifest-listed input file, the implementation must hash the exact raw file bytes using SHA-256. The hash is computed over the file bytes only; the file path string is not part of the digest. If a file cannot be read, the hash is recorded as `null` and the manifest field `hash_status` is set to `unavailable`; the implementation must not fabricate a value.
+- SHA-256 of the exact raw CSV bytes without modifying the file.
+- Exact manifest path and manifest identity.
+- Input row count, timestamp bounds, validation counts, and gap policy.
+- Code version or commit identity.
+- Experiment parameters and eligibility definitions.
+- Full aggregate counts and ratios.
+- Deterministic output artifacts with a clear distinction between complete results and illustrative observation samples.
 
-`REPEATABILITY`: Semantic equivalence for repeat runs is defined as equality of the normalized result payloads after canonicalization, not byte-by-byte identity of the entire file. The canonicalization procedure is:
+The repository must not claim verified archive coverage or exact UTC bounds unless this evidence exists.
 
-1. parse JSON content,
-2. sort object keys in the fixed field order specified above,
-3. sort `input_files` by path ascending and `results_by_day` by `day` ascending,
-4. normalize float values using the same Decimal quantization policy and reject non-finite values,
-5. compare the canonical payloads,
-6. ignore volatile metadata such as wall-clock timestamps, file-write timestamps, and absolute local path prefixes when comparing semantic equivalence.
+### Stale wording requiring correction in the generated A report
 
-The project must not compute a hash of an artifact and then compare that hash to itself as a form of validation. A hash may be stored as a metadata value, but it is not a substitute for a canonical normalized comparison.
+The stale wording is generated in `tools/hsra/bounded_experiment.py` inside the `utc_boundary_status.reason` field and is asserted by `tests/test_bounded_experiment.py` for the old first-of-month wording. The current output still refers to a first-calendar-day sample and Tardis-style event semantics, even though the active source is Kraken OHLCV.
 
-`ORDERED CLASSIFICATION PROCEDURE`: The result status must be assigned in this order and must be mutually exclusive:
+The minimal required correction, when the report is regenerated under an approved rerun, is:
 
-1. `Unusable`: required inputs are missing, unreadable, or invalid; the configuration is invalid; or all candidate windows are rejected by the data-integrity and eligibility rules.
-2. `Descriptive but inconclusive`: no valid eligible target observations exist, or eligible target observations exist but there are no bullish signals.
-3. `Descriptive sample result in the hypothesized direction`: eligible targets and bullish signals exist, and `signal_positive_rate > baseline_positive_rate` under the same eligible observation set.
-4. `Descriptive sample result opposite to the hypothesized direction`: eligible targets and bullish signals exist, and `signal_positive_rate < baseline_positive_rate` under the same eligible observation set.
-5. `Descriptive but inconclusive`: if the result cannot be assigned to either directional category under the existing metric definitions or if the difference is exactly equal to the baseline within the defined serialization tolerance.
+- replace the first-of-month/Tardis wording with a Kraken-specific note,
+- state that the raw archive identity and exact UTC coverage are not independently verified unless the manifest and raw-byte SHA-256 evidence exist,
+- keep the result explicitly descriptive and non-execution.
 
-This classification is descriptive only; it does not create a minimum sample threshold, inferential claim, profitability claim, or a strategy-approval claim.
-
-`GOVERNANCE BOUNDARY`: The bounded descriptive experiment remains a research-only signal check. It does not authorize implementation beyond this experiment, paper trading, live trading, order placement, or scaling. It does not authorize inferential confidence intervals, p-values, significance claims, or profitability conclusions for the sparse first-of-month sample.
-
-### No tuning and no generalization claim
-
-This bounded first experiment is deliberately small and fixed. It must not:
-
-- optimize thresholds over the same sample,
-- tune on the final holdout,
-- re-select the hypothesis after observing results,
-- claim that the sample is representative of the whole BTC-EUR market,
-- claim that the first-of-month sample is a full-month or full-market adequacy decision,
-- treat the result as a validated trading strategy or a proven positive expectancy.
-
-### Cost boundary and spot boundary
-
-This is a gross signal-predictiveness experiment only.
-
-It does not establish:
-
-- realistic Bitvavo execution costs,
-- net expectancy after spreads, fees, latency, slippage, and partial fills,
-- trading profitability,
-- executable fills,
-- paper-trading or live-trading readiness,
-- any scaling decision.
-
-The experiment is strictly spot-only and must not introduce short selling, leverage, margin, futures, perpetuals, or live exchange orders.
-
-### Acceptance and failure criteria
-
-The project should interpret results only as follows:
-
-- `Unusable`: the eligible sample is too small, data integrity is compromised, the source-window policy is violated, or the observation set is too sparse to support a meaningful descriptive summary.
-- `Descriptive but inconclusive`: the signal and baseline rates are directionally uncertain, the sample is limited, the descriptive variation is large, or the outcome is consistent with noise rather than a defensible directional reading.
-- `Descriptive sample result in the hypothesized direction`: the signal-positive-return frequency is higher than the unconditional baseline on the same eligible observation set, and the result is explicitly described as a sample description only, with no inferential claim, profitability claim, or generalization beyond the bounded data.
-- `Descriptive sample result opposite to the hypothesized direction`: the signal-positive-return frequency is lower than the unconditional baseline on the same eligible observation set, and the result is reported as a descriptive contrary sample outcome only.
-
-No minimum sample count, effect-size threshold, significance threshold, or profitability threshold is currently approved. Any future inferential acceptance criteria must be specified before confirmatory evaluation and supported by a justified sampling and dependence methodology. These labels are not statistical confirmation, statistical rejection, strategy acceptance, or positive expectancy.
-
-`CONCLUSION`: This is a bounded exploratory candlestick research decision, not a validated strategy. It exists to measure whether a simple bullish-close candidate has any descriptive predictive signal in the approved historical sample before any later cost, execution, or profitability gates are considered.
+This task does not rerun the experiment or regenerate reports, and it does not claim that the Kraken archive has been fully verified or that the old Tardis sample has been replicated on Kraken.
 
 ## 4. Exact Candidate Entry Rules
 
