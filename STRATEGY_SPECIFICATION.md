@@ -782,3 +782,41 @@ The specification should be accepted for implementation planning only if:
 `READY FOR HUMAN REVIEW`
 
 This strategy is complete enough for review because the rule set, validation method, and unresolved decisions are explicit. It is not approved, implemented, validated, or profitable by virtue of this document.
+
+## Box Theory candidate strategy (research implementation)
+
+**Status:** implemented on the `strategy/box-theory-research` branch as a research-only candidate. It is not profitability-validated and does not authorize paper or live trading. Experiment A and Experiment B retain their existing frozen definitions.
+
+### Initial deterministic rules
+
+- Market/source: Kraken BTC/EUR 5-minute OHLCV only.
+- Clock: UTC calendar days; each day requires exactly 288 valid, aligned 5-minute candles.
+- Box: previous completed UTC day's high and low; midpoint is the arithmetic midpoint.
+- Lower entry zone: bottom 25% of the box, configurable as `zone_fraction=0.25`.
+- Long signal: a completed candle's low reaches the upper boundary of the lower zone or below, then closes strictly above that boundary and within the box.
+- Entry: next eligible candle's open; no entry is simulated from the signal candle itself.
+- Stop: signal candle low minus a 5-basis-point price buffer (`stop_buffer_bps=5.0`).
+- Target: previous-day box midpoint.
+- Trade eligibility: entry must be strictly above the stop and strictly below the target. Invalid geometry is rejected.
+- Position policy: long-only spot research, one position at a time per contiguous segment. No short selling, leverage, margin, futures, or perpetuals.
+- Exit simulation: inspect candles from the entry candle onward. A gap below the stop exits at the observed open; a gap above the target is conservatively filled at the target. If a candle touches both stop and target and intrabar order is unknowable, the stop is assumed first. A position still open at segment end is reported as unresolved and is not force-closed at an invented price.
+- Data gaps: split into maximal contiguous segments and reset all state at every gap. A prior-day box is unavailable unless all 288 candles for that day are present inside the same segment. No backfill or synthetic candles.
+- Costs: use the existing `CostModel` defaults, including its configured fees, spread, slippage, and latency estimate. These are model assumptions, not verified Bitvavo execution costs.
+
+### Research-only defaults and limitations
+
+The 25% zone, 5-bps stop buffer, and €50 notional are explicit initial research settings, not optimized or approved live settings. The existing cost model is a proxy and does not establish actual fills, liquidity, or Bitvavo costs. The first implementation does not yet include dynamic intraday box redraws, historical support/resistance confluence, shorts, or discretionary candlestick patterns; those are excluded to keep the initial hypothesis falsifiable.
+
+### Implementation entry points
+
+- `tools/hsra/box_theory.py`: deterministic signal, stop/target, cost-aware trade simulation, and gap-segmented runner.
+- `tools/hsra/box_theory_experiment.py`: command-line runner for a Kraken OHLCV CSV with SHA-256 provenance in the output report.
+- `tests/test_box_theory.py`: focused behavior tests.
+
+Example local invocation:
+
+```powershell
+python -m tools.hsra.box_theory_experiment --input data/kraken/XBTEUR_5.csv --output reports/box_theory_kraken_btc_eur.json
+```
+
+All outputs are historical research only. No strategy profitability, paper-trading readiness, live-trading readiness, or scaling claim follows from implementation or test success.
