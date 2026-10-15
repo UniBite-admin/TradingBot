@@ -248,6 +248,28 @@ def run_box_theory_segmented(
     """Split input at missing intervals and reset all strategy state for each segment."""
     cfg = config or BoxTheoryConfig()
     ordered = sorted(candles, key=lambda candle: candle.interval_start)
+    if any(current.interval_start == previous.interval_start for previous, current in zip(ordered, ordered[1:])):
+        return {
+            "config": asdict(cfg),
+            "segment_count": 0,
+            "segments": [],
+            "signals": [],
+            "trades": [],
+            "summary": {
+                "status": "rejected_duplicate_timestamps",
+                "candles": len(ordered),
+                "segment_count": 0,
+                "signals": 0,
+                "trades": 0,
+                "open_at_segment_end": 0,
+                "gross_pnl_eur": 0.0,
+                "estimated_cost_eur": 0.0,
+                "net_pnl_eur": 0.0,
+                "win_count": 0,
+                "loss_count": 0,
+            },
+            "interpretation": "rejected input; duplicate timestamps are not treated as ordinary gaps",
+        }
     segments: list[list[OHLCVCandle]] = []
     for candle in ordered:
         if not segments or candle.interval_start - segments[-1][-1].interval_start != timedelta(minutes=cfg.interval_minutes):
