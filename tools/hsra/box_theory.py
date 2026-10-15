@@ -40,40 +40,41 @@ def _valid_candle(candle: OHLCVCandle, interval_minutes: int) -> bool:
     )
 
 
-def _daily_box(segment: list[OHLCVCandle], signal_index: int, interval_minutes: int) -> dict | None:
-    signal_time = segment[signal_index].interval_start.astimezone(timezone.utc)
-    previous_day = signal_time.date() - timedelta(days=1)
-    expected_count = 1440 // interval_minutes
-    expected_starts = [
-        datetime.combine(previous_day, datetime.min.time(), tzinfo=timezone.utc)
-        + timedelta(minutes=interval_minutes * index)
-        for index in range(expected_count)
-    ]
-    by_start = {
-        candle.interval_start.astimezone(timezone.utc): candle
-        for candle in segment
-        if candle.interval_start.tzinfo is not None
-        and candle.interval_start.astimezone(timezone.utc).date() == previous_day
-    }
-    if len(by_start) != expected_count or any(start not in by_start for start in expected_starts):
-        return None
-    day_candles = [by_start[start] for start in expected_starts]
-    if not all(_valid_candle(candle, interval_minutes) for candle in day_candles):
-        return None
-    box_low = min(candle.low for candle in day_candles)
-    box_high = max(candle.high for candle in day_candles)
-    if not math.isfinite(box_low) or not math.isfinite(box_high) or box_low <= 0 or box_high <= box_low:
-        return None
-    box_range = box_high - box_low
-    return {
-        "box_date_utc": previous_day.isoformat(),
-        "box_low": box_low,
-        "box_high": box_high,
-        "box_mid": (box_low + box_high) / 2.0,
-        "box_range": box_range,
-        "zone_high": box_low + 0.25 * box_range,
-    }
+def _daily_boxes(segment: list[OHLCVCandle], interval_minutes: int) -> dict[date, dict]:
+    """Build complete UTC-day boxes once, avoiding repeated full-segment scans."""
+    grouped: dict[date, dict[datetime, OHLCVCandle]] = {}
+    for candle in segment:
+        start = candle.interval_start.astimezone(timezone.utc)
+        grouped.setdefault(start.date(), {})[start] = candle
 
+    expected_count = 1440 // interval_minutes
+    boxes: dict[date, dict] = {}
+    for day, by_start in grouped.items():
+        if len(by_start) != expected_count:
+            continue
+        expected_starts = [
+            datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc)
+            + timedelta(minutes=interval_minutes * index)
+            for index in range(expected_count)
+        ]
+        if any(start not in by_start for start in expected_starts):
+            continue
+        day_candles = [by_start[start] for start in expected_starts]
+        if not all(_valid_candle(candle, interval_minutes) for candle in day_candles):
+            continue
+        box_low = min(candle.low for candle in day_candles)
+        box_high = max(candle.high for candle in day_candles)
+        if not math.isfinite(box_low) or not math.isfinite(box_high) or box_low <= 0 or box_high <= box_low:
+            continue
+        box_range = box_high - box_low
+        boxes[day] = {
+            "box_date_utc": day.isoformat(),
+            "box_low": box_low,
+            "box_high": box_high,
+            "box_mid": (box_low + box_high) / 2.0,
+            "box_range": box_range,
+        }
+    return boxes
 
 def _segment_is_valid(ordered: list[OHLCVCandle], interval_minutes: int) -> bool:
     if not ordered:
@@ -122,13 +123,15 @@ def run_box_theory_segment(
     if not _segment_is_valid(ordered, cfg.interval_minutes):
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "rejected_invalid_or_noncontiguous_segment"}, "trades": [], "signals": []}
 
+    daily_boxes = _daily_boxes(ordered, cfg.interval_minutes)
     signals: list[dict] = []
     trades: list[dict] = []
     index = 0
     open_at_end = 0
     while index < len(ordered) - 1:
         candle = ordered[index]
-        box = _daily_box(ordered, index, cfg.interval_minutes)
+        signal_day = candle.interval_start.astimezone(timezone.utc).date()
+        box = daily_boxes.get(signal_day - timedelta(days=1))
         if box is None:
             index += 1
             continue
