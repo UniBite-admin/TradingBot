@@ -193,21 +193,27 @@ def _add_baseline_comparison(runs: list[dict], baseline_runs: list[dict]) -> dic
             float(run["max_drawdown_pct"]) - float(run["baseline_max_drawdown_pct"])
         )
 
-    baseline_worst_four = sorted(baseline_runs, key=lambda item: float(item["percentage_return"]))[:4]
+    baseline_sorted = sorted(baseline_runs, key=lambda item: float(item["percentage_return"]))
     variant_by_range = {_period_key(item): item for item in runs}
-    worst_four_comparison = []
-    for baseline in baseline_worst_four:
-        variant = variant_by_range[_period_key(baseline)]
-        worst_four_comparison.append({
-            "period_id": baseline["period_id"],
-            "period_start_utc": baseline["period_start_utc"],
-            "period_end_utc": baseline["period_end_utc"],
-            "baseline_return_pct": float(baseline["percentage_return"]),
-            "stop_loss_return_pct": float(variant["percentage_return"]),
-            "return_change_percentage_points": float(variant["return_change_percentage_points"]),
-            "baseline_max_drawdown_pct": float(variant["baseline_max_drawdown_pct"]),
-            "stop_loss_max_drawdown_pct": float(variant["max_drawdown_pct"]),
-        })
+
+    def compare_selected(selected: list[dict]) -> list[dict]:
+        comparisons = []
+        for baseline in selected:
+            variant = variant_by_range[_period_key(baseline)]
+            comparisons.append({
+                "period_id": baseline["period_id"],
+                "period_start_utc": baseline["period_start_utc"],
+                "period_end_utc": baseline["period_end_utc"],
+                "baseline_return_pct": float(baseline["percentage_return"]),
+                "stop_loss_return_pct": float(variant["percentage_return"]),
+                "return_change_percentage_points": float(variant["return_change_percentage_points"]),
+                "baseline_max_drawdown_pct": float(variant["baseline_max_drawdown_pct"]),
+                "stop_loss_max_drawdown_pct": float(variant["max_drawdown_pct"]),
+            })
+        return comparisons
+
+    worst_four_comparison = compare_selected(baseline_sorted[:4])
+    best_four_comparison = compare_selected(baseline_sorted[-4:])
     return {
         "baseline_periods_matched": len([run for run in runs if "baseline_percentage_return" in run]),
         "worst_four_baseline_periods": worst_four_comparison,
@@ -215,6 +221,12 @@ def _add_baseline_comparison(runs: list[dict], baseline_runs: list[dict]) -> dic
         "worst_four_lower_drawdown_count": sum(
             item["stop_loss_max_drawdown_pct"] < item["baseline_max_drawdown_pct"]
             for item in worst_four_comparison
+        ),
+        "best_four_baseline_periods": best_four_comparison,
+        "best_four_preserved_return_count": sum(item["return_change_percentage_points"] >= 0 for item in best_four_comparison),
+        "best_four_return_change_mean_pp": (
+            sum(item["return_change_percentage_points"] for item in best_four_comparison) / len(best_four_comparison)
+            if best_four_comparison else 0.0
         ),
     }
 
