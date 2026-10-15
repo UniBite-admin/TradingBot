@@ -79,6 +79,11 @@ def main(argv: list[str] | None = None) -> int:
         "partition_reports": partition_reports,
         "full_sample_descriptive_result": run_box_theory_segmented(candles, config=config),
         "interpretation": "historical research only; no profitability or execution-readiness claim",
+        "known_limitations": [
+            "The existing CostModel latency formula and maker/taker assumptions have not been validated for this strategy or venue.",
+            "The next-candle-open entry is a bar-level simulation, not evidence of an executable fill.",
+            "A full previous UTC day must exist inside one contiguous segment; data gaps can exclude many candidate days.",
+        ],
     }
     result["provenance"] = {
         "source_type": "Kraken BTC/EUR 5-minute OHLCV",
