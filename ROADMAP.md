@@ -8,7 +8,7 @@ This roadmap defines the current, provider-specific research path for the reposi
 
 - Active source: Kraken BTC/EUR 5-minute OHLCV export under `data/kraken/`.
 - Historical artifacts retained as evidence only: legacy Tardis first-of-month files and their associated reports are preserved for provenance and comparison, but they are not the active repository input contract.
-- Research scope: descriptive, provider-specific, non-execution, and fail-closed against ambiguous source semantics.
+- Research scope: descriptive, provider-specific, non-execution, and fail-closed against ambiguous source semantics. Box Theory is now the primary experimental candidate for the next cost-aware historical trade study; this does not replace Experiment A/B contracts or authorize trading.
 - Approved research direction: holistic component evaluation using the explicitly documented existing rules, baselines, and validation constraints, while keeping Experiment A and Experiment B distinct descriptive studies. This is a research-design approval only; it does not authorize code changes, experiments, paper trading, live trading, or scaling.
 - Approved segmented historical research mode: on 2026-10-14, the user approved a separate research mode that evaluates maximal contiguous 5-minute Kraken BTC/EUR segments as independent observation domains for historical research only. This approval is documentation-only and does not imply that a segmented backtest has been implemented, validated, or separately authorized to run. Any segmented backtest must wait until the required implementation scope, eligibility rules, and unresolved thresholds are explicitly settled and documented. This does not authorize continuous-history replay changes, paper trading, live trading, scaling, strategy profitability claims, or execution beyond the approved research scope.
 - Live trading status: not allowed.
@@ -52,7 +52,8 @@ Objective:
 - Keep the descriptive mechanics explicit and separate by experiment:
   - Experiment A: bullish-close signal, next-period return, baseline comparison, and same-eligible-observation logic.
   - Experiment B: local rejection/confirmation signal using the current implementation defaults, reported as a descriptive signal evaluation only.
-  - Research candidate: the reviewed trend-filtered price-channel breakout is added as a separate research-only candidate with a documented parameter grid and no execution claim.
+  - Box Theory is the primary new experimental candidate: prior complete UTC-day range, lower-quarter rejection, next-candle-open entry, midpoint target, signal-low stop with explicit buffer, conservative OHLC exit ordering, and cost-aware simulated trades.
+  - The trend-filtered price-channel breakout remains a separate research-only candidate with no execution claim.
   - Baselines B1 and B2 remain comparison methods, not approved production strategies.
   - Use the existing documented entry, confirmation, filter, exit, position-management, risk, and data-quality rules as the inventory for a holistic component-research design.
   - No look-ahead; no silent gap repair; no strategy-approval claim.
@@ -68,7 +69,7 @@ Status: enabled for the Kraken sample, with a separately approved segmented rese
 Objective:
 
 - Run only bounded descriptive analysis over the retained Kraken OHLCV source and record all limits explicitly.
-- Establish the first bounded trade-level historical backtest as a single long-only spot candidate using the existing documented local-structure signal logic and conservative cost model, while keeping Experiment A and B separate descriptive studies.
+- Run the implemented Box Theory candidate as a bounded long-only spot historical backtest on Kraken BTC/EUR 5-minute OHLCV, preserving Experiment A and Experiment B as separate descriptive studies. Record source SHA-256, contiguous segments, eligible complete-day boxes, signals, trades, exit reasons, gross P&L, modeled costs, and net P&L. Treat outputs as research only.
 - Segment the existing Kraken BTC/EUR 5-minute source into maximal contiguous 5-minute observation domains using actual timestamps, and evaluate those segments as independent historical research units without bridging or backfilling gaps.
 - Do not treat the initial backtest as a profitability claim or as a live-trading approval.
 
