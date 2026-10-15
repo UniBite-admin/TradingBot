@@ -249,15 +249,15 @@ def _periods_from_windows(candles: list, *, period_days: int, count: int, seed: 
         if len(window) < expected_candle_count:
             continue
         for start_index in range(len(window) - expected_candle_count + 1):
-            selected = window[start_index:start_index + expected_candle_count]
-            first = selected[0]
-            last = selected[-1]
+            first = window[start_index]
+            last = window[start_index + expected_candle_count - 1]
             if last.interval_end - first.interval_start != timedelta(days=period_days):
                 continue
             candidates.append({
                 "start": first.interval_start,
                 "end": last.interval_end,
-                "candles": selected,
+                "start_index": start_index,
+                "window": window,
                 "period_days": period_days,
             })
 
@@ -276,8 +276,13 @@ def _periods_from_windows(candles: list, *, period_days: int, count: int, seed: 
             break
         if any(item["start"] < existing["end"] and item["end"] > existing["start"] for existing in chosen):
             continue
+        start_index = item["start_index"]
+        selected = item["window"][start_index:start_index + expected_candle_count]
         chosen.append({
-            **item,
+            "start": item["start"],
+            "end": item["end"],
+            "candles": selected,
+            "period_days": period_days,
             "period_id": f"{period_days}d-{len(chosen) + 1:02d}",
         })
 

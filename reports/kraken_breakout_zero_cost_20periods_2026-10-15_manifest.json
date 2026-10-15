@@ -1,0 +1,177 @@
+{
+  "monthly_runs": 10,
+  "period_ranges": {
+    "monthly": [
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2020-01-30T18:20:00+00:00",
+        "period_id": "30d-02",
+        "start": "2019-12-31T18:20:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2020-04-24T02:35:00+00:00",
+        "period_id": "30d-01",
+        "start": "2020-03-25T02:35:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2020-08-23T03:50:00+00:00",
+        "period_id": "30d-03",
+        "start": "2020-07-24T03:50:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2021-11-29T09:50:00+00:00",
+        "period_id": "30d-10",
+        "start": "2021-10-30T09:50:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2024-02-23T04:20:00+00:00",
+        "period_id": "30d-08",
+        "start": "2024-01-24T04:20:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2025-01-04T09:25:00+00:00",
+        "period_id": "30d-05",
+        "start": "2024-12-05T09:25:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2025-08-09T00:25:00+00:00",
+        "period_id": "30d-07",
+        "start": "2025-07-10T00:25:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2025-12-22T02:50:00+00:00",
+        "period_id": "30d-09",
+        "start": "2025-11-22T02:50:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2026-01-23T21:30:00+00:00",
+        "period_id": "30d-04",
+        "start": "2025-12-24T21:30:00+00:00",
+        "type": "monthly"
+      },
+      {
+        "count": 8640,
+        "days": 30,
+        "end": "2026-07-09T14:20:00+00:00",
+        "period_id": "30d-06",
+        "start": "2026-06-09T14:20:00+00:00",
+        "type": "monthly"
+      }
+    ],
+    "weekly": [
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2017-09-02T21:10:00+00:00",
+        "period_id": "7d-06",
+        "start": "2017-08-26T21:10:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2018-03-11T19:25:00+00:00",
+        "period_id": "7d-01",
+        "start": "2018-03-04T19:25:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2019-06-08T08:15:00+00:00",
+        "period_id": "7d-03",
+        "start": "2019-06-01T08:15:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2020-03-14T15:50:00+00:00",
+        "period_id": "7d-02",
+        "start": "2020-03-07T15:50:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2020-05-09T21:40:00+00:00",
+        "period_id": "7d-04",
+        "start": "2020-05-02T21:40:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2021-06-22T19:50:00+00:00",
+        "period_id": "7d-10",
+        "start": "2021-06-15T19:50:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2023-04-11T04:55:00+00:00",
+        "period_id": "7d-05",
+        "start": "2023-04-04T04:55:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2023-06-10T19:15:00+00:00",
+        "period_id": "7d-07",
+        "start": "2023-06-03T19:15:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2024-04-24T10:30:00+00:00",
+        "period_id": "7d-08",
+        "start": "2024-04-17T10:30:00+00:00",
+        "type": "weekly"
+      },
+      {
+        "count": 2016,
+        "days": 7,
+        "end": "2026-05-01T15:05:00+00:00",
+        "period_id": "7d-09",
+        "start": "2026-04-24T15:05:00+00:00",
+        "type": "weekly"
+      }
+    ]
+  },
+  "report_path": "reports\\kraken_breakout_zero_cost_20periods_2026-10-15.json",
+  "selected_parameters": {
+    "channel_lookback": 6,
+    "hold_period": 6,
+    "trend_filter": "close_above_sma20_and_sma20_gt_sma50"
+  },
+  "source_sha256": "062d42ffb1aa72d2d7ed8896dbb0b3089aee9ca92b79b539a050d5049c86bb9c",
+  "weekly_runs": 10
+}
