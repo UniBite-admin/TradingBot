@@ -43,7 +43,43 @@ def main(argv: list[str] | None = None) -> int:
         stop_buffer_bps=args.stop_buffer_bps,
         notional_eur=args.notional_eur,
     )
-    result = run_box_theory_segmented(candles, config=config)
+    # Parameters are fixed before this chronological evaluation. Trades and strategy
+    # state are not allowed to cross the partition boundaries.
+    train_end = int(len(candles) * 0.60)
+    validation_end = int(len(candles) * 0.80)
+    partitions = {
+        "training": candles[:train_end],
+        "validation": candles[train_end:validation_end],
+        "final_test": candles[validation_end:],
+    }
+    partition_reports = {}
+    for name, partition_candles in partitions.items():
+        partition_reports[name] = {
+            "start_utc": partition_candles[0].interval_start.astimezone(timezone.utc).isoformat() if partition_candles else None,
+            "end_utc": partition_candles[-1].interval_end.astimezone(timezone.utc).isoformat() if partition_candles else None,
+            "candle_count": len(partition_candles),
+            "result": run_box_theory_segmented(partition_candles, config=config),
+        }
+
+    result = {
+        "config": {
+            "symbol": config.symbol,
+            "interval_minutes": config.interval_minutes,
+            "zone_fraction": config.zone_fraction,
+            "stop_buffer_bps": config.stop_buffer_bps,
+            "notional_eur": config.notional_eur,
+        },
+        "research_protocol": {
+            "chronological_split": "60% training / 20% validation / 20% final test by sorted candle index",
+            "parameters_fixed_before_evaluation": True,
+            "trades_or_state_cross_partition_boundaries": False,
+            "final_test_used_for_parameter_selection": False,
+            "note": "Each partition is processed independently; complete prior-day boxes must be available inside a contiguous segment in that partition.",
+        },
+        "partition_reports": partition_reports,
+        "full_sample_descriptive_result": run_box_theory_segmented(candles, config=config),
+        "interpretation": "historical research only; no profitability or execution-readiness claim",
+    }
     result["provenance"] = {
         "source_type": "Kraken BTC/EUR 5-minute OHLCV",
         "source_path": str(source),
@@ -61,7 +97,11 @@ def main(argv: list[str] | None = None) -> int:
         "status": "completed",
         "output": str(output),
         "source_sha256": source_sha256,
-        "summary": result["summary"],
+        "partition_summaries": {
+            name: report["result"]["summary"]
+            for name, report in partition_reports.items()
+        },
+        "full_sample_descriptive_summary": result["full_sample_descriptive_result"]["summary"],
         "interpretation": result["interpretation"],
     }, indent=2))
     return 0
