@@ -1662,3 +1662,20 @@ This technical plan is complete enough for review because it:
 2. Rich monitoring stack.
 3. Final scaling policy.
 4. Longer-term repository expansion beyond the first research system.
+
+## Implementation status update — 2026-10-16
+
+The human has explicitly authorized implementation of the Box Theory research candidate and a reproducible historical research runner. This resolves the prior planning-only restriction for this specific candidate; it does not authorize paper trading, live trading, or scaling.
+
+Branch: `strategy/box-theory-research`
+
+Added:
+- `tools/hsra/box_theory.py`: deterministic previous-UTC-day box strategy, long-only entry, midpoint target, signal-low stop, conservative OHLC exit handling, cost estimates, and gap-segmented state resets.
+- `tools/hsra/box_theory_experiment.py`: CLI runner with input SHA-256, source bounds, 60/20/20 chronological partition reports, and a separate full-sample descriptive report.
+- `tests/test_box_theory.py`: focused tests for box construction, incomplete-day exclusion, conservative stop-first behavior, segment gaps, and invalid configuration.
+
+The candidate's initial research defaults are a bottom-25% entry zone, a 5-basis-point stop buffer, and €50 notional. These are explicit experimental settings, not optimized or live-approved values. The existing CostModel defaults are reused but remain modeled assumptions, not verified venue-specific execution costs.
+
+Verification limitation: the GitHub repository connection supports reading and writing repository files but does not provide a local Python test execution environment in this workflow. The new tests have therefore **not been executed here**, and the historical runner has **not been run against the user's local Kraken CSV**. Do not mark this candidate tested, validated, or profitable until the actual test output and reproducible report have been inspected.
+
+The implementation is a research candidate only. It does not change exchange-order code, activate any trading loop, or grant paper/live/scaling permission.
