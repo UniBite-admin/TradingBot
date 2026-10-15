@@ -87,7 +87,12 @@ def run_breakout_zero_cost_period(candles: list, *, period_id: str, initial_cash
     realized_pnl_eur = 0.0
     unrealized_pnl_eur = 0.0
     completed_trades: list[dict] = []
+    last_exit_reference_index = -1
     for signal in _candidate_signals_for_period(ordered):
+        # The exit occurs at the exit candle's close, so a new signal on that
+        # candle may enter on the following candle; earlier signals overlap.
+        if signal["signal_index"] < last_exit_reference_index:
+            continue
         if open_position is not None:
             continue
         entry_price = float(signal["entry_price"])
@@ -132,6 +137,7 @@ def run_breakout_zero_cost_period(candles: list, *, period_id: str, initial_cash
             "cash_after_entry_eur": cash_eur,
         }
         completed_trades.append(trade)
+        last_exit_reference_index = signal["exit_reference_index"]
 
         realized_gross_pnl_eur += gross_pnl
         realized_pnl_eur += gross_pnl
