@@ -118,7 +118,14 @@ def run_box_theory_segment(
     }
     if cfg.interval_minutes <= 0 or 1440 % cfg.interval_minutes != 0:
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "invalid_configuration"}, "trades": [], "signals": []}
-    if not 0 < cfg.zone_fraction < 0.5 or cfg.stop_buffer_bps < 0 or cfg.notional_eur <= 0:
+    if (
+        not math.isfinite(cfg.zone_fraction)
+        or not 0 < cfg.zone_fraction < 0.5
+        or not math.isfinite(cfg.stop_buffer_bps)
+        or cfg.stop_buffer_bps < 0
+        or not math.isfinite(cfg.notional_eur)
+        or cfg.notional_eur <= 0
+    ):
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "invalid_configuration"}, "trades": [], "signals": []}
     if not _segment_is_valid(ordered, cfg.interval_minutes):
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "rejected_invalid_or_noncontiguous_segment"}, "trades": [], "signals": []}
