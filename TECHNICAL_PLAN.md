@@ -82,6 +82,13 @@ The repository is therefore no longer in the original planning-only state descri
 - `S3D-012`: exploratory results remain exploratory; execution-cost realism and positive-expectancy validation remain separate unresolved evidence gates.
 - `S3D-013`: these decisions resolve the active-source contract only for the current Kraken research scope and do not authorize wider implementation, paper trading, live trading, or scaling.
 - `S3D-014`: approved holistic research direction for evidence-driven evaluation of complementary strategy components and integrated spot-trading candidates, documented in `STRATEGY_SPECIFICATION.md`; this authorizes research-design documentation only and does not authorize a trading strategy, code implementation, experiment execution, backtests, paper trading, live trading, or scaling.
+- `S3D-015`: approved segmented historical research mode for the existing Kraken BTC/EUR 5-minute dataset. The research is limited to maximal contiguous 5-minute segments as independent observation domains; it does not authorize live trading, paper trading, strategy profitability claims, or execution beyond the approved research scope. This approval is documentation-only and does not imply a segmented backtest has been implemented, validated, or separately authorized to run. Any segmented backtest must wait until the required implementation scope, eligibility rules, and unresolved thresholds are explicitly settled and documented.
+- Research configuration status for the first bounded historical milestone: the repository uses `lookback=3` and a single-step exit horizon as a documented research configuration for deterministic bounded testing only. This status is implementation-scoped and descriptive, not a broader approval of a trade strategy, parameter set, or live execution path.
+
+`UNRESOLVED DECISION`:
+
+- No minimum segment length, minimum eligible-candle count, or minimum trade count is silently adopted here. These values remain unresolved pending explicit human approval and authoritative support.
+- The segmented mode is explicitly separate from continuous-history replay and does not change the fail-closed replay contract for any non-contiguous or invalid continuous run.
 
 ### What Is Not Approved
 

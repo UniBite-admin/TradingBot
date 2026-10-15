@@ -1,0 +1,26 @@
+{
+  "partition_boundaries": {
+    "test": {
+      "count": 262032,
+      "end": "2026-10-01T00:00:00+00:00",
+      "start": "2024-04-02T23:55:00+00:00"
+    },
+    "train": {
+      "count": 786092,
+      "end": "2021-10-04T19:50:00+00:00",
+      "start": "2013-09-10T23:45:00+00:00"
+    },
+    "validation": {
+      "count": 262030,
+      "end": "2024-04-02T23:55:00+00:00",
+      "start": "2021-10-04T19:50:00+00:00"
+    }
+  },
+  "report_path": "reports\\kraken_breakout_parameter_grid_2026-10-15.json",
+  "selected_parameters": {
+    "channel_lookback": 6,
+    "hold_period": 6,
+    "trend_filter": "close_above_sma20_and_sma20_gt_sma50"
+  },
+  "sha256": "062d42ffb1aa72d2d7ed8896dbb0b3089aee9ca92b79b539a050d5049c86bb9c"
+}

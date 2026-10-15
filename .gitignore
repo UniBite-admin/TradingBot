@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 *.pyo
+reports/kraken_breakout_parameter_grid_2026-10-15.json

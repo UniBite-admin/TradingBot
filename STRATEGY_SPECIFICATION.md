@@ -44,6 +44,34 @@ The comparison is descriptive and bounded to the same valid observation set.
 - No silent gap repair.
 - Only completed bars are eligible.
 - Any uncertain source semantics cause exclusion or a blocked run.
+- Segment boundaries are hard barriers for signal evaluation, warm-up state, open positions, and holding periods; no state or position may cross a segment gap.
+
+### Approved segmented historical research mode (2026-10-14)
+
+This repository explicitly approves a separate segmented historical research mode for the existing Kraken BTC/EUR 5-minute dataset. This mode is limited to historical analysis and does not authorize live trading, paper trading, execution readiness, or profitability claims.
+
+This approval is documentation-only. It does not imply that a segmented backtest has been implemented, validated, or separately authorized to run. Any segmented backtest must wait until the required implementation scope, eligibility rules, and unresolved thresholds are explicitly settled and documented. Paper trading, live trading, scaling, and profitability claims remain unauthorized.
+
+The approved segmented research policy is:
+
+- Split the source into maximal contiguous 5-minute segments using actual timestamps.
+- Never backfill, bridge, or synthesize missing candles.
+- Treat each segment as an independent observation domain.
+- Reset all strategy state, indicator/lookback warm-up, pending signals, open positions, and holding-period state at every segment boundary.
+- Never open a trade unless the full required lookback and signal formation occur inside the same segment.
+- Never carry an open position or holding period across a segment boundary. Do not invent a boundary exit price or fill.
+- Preserve the existing fail-closed behavior for any individual segment that violates timestamp, ordering, OHLCV, or other existing validity checks.
+- Keep this mode explicitly separate from continuous-history replay; it does not weaken or silently change the existing replay contract.
+- Report segment counts and length distribution, excluded segments, eligible candles, signals, simulated trades, boundary-related exclusions, exit reasons, gross P&L, costs, and net P&L where the implementation supports them.
+- Label all outputs as segmented historical research. They are not proof of profitability and do not authorize paper or live trading.
+
+The following policy elements remain unresolved and must not be silently fixed by implementation choice:
+
+- minimum segment length
+- minimum eligible-candle count per segment
+- minimum trade count per segmented run
+
+These thresholds may be decided later only with explicit human approval and authoritative support; they are intentionally not adopted here.
 
 ## Interpretation rules
 
@@ -107,6 +135,87 @@ This decision is an approved research-direction decision, not an approved tradin
 10. Scope boundary: SPOT only. This decision grants no paper-trading, live-trading, or scaling authorization. Those remain separate approval gates.
 
 The approved research direction is therefore: document and validate the existing rule inventory, define a fair comparison protocol for justified combinations, and treat the integrated candidate as a proposal pending explicit approval and evidence from cost-aware validation. This does not approve a live strategy, a parameter grid, or a profitability claim.
+
+### First bounded historical backtest scope (research design only)
+
+The initial trade-level backtest is intentionally limited to a single long-only spot candidate using the existing local-structure signal logic already implemented in `tools/hsra/strategy.py` and the conservative cost model already present in `tools/hsra/cost.py`.
+
+- Candidate design: local downside sweep + rejection morphology + one-bar confirmation, evaluated on valid contiguous Kraken BTC/EUR 5-minute windows.
+- Initial fixed configuration for the first bounded historical run: `lookback=3` and a single-step exit horizon for a gross trade-level simulation only.
+- Research configuration status: this `lookback=3` / single-step-exit design is an implemented research configuration for this bounded milestone only; it is not a live-trading approval, not a broader strategy approval, and not a claim that the parameter choice is validated or optimal.
+- Entry semantics: use the next executable historical opportunity after the signal timestamp; do not silently assume a fill at the signal candle close.
+- Risk and accounting: keep risk approval, position state, and cost accounting as separate concerns from signal generation; do not conflate signal generation with net profitability.
+- Scope: historical research only; no paper trading, no live trading, and no scaling authorization.
+- Interpretation: results are bounded and descriptive unless they are explicitly labeled as gross backtest results with costs separately reported; net profitability claims remain blocked until the full cost-aware validation and approval gate is satisfied.
+
+### Research-only trend-filtered price-channel breakout candidate (2026-10-15)
+
+`APPROVED FOR RESEARCH DESIGN ONLY, 2026-10-15`
+
+This repository records a separate research-only breakout candidate that is intentionally distinct from the existing local-structure strategy in `tools/hsra/strategy.py` and is not a live-trading approval.
+
+- Market and source: Kraken BTC/EUR, 5-minute OHLCV only.
+- Trade type: long-only spot, research-only, no execution, no paper-trading authorization.
+- Signal definition: a completed candle closes strictly above the maximum high of the preceding `N` completed candles, excluding the signal candle from the channel calculation.
+- Channel lookback grid: `N ∈ {6, 12, 24, 48}` completed candles.
+- Trend filters:
+  1. no trend filter,
+  2. `signal_close > SMA(20)`,
+  3. `signal_close > SMA(20) and SMA(20) > SMA(50)`.
+- SMA calculation: use only completed candles that are available at signal time; never use future candles.
+- Entry reference: next candle open.
+- Exit reference: close of the final candle in the holding period.
+- Holding horizon grid: `H ∈ {3, 6, 12}` completed candles.
+- Reject conditions: insufficient completed history, non-contiguous candles, missing or ambiguous entry/exit horizon, or any use of future information.
+- Implementation status: historical signal-generation logic only; no order placement, no live execution, no risk-limit claim, no profitability claim.
+
+The first approved research design grid is therefore:
+
+- `channel_lookback ∈ {6, 12, 24, 48}`
+- `trend_filter ∈ {none, close_above_sma20, close_above_sma20_and_sma20_gt_sma50}`
+- `hold_period ∈ {3, 6, 12}`
+
+This is a proposed parameter grid for controlled descriptive research only. It must not be treated as a valid profitability result, an optimization result, or a live-trading configuration.
+
+### Approved 60/20/20 chronological split and parameter-selection policy (2026-10-15)
+
+`APPROVED (HUMAN-AUTHORIZED DECISION, 2026-10-15)`
+
+The repository now approves the following experiment policy for the existing Kraken BTC/EUR 5-minute OHLCV source and the research-only trend-filtered breakout candidate:
+
+1. Chronological split
+   - Split the validated dataset into 60% training, 20% validation, and 20% final test by order of time.
+   - The dataset must be considered valid only after timestamp ordering, duplicate detection, OHLCV validity, UTC interpretation, and continuity validation pass.
+   - A trade's entry-to-exit window must remain inside a single partition; no trade may cross a train/validation/test boundary.
+   - Training and validation data are used only for parameter selection.
+   - The final test remains untouched until the selection procedure and selected parameters are fixed.
+   - Exact boundaries must be reported along with the handling of boundary candles and excluded observations.
+
+2. Source validation
+   - Use only the existing Kraken BTC/EUR 5-minute OHLCV source under `data/kraken/`.
+   - Validate timestamp ordering, duplicate timestamps, OHLCV validity, UTC interpretation, and continuity.
+   - Do not silently repair malformed rows, merge duplicate timestamps, or synthesize missing candles.
+   - Treat gaps as segment boundaries and exclude invalid observations according to documented, tested rules.
+   - Record the input file path, SHA-256, row count, timestamp range, gap statistics, and validation outcome in the experiment report.
+   - Do not claim this dataset represents Bitvavo execution conditions or live trading performance.
+
+3. Parameter selection and evaluation
+   - Evaluate the approved 36-combination grid, with the exact candidate definitions already recorded above.
+   - Use a deterministic selection rule applied to training and validation data only before final-test inspection.
+   - The selection rule must be fixed before final-test results are examined and must be documented in the report.
+   - No minimum sample thresholds or statistical acceptance thresholds are invented here; sample sizes and limitations are reported explicitly.
+   - If a critical detail cannot be resolved from this documentation or the approved rules, the experiment is stopped and the issue is reported rather than guessed.
+
+The approved deterministic selection procedure is:
+
+- For each parameter combination in the fixed 36-combination grid, evaluate the candidate over the training and validation partitions separately.
+- Compute the validation gross return as the aggregate return across all eligible validation trades for that parameter set.
+- Rank parameter sets by validation gross return descending.
+- Break ties deterministically by the parameter order `(channel_lookback, trend_filter, hold_period)` as enumerated in the approved grid.
+- Select the first-ranked parameter set for final-test evaluation.
+- Final-test results are evaluated once after the selection is fixed and are never used to choose parameters.
+
+This approval defines the historical research protocol only. It does not authorize paper trading, live trading, or profitability claims.
 
 ### Experiment A contract
 

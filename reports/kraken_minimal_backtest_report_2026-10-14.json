@@ -1,0 +1,54 @@
+{
+  "costs_eur": {
+    "entry_total": 0,
+    "exit_total": 0,
+    "total_cost_eur": 0
+  },
+  "drawdown_eur": 0.0,
+  "executed_simulated_trades": [],
+  "exit_reasons": [],
+  "gross_pnl_eur": 0.0,
+  "input_bounds": {
+    "candle_count": 1310154,
+    "first_candle_utc": "2013-09-10T23:45:00+00:00",
+    "interval_minutes": 5,
+    "last_candle_utc": "2026-09-30T23:55:00+00:00"
+  },
+  "interpretation": "The dataset is not a contiguous 5-minute replay; the harness fail-closes and produces zero simulated trades. Gross and net P&L are therefore zero under the fail-closed run, and net profitability is unverified because no valid trade-level execution occurred.",
+  "net_pnl_eur": 0.0,
+  "parameters": {
+    "cost_model": {
+      "latency_ms": 150.0,
+      "maker_fee": 0.001,
+      "min_order_eur": 10.0,
+      "slippage_bps": 2.0,
+      "spread_bps": 4.0,
+      "taker_fee": 0.0015
+    },
+    "hold_period": 3,
+    "interval_minutes": 5,
+    "lookback": 3,
+    "max_open_exposure": 1000.0,
+    "max_position_per_symbol": 1.0,
+    "notional_eur": 100.0,
+    "symbol": "BTC-EUR"
+  },
+  "rejected_entries": [],
+  "replay": {
+    "completed_steps": 0,
+    "error": "missing_interval: expected 2013-09-10T23:50:00+00:00 after 2013-09-10T23:45:00+00:00, got 2013-09-11T00:30:00+00:00",
+    "status": "rejected_gap_in_history"
+  },
+  "signals": [],
+  "source": {
+    "dataset_name": "kraken_btc_eur_5m_ohlcv",
+    "dataset_path": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\kraken\\XBTEUR_5.csv",
+    "file_size_bytes": 80269660,
+    "manifest_path": "C:\\Users\\akonali\\Documents\\PopBite\\TradingBot\\data\\provenance\\kraken_btc_eur_5m_manifest.json",
+    "manifest_status": "PROVISIONAL_KRAKEN_OHLCV_RESEARCH_ONLY",
+    "market": "BTC-EUR",
+    "raw_identity_blocker": "sha256 is null in manifest; exact raw-byte identity is not cryptographically established.",
+    "sha256": null
+  },
+  "status": "rejected_gap_in_history"
+}
