@@ -289,7 +289,10 @@ def _periods_from_windows(candles: list, *, period_days: int, count: int, seed: 
     if len(chosen) < count:
         raise ValueError(f"Could not select {count} non-overlapping {period_days}-day periods from the dataset.")
 
-    return sorted(chosen, key=lambda item: item["start"])
+    chronological = sorted(chosen, key=lambda item: item["start"])
+    for index, period in enumerate(chronological, start=1):
+        period["period_id"] = f"{period_days}d-{index:02d}"
+    return chronological
 
 
 def sample_periods(*, seed: int, period_days: int, count: int, data_path: str | Path = DATA_PATH) -> list[dict]:
