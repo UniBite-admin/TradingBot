@@ -77,14 +77,13 @@ def test_stop_wins_when_one_candle_touches_both_stop_and_target():
     assert result["trades"][0]["exit_price"] < result["trades"][0]["target_price"]
 
 
-def test_segmented_mode_never_carries_a_box_across_a_gap():
+def test_segmented_mode_rejects_duplicate_timestamps():
     candles = _day_plus_signals()
     candles.insert(200, _candle(datetime(2024, 1, 1, 16, 40, tzinfo=timezone.utc)))
-    # Duplicate timestamp makes the first segment invalid; the result must fail closed.
     result = run_box_theory_segmented(candles)
 
+    assert result["summary"]["status"] == "rejected_duplicate_timestamps"
     assert result["summary"]["trades"] == 0
-    assert all(segment["status"] != "eligible" or segment["trades"] >= 0 for segment in result["segments"])
 
 
 def test_invalid_configuration_is_rejected():
