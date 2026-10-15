@@ -26,7 +26,8 @@ def test_breakout_zero_cost_uses_exact_20_periods():
     assert [item["period_id"] for item in monthly] == [f"30d-{index:02d}" for index in range(1, 11)]
     assert [item["start"] for item in weekly] == sorted(item["start"] for item in weekly)
     assert [item["start"] for item in monthly] == sorted(item["start"] for item in monthly)
-    assert weekly[0]["start"] == "2018-03-04T19:25:00+00:00"
+    assert weekly[0]["start"] == "2017-08-26T21:10:00+00:00"
+    assert weekly[1]["start"] == "2018-03-04T19:25:00+00:00"
     assert weekly[-1]["end"] == "2026-05-01T15:05:00+00:00"
     assert monthly[0]["start"] == "2019-12-31T18:20:00+00:00"
     assert monthly[-1]["end"] == "2026-07-09T14:20:00+00:00"
