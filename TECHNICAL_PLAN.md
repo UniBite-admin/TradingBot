@@ -1674,7 +1674,7 @@ Added:
 - `tools/hsra/box_theory_experiment.py`: CLI runner with input SHA-256, source bounds, 60/20/20 chronological partition reports, and a separate full-sample descriptive report.
 - `tests/test_box_theory.py`: focused tests for box construction, incomplete-day exclusion, conservative stop-first behavior, segment gaps, and invalid configuration.
 
-The candidate's initial research defaults are a bottom-25% entry zone, a 5-basis-point stop buffer, and €50 notional. These are explicit experimental settings, not optimized or live-approved values. The existing CostModel defaults are reused but remain modeled assumptions, not verified venue-specific execution costs.
+The candidate's initial research defaults are a bottom-25% entry zone, a 5-basis-point stop buffer, and €50 notional. These are explicit experimental settings, not optimized or live-approved values. The existing CostModel defaults are reused but remain modeled assumptions, not verified venue-specific execution costs. In particular, buy-side maker fees do not obviously match a next-candle-open marketable fill, and the latency-cost formula is unvalidated and may dominate results. Net P&L is therefore provisional until the cost model is reviewed.
 
 Verification limitation: the GitHub repository connection supports reading and writing repository files but does not provide a local Python test execution environment in this workflow. The new tests have therefore **not been executed here**, and the historical runner has **not been run against the user's local Kraken CSV**. Do not mark this candidate tested, validated, or profitable until the actual test output and reproducible report have been inspected.
 
