@@ -241,6 +241,10 @@ def run_stop_loss_experiment(
     if not baseline_path.exists():
         raise FileNotFoundError(f"baseline_report_required:{baseline_path}")
     baseline_payload = json.loads(baseline_path.read_text(encoding="utf-8"))
+    expected_source_sha = baseline_payload.get("experiment", {}).get("data", {}).get("raw_sha256")
+    actual_source_sha = hashlib.sha256(Path(data_path).read_bytes()).hexdigest()
+    if expected_source_sha and expected_source_sha != actual_source_sha:
+        raise ValueError("baseline_dataset_sha256_mismatch; refusing to compare different source data")
 
     weekly = _run_period_batch(period_days=7, seed=WEEKLY_SEED, data_path=data_path)
     monthly = _run_period_batch(period_days=30, seed=MONTHLY_SEED, data_path=data_path)
@@ -248,7 +252,7 @@ def run_stop_loss_experiment(
         "weekly": _add_baseline_comparison(weekly, baseline_payload["weekly_runs"]),
         "monthly": _add_baseline_comparison(monthly, baseline_payload["monthly_runs"]),
     }
-    source_sha256 = hashlib.sha256(Path(data_path).read_bytes()).hexdigest()
+    source_sha256 = actual_source_sha
     payload = {
         "experiment": {
             "name": "breakout_fixed_2pct_stop_loss_zero_cost_20_period_research",
