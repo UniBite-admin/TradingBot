@@ -801,7 +801,7 @@ This strategy is complete enough for review because the rule set, validation met
 - Position policy: long-only spot research, one position at a time per contiguous segment. No short selling, leverage, margin, futures, or perpetuals.
 - Exit simulation: inspect candles from the entry candle onward. A gap below the stop exits at the observed open; a gap above the target is conservatively filled at the target. If a candle touches both stop and target and intrabar order is unknowable, the stop is assumed first. A position still open at segment end is reported as unresolved and is not force-closed at an invented price.
 - Data gaps: split into maximal contiguous segments and reset all state at every gap. A prior-day box is unavailable unless all 288 candles for that day are present inside the same segment. No backfill or synthetic candles.
-- Costs: use the existing `CostModel` defaults, including its configured fees, spread, slippage, and latency estimate. These are model assumptions, not verified Bitvavo execution costs.
+- Costs: use the existing `CostModel` defaults, including its configured fees, spread, slippage, and latency estimate. These are model assumptions, not verified Bitvavo execution costs. The current model uses a maker fee on buys and a taker fee on sells despite next-candle-open entry simulation; its latency-cost formula is also unvalidated and may dominate results. Therefore, net P&L is provisional and cannot support a profitability decision until the cost model and order-type assumptions are reviewed.
 
 ### Research-only defaults and limitations
 
