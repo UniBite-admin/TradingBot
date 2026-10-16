@@ -32,15 +32,26 @@ def default_cost_scenarios(*, taker_fee_rate: float = 0.0025, spread_bps: float 
 
 
 def _scenario_costs(scenario: CostScenario, entry_notional: float, exit_notional: float) -> dict:
-    turnover = entry_notional + exit_notional
-    fees = turnover * scenario.fee_rate
-    spread = turnover * scenario.spread_bps / 10000.0
-    slippage = turnover * scenario.slippage_bps / 10000.0
+    entry_fees = entry_notional * scenario.fee_rate
+    exit_fees = exit_notional * scenario.fee_rate
+    entry_spread = entry_notional * scenario.spread_bps / 10000.0
+    exit_spread = exit_notional * scenario.spread_bps / 10000.0
+    entry_slippage = entry_notional * scenario.slippage_bps / 10000.0
+    exit_slippage = exit_notional * scenario.slippage_bps / 10000.0
+    fees = entry_fees + exit_fees
+    spread = entry_spread + exit_spread
+    slippage = entry_slippage + exit_slippage
     return {
         "status": scenario.status,
         "fee_rate_per_side": scenario.fee_rate,
         "spread_bps_per_side": scenario.spread_bps,
         "slippage_bps_per_side": scenario.slippage_bps,
+        "entry_fees_eur": entry_fees,
+        "exit_fees_eur": exit_fees,
+        "entry_spread_cost_eur": entry_spread,
+        "exit_spread_cost_eur": exit_spread,
+        "entry_slippage_cost_eur": entry_slippage,
+        "exit_slippage_cost_eur": exit_slippage,
         "fees_eur": fees,
         "spread_cost_eur": spread,
         "slippage_cost_eur": slippage,
@@ -161,7 +172,7 @@ def run_box_theory_segment(
     If OHLC data cannot determine whether stop or target came first, stop wins.
     """
     cfg = config or BoxTheoryConfig()
-    scenarios = cost_scenarios or default_cost_scenarios()
+    scenarios = cost_scenarios if cost_scenarios is not None else default_cost_scenarios()
     ordered = sorted(candles, key=lambda candle: candle.interval_start)
     empty_summary = {
         "status": "eligible",
@@ -310,8 +321,27 @@ def run_box_theory_segmented(
 ) -> dict:
     """Split input at missing intervals and reset all strategy state for each segment."""
     cfg = config or BoxTheoryConfig()
-    scenarios = cost_scenarios or default_cost_scenarios()
+    scenarios = cost_scenarios if cost_scenarios is not None else default_cost_scenarios()
     ordered = sorted(candles, key=lambda candle: candle.interval_start)
+    if cfg.interval_minutes <= 0 or 1440 % cfg.interval_minutes != 0:
+        return {
+            "config": asdict(cfg),
+            "segment_count": 0,
+            "segments": [],
+            "signals": [],
+            "trades": [],
+            "summary": {
+                "status": "invalid_configuration",
+                "candles": len(ordered),
+                "segment_count": 0,
+                "signals": 0,
+                "trades": 0,
+                "open_at_segment_end": 0,
+                "gross_pnl_eur": 0.0,
+                "cost_scenarios": _summarize_cost_scenarios([], scenarios),
+            },
+            "interpretation": "invalid configuration; no simulation performed",
+        }
     if any(current.interval_start == previous.interval_start for previous, current in zip(ordered, ordered[1:])):
         return {
             "config": asdict(cfg),
