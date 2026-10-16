@@ -116,3 +116,11 @@ def test_cost_scenario_arithmetic_uses_both_turnover_legs():
     assert abs(cost["spread_cost_eur"] - expected_turnover * 10 / 10000) < 1e-10
     assert abs(cost["slippage_cost_eur"] - expected_turnover * 5 / 10000) < 1e-10
     assert abs(cost["total_cost_eur"] - cost["fees_eur"] - cost["spread_cost_eur"] - cost["slippage_cost_eur"]) < 1e-10
+
+
+def test_segmented_mode_rejects_invalid_interval_without_division_error():
+    result = run_box_theory_segmented(
+        _day_plus_signals(),
+        config=BoxTheoryConfig(interval_minutes=0),
+    )
+    assert result["summary"]["status"] == "invalid_configuration"

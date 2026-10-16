@@ -79,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
         }
 
     result = {
+        "strategy": "box_theory",
+        "report_status": "RESEARCH_ONLY_NOT_VALIDATED",
         "config": {
             "symbol": config.symbol,
             "interval_minutes": config.interval_minutes,
