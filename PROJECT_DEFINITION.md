@@ -1,189 +1,45 @@
-# Trading Bot - Project Definition and Governing Principles
-
-## 1. Project Mission
-
-Build a research-driven cryptocurrency trading bot focused on short-term, candlestick-based market analysis and scalping.
-
-The objective is to identify whether a simple, testable trading strategy can generate positive returns after realistic trading costs and execution constraints.
-
-The system must prioritize measurable results, capital protection, reproducibility, and operational reliability over complexity.
-
-## 2. Financial Objective
-
-The initial capital target is EUR 50, with an aspirational goal of reaching EUR 5,000 within 3-7 days.
-
-This is an extremely aggressive 100x return objective, not a guaranteed or assumed achievable outcome. The system must never manipulate research results, weaken risk controls, or claim profitability without sufficient evidence to pursue this target.
-
-If testing shows that the objective is not realistically supported by the evidence, report that conclusion honestly.
-
-## 3. Core Operating Principles
-
-The development and research process follows:
-
-**DATA -> ANALYZE -> TEST -> VALIDATE -> PAPER TRADE -> CONTROLLED LIVE TEST -> EVALUATE -> SCALE**
-
-Each stage must produce verifiable evidence before progressing to the next.
-
-A strategy is not accepted merely because its code runs or a backtest produces a positive result.
-
-## 4. Multi-Asset Market Monitoring
-
-The bot should be designed to monitor multiple cryptocurrency markets concurrently and identify potential trading opportunities.
-
-The intended capabilities include:
-
-- Collecting reliable market data from the selected exchange.
-- Processing candlestick data consistently.
-- Evaluating eligible assets using the approved strategy.
-- Comparing and ranking potential opportunities using documented rules.
-- Rejecting opportunities that fail strategy or risk requirements.
-- Sending an order only when the required conditions are satisfied and the Risk Engine approves it.
-
-The number of markets, exchange, data sources, and candle intervals must be established in the technical plan rather than silently assumed.
-
-## 5. Candlestick-Based Trading Strategy
-
-The trading strategy will be based on candlestick analysis and must have its own explicit, testable specification.
-
-Every strategy rule must define its inputs, conditions, timing, outputs, and invalidation conditions where applicable.
-
-Strategy development must distinguish between:
-
-- A hypothesis that needs testing.
-- A rule that has been specified.
-- A rule that has been implemented.
-- A rule whose implementation has been verified.
-- A strategy whose profitability has been validated.
-
-No strategy rule, indicator, timeframe, threshold, entry condition, exit condition, or parameter may be silently invented or treated as approved.
-
-The strategy specification must be established separately before implementation.
-
-## 6. Deterministic Decision-Making
-
-Trading decisions should primarily use deterministic code and appropriately validated models.
-
-The system must produce traceable decisions with sufficient information to establish:
-
-- Which market data was used.
-- Which strategy rules were evaluated.
-- Why an opportunity was accepted or rejected.
-- Which risk checks were performed.
-- Why an order was approved or blocked.
-- What execution outcome occurred.
-
-An LLM may assist with research, documentation, code review, and hypothesis generation. AI-generated hypotheses are not evidence of profitability and must not autonomously change live trading rules.
-
-## 7. Risk and Capital Protection
-
-Initial trading scope is **SPOT ONLY**.
-
-The system must not use leverage, margin, futures, or perpetual contracts.
-
-Risk management has final authority over the strategy and any AI-supported decision. A BUY or SELL signal does not guarantee that an order will be placed.
-
-The design must provide for controls covering:
-
-- Maximum position size.
-- Risk limits per trade.
-- Entry and exit authorization.
-- Maximum daily loss.
-- Maximum consecutive losses.
-- Maximum simultaneous positions.
-- Abnormal market conditions.
-- Data, network, and exchange API failures.
-- Failed, rejected, and partially filled orders.
-- An emergency trading stop.
-
-Exact numerical limits must be explicitly specified and approved before they govern live trading.
-
-Exchange API credentials must never have withdrawal permission. Secrets must not be committed to the repository or exposed in logs.
-
-## 8. Research and Validation Standards
-
-All performance claims must be supported by reproducible experiments.
-
-Backtesting and validation must address realistic trading fees, spread, slippage, latency, liquidity, partial fills, failed orders, exchange constraints, and minimum order sizes where relevant.
-
-The research process must prevent look-ahead bias, data leakage, and uncontrolled parameter tuning.
-
-Datasets, strategy versions, configurations, test periods, and evaluation criteria must be recorded so that results can be reproduced.
-
-A strategy that appears profitable only before realistic costs must not be classified as profitable.
-
-The required progression is historical research, backtesting, paper trading, a controlled small live test, and only then consideration of scaling.
-
-## 9. Engineering Principles
-
-Follow these principles:
-
-- **Simplicity before complexity:** implement only what the current research question requires.
-- **Correctness before optimization:** understand and verify behavior before improving performance.
-- **Inspect before modifying:** review relevant source code, tests, data, and documentation first.
-- **Small changes, tight feedback loops:** make focused changes, test them, inspect the results, and continue.
-- **Root-cause debugging:** investigate why something failed instead of randomly trying fixes.
-- **Evidence over intuition:** measure claims such as profitability, accuracy, and robustness.
-- **No premature abstraction:** do not introduce frameworks or infrastructure without a demonstrated need.
-- **Verification before completion:** code existing is not proof that it works.
-
-## 10. No-Assumptions Governance
-
-Do not guess, invent, or silently choose undocumented requirements.
-
-When critical information is missing, ambiguous, contradictory, or unsupported by authoritative evidence:
-
-1. State what is known.
-2. Identify what is unknown.
-3. Explain why the uncertainty matters.
-4. State which decision or action is blocked.
-5. Ask the human for the required decision.
-
-Do not proceed with a critical decision by disguising an assumption as a recommendation or implementation detail.
-
-The human has final authority over unresolved requirements and important project decisions.
-
-Important approved decisions must be recorded in the project's authoritative documentation. Chat history alone is not the project specification.
-
-## 11. Repository and Documentation Structure
-
-Keep the project simple, organized, and easy to maintain.
-
-Create only the files and directories required by the actual project needs. Maintain one authoritative project definition and one authoritative roadmap.
-
-The repository must make it clear:
-
-- What the system is intended to do.
-- Which requirements are approved.
-- What has been implemented.
-- What has been tested.
-- What evidence supports current conclusions.
-- What remains incomplete or blocked.
-
-Do not create an agent framework, multi-agent hierarchy, agent orchestration system, or unnecessary governance scaffolding.
-
-Do not introduce duplicate specifications, competing roadmaps, redundant reports, or generated artifacts without a clear purpose.
-
-## 12. Definition of Done
-
-A task is complete only when:
-
-1. The requirement is understood.
-2. The implementation matches the approved requirement.
-3. Relevant tests have been executed.
-4. Actual behavior has been verified.
-5. Results and failures have been inspected.
-6. Acceptance criteria have been satisfied.
-7. Necessary documentation has been updated.
-8. The evidence supports the completion claim.
-
-If a critical requirement or acceptance criterion remains unresolved, the task must be reported as incomplete.
-
-## 13. Scope of This Definition
-
-This document defines the project's mission, boundaries, engineering principles, and governance.
-
-It does not approve a specific trading strategy, exchange, market universe, timeframe, indicator, numerical risk limit, execution algorithm, or profitability claim.
-
-Those decisions must be established through the appropriate specification and planning work before implementation.
-
-**Primary objective: Build the simplest reliable system that can test whether a trading strategy has genuine, repeatable positive expectancy after realistic costs. Preserve capital, measure results honestly, and never substitute assumptions for evidence.**
+# TradingBot — Project Definition and Governing Principles
+
+## Mission
+Build a reproducible cryptocurrency SPOT research system that tests whether the single active Box Theory candlestick strategy has positive expectancy after explicit transaction-cost and execution-uncertainty analysis. Prioritize correctness, evidence, capital protection, and a small understandable system.
+
+The aspirational goal of growing €50 to €5,000 in 3–7 days is extremely aggressive, not assumed achievable, and never justifies weakening research or risk controls.
+
+## Active strategy and data boundary
+- The only active strategy specification is Box Theory in `STRATEGY_SPECIFICATION.md`.
+- Current research input: Kraken BTC/EUR 5-minute OHLCV from `data/kraken/`.
+- Bitvavo Spot remains a future intended venue concept; Kraken OHLCV is not Bitvavo order-book or execution evidence.
+- Previous Experiment A/B, breakout, and zero-cost strategy code/specifications are obsolete for active development. Historical reports/manifests are retained for comparison and provenance only.
+- Do not mix reports from different strategies, datasets, periods, cost models, or execution assumptions as if they were a controlled comparison.
+
+## System boundaries
+- SPOT only. No leverage, margin, futures, or perpetuals.
+- Paper trading, live orders, and scaling are not authorized by this project definition.
+- Exchange API keys must never have withdrawal permission. Secrets must not be committed or exposed in logs.
+- A signal is not an order; an order is not a fill; an exchange response is not proof of final account state. Any future live system must give the Risk Engine final authority to reject trades.
+
+## Research integrity
+- AI-generated hypotheses are not evidence.
+- Never claim profitability without reproducible results after realistic costs and execution constraints.
+- Prevent look-ahead bias, data leakage, and uncontrolled tuning.
+- Preserve source identity, exact UTC bounds, data-validation outcomes, strategy version, configuration, test boundaries, and report provenance.
+- No silent gap repair, no synthetic candles, and no trade/state crossing a data gap or validation partition.
+- Report gross P&L separately from fee, spread, and slippage scenarios.
+- Do not convert latency to EUR without a defensible validated model. Report latency as unresolved execution uncertainty.
+- Cost scenarios are assumptions unless supported by dated venue fee schedules and measured execution data.
+
+## Development and approval path
+`Historical Data → Backtest → Validation → Paper Trading → Controlled Small Live Test → Evaluation → Explicitly Approved Scaling`
+
+Passing code tests or observing positive backtest P&L is not sufficient to advance. Each stage requires reviewed evidence and explicit authorization. Live trading and scaling must never be activated automatically.
+
+## Engineering principles
+- Inspect code, tests, data, and authoritative documents before changing them.
+- Make small, verifiable changes and investigate root causes.
+- Keep one authoritative project definition, roadmap, and strategy specification.
+- Keep reusable data-validation and risk utilities separate from strategy logic.
+- Avoid unnecessary frameworks, duplicate specifications, and infrastructure.
+- Human authority decides unresolved critical decisions. Record approved decisions in the repository, not only in chat.
+
+## Definition of done
+A task is complete only when requirements are clear, implementation matches the specification, relevant tests have actually run, behavior and outputs are inspected, acceptance criteria are satisfied, and documents reflect verified reality. Clearly label untested, unvalidated, and blocked work.
