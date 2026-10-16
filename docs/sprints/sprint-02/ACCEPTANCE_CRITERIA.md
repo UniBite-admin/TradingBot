@@ -1,3 +1,5 @@
+> **Historical record notice (2026-10-16):** This sprint's acceptance criteria describe the former documentation-only Experiment A/B phase. They are preserved as a historical record, not as the current active strategy contract. Box Theory is now the only active strategy research path; current scope and gates are governed by the root `PROJECT_DEFINITION.md`, `ROADMAP.md`, `STRATEGY_SPECIFICATION.md`, and `TECHNICAL_PLAN.md`. Legacy strategy code has been removed from the active branch; historical reports remain for comparison only. This notice does not claim tests or the full backtest have run, and it does not authorize paper or live trading.
+
 # Sprint 02 - Acceptance Criteria
 
 Sprint 02 completion is measured by evidence-backed review quality, traceability, and justified documentation corrections. It is not measured by document count, apparent completeness, profitability claims, or implementation progress.
