@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from datetime import timezone
 from pathlib import Path
 
-from .box_theory import BoxTheoryConfig, run_box_theory_segmented
+from .box_theory import BoxTheoryConfig, default_cost_scenarios, run_box_theory_segmented
 from .kraken_ohlcv import load_kraken_ohlcv
 
 
@@ -25,7 +26,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--notional-eur", type=float, default=50.0)
     parser.add_argument("--zone-fraction", type=float, default=0.25)
     parser.add_argument("--stop-buffer-bps", type=float, default=5.0)
+    parser.add_argument("--taker-fee-rate", type=float, default=0.0025, help="Illustrative fee rate per side; unverified")
+    parser.add_argument("--spread-bps", type=float, default=4.0, help="Illustrative spread cost per side")
+    parser.add_argument("--slippage-bps", type=float, default=2.0, help="Illustrative slippage cost per side")
     args = parser.parse_args(argv)
+
+    for name, value in (("notional-eur", args.notional_eur), ("zone-fraction", args.zone_fraction),
+                        ("stop-buffer-bps", args.stop_buffer_bps), ("taker-fee-rate", args.taker_fee_rate),
+                        ("spread-bps", args.spread_bps), ("slippage-bps", args.slippage_bps)):
+        if not math.isfinite(value) or value < 0:
+            parser.error(f"--{name} must be finite and non-negative")
+    if args.notional_eur <= 0 or not 0 < args.zone_fraction < 0.5:
+        parser.error("--notional-eur must be positive and --zone-fraction must be between 0 and 0.5")
 
     source = Path(args.input).resolve()
     output = Path(args.output).resolve()
@@ -36,6 +48,11 @@ def main(argv: list[str] | None = None) -> int:
 
     source_sha256 = _sha256(source)
     candles = load_kraken_ohlcv(source)
+    if not candles:
+        parser.error("input contains no valid candles")
+    scenarios = default_cost_scenarios(
+        taker_fee_rate=args.taker_fee_rate, spread_bps=args.spread_bps, slippage_bps=args.slippage_bps
+    )
     config = BoxTheoryConfig(
         symbol="BTC-EUR",
         interval_minutes=5,
@@ -58,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
             "start_utc": partition_candles[0].interval_start.astimezone(timezone.utc).isoformat() if partition_candles else None,
             "end_utc": partition_candles[-1].interval_end.astimezone(timezone.utc).isoformat() if partition_candles else None,
             "candle_count": len(partition_candles),
-            "result": run_box_theory_segmented(partition_candles, config=config),
+            "result": run_box_theory_segmented(partition_candles, config=config, cost_scenarios=scenarios),
         }
 
     result = {
@@ -77,12 +94,20 @@ def main(argv: list[str] | None = None) -> int:
             "note": "Each partition is processed independently; complete prior-day boxes must be available inside a contiguous segment in that partition.",
         },
         "partition_reports": partition_reports,
-        "full_sample_descriptive_result": run_box_theory_segmented(candles, config=config),
+        "full_sample_descriptive_result": run_box_theory_segmented(candles, config=config, cost_scenarios=scenarios),
+        "cost_policy": {
+            "gross_pnl_reported_separately": True,
+            "illustrative_scenario_is_verified_venue_data": False,
+            "latency_cost_eur": None,
+            "latency_status": "not_priced",
+            "scenarios": [scenario.__dict__ for scenario in scenarios],
+        },
         "interpretation": "historical research only; no profitability or execution-readiness claim",
         "known_limitations": [
-            "The existing CostModel latency formula and maker/taker assumptions have not been validated for this strategy or venue.",
+            "Illustrative fee, spread, and slippage values are assumptions, not verified Kraken or Bitvavo execution costs.",
             "The next-candle-open entry is a bar-level simulation, not evidence of an executable fill.",
-            "A full previous UTC day must exist inside one contiguous segment; data gaps can exclude many candidate days.",
+            "Latency is not converted to EUR because no validated model is available.",
+            "A full previous UTC day must exist inside one contiguous segment; data gaps can exclude candidate days.",
         ],
     }
     result["provenance"] = {

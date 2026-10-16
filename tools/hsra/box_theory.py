@@ -5,8 +5,67 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta, timezone
 from typing import Iterable
 
-from .cost import CostModel
 from .ohlcv import OHLCVCandle
+
+
+@dataclass(frozen=True)
+class CostScenario:
+    """Explicit per-side cost assumptions; these are not venue facts."""
+    name: str
+    fee_rate: float
+    spread_bps: float
+    slippage_bps: float
+    status: str
+
+    def __post_init__(self) -> None:
+        values = (self.fee_rate, self.spread_bps, self.slippage_bps)
+        if not self.name or not all(math.isfinite(v) and v >= 0 for v in values):
+            raise ValueError("Cost scenario values must be finite and non-negative.")
+
+
+def default_cost_scenarios(*, taker_fee_rate: float = 0.0025, spread_bps: float = 4.0, slippage_bps: float = 2.0) -> list[CostScenario]:
+    """Return a gross-only diagnostic and an explicitly unverified sensitivity case."""
+    return [
+        CostScenario("gross_only", 0.0, 0.0, 0.0, "diagnostic_not_executable_net_pnl"),
+        CostScenario("illustrative_taker_spread_slippage", taker_fee_rate, spread_bps, slippage_bps, "illustrative_unverified_sensitivity_case"),
+    ]
+
+
+def _scenario_costs(scenario: CostScenario, entry_notional: float, exit_notional: float) -> dict:
+    turnover = entry_notional + exit_notional
+    fees = turnover * scenario.fee_rate
+    spread = turnover * scenario.spread_bps / 10000.0
+    slippage = turnover * scenario.slippage_bps / 10000.0
+    return {
+        "status": scenario.status,
+        "fee_rate_per_side": scenario.fee_rate,
+        "spread_bps_per_side": scenario.spread_bps,
+        "slippage_bps_per_side": scenario.slippage_bps,
+        "fees_eur": fees,
+        "spread_cost_eur": spread,
+        "slippage_cost_eur": slippage,
+        "total_cost_eur": fees + spread + slippage,
+    }
+
+
+def _summarize_cost_scenarios(trades: list[dict], scenarios: list[CostScenario]) -> dict:
+    output = {}
+    for scenario in scenarios:
+        costs = [trade["cost_scenarios"][scenario.name] for trade in trades]
+        net = [trade["gross_pnl_eur"] - cost["total_cost_eur"] for trade, cost in zip(trades, costs)]
+        output[scenario.name] = {
+            "status": scenario.status,
+            "trade_count": len(trades),
+            "fees_eur": sum(cost["fees_eur"] for cost in costs),
+            "spread_cost_eur": sum(cost["spread_cost_eur"] for cost in costs),
+            "slippage_cost_eur": sum(cost["slippage_cost_eur"] for cost in costs),
+            "total_cost_eur": sum(cost["total_cost_eur"] for cost in costs),
+            "gross_pnl_eur": sum(trade["gross_pnl_eur"] for trade in trades),
+            "net_pnl_eur": sum(net),
+            "win_count": sum(value > 0 for value in net),
+            "loss_count": sum(value <= 0 for value in net),
+        }
+    return output
 
 
 @dataclass(frozen=True)
@@ -92,7 +151,7 @@ def run_box_theory_segment(
     candles: Iterable[OHLCVCandle],
     *,
     config: BoxTheoryConfig | None = None,
-    cost_model: CostModel | None = None,
+    cost_scenarios: list[CostScenario] | None = None,
 ) -> dict:
     """Backtest one contiguous segment; never bridges gaps or carries state across segments.
 
@@ -102,7 +161,7 @@ def run_box_theory_segment(
     If OHLC data cannot determine whether stop or target came first, stop wins.
     """
     cfg = config or BoxTheoryConfig()
-    costs = cost_model or CostModel()
+    scenarios = cost_scenarios or default_cost_scenarios()
     ordered = sorted(candles, key=lambda candle: candle.interval_start)
     empty_summary = {
         "status": "eligible",
@@ -111,10 +170,7 @@ def run_box_theory_segment(
         "trades": 0,
         "open_at_segment_end": 0,
         "gross_pnl_eur": 0.0,
-        "estimated_cost_eur": 0.0,
-        "net_pnl_eur": 0.0,
-        "win_count": 0,
-        "loss_count": 0,
+        "cost_scenarios": _summarize_cost_scenarios([], scenarios),
     }
     if cfg.interval_minutes <= 0 or 1440 % cfg.interval_minutes != 0:
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "invalid_configuration"}, "trades": [], "signals": []}
@@ -127,6 +183,8 @@ def run_box_theory_segment(
         or cfg.notional_eur <= 0
     ):
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "invalid_configuration"}, "trades": [], "signals": []}
+    if not scenarios or len({scenario.name for scenario in scenarios}) != len(scenarios):
+        return {"config": asdict(cfg), "summary": {**empty_summary, "status": "invalid_cost_scenarios"}, "trades": [], "signals": []}
     if not _segment_is_valid(ordered, cfg.interval_minutes):
         return {"config": asdict(cfg), "summary": {**empty_summary, "status": "rejected_invalid_or_noncontiguous_segment"}, "trades": [], "signals": []}
 
@@ -206,11 +264,11 @@ def run_box_theory_segment(
 
         quantity = cfg.notional_eur / entry
         exit_notional = quantity * exit_price
-        entry_cost = costs.estimate_trade_cost(price=entry, notional=cfg.notional_eur, side="buy")
-        exit_cost = costs.estimate_trade_cost(price=exit_price, notional=exit_notional, side="sell")
         gross = (exit_price - entry) * quantity
-        total_cost = entry_cost["total_cost_eur"] + exit_cost["total_cost_eur"]
-        net = gross - total_cost
+        trade_costs = {
+            scenario.name: _scenario_costs(scenario, cfg.notional_eur, exit_notional)
+            for scenario in scenarios
+        }
         trades.append({
             **signal,
             "exit_index": exit_index,
@@ -218,11 +276,10 @@ def run_box_theory_segment(
             "exit_price": exit_price,
             "exit_reason": exit_reason,
             "quantity": quantity,
+            "entry_notional_eur": cfg.notional_eur,
+            "exit_notional_eur": exit_notional,
             "gross_pnl_eur": gross,
-            "entry_cost_eur": entry_cost["total_cost_eur"],
-            "exit_cost_eur": exit_cost["total_cost_eur"],
-            "estimated_cost_eur": total_cost,
-            "net_pnl_eur": net,
+            "cost_scenarios": trade_costs,
         })
         index = exit_index + 1
 
@@ -232,16 +289,15 @@ def run_box_theory_segment(
         "trades": len(trades),
         "open_at_segment_end": open_at_end,
         "gross_pnl_eur": sum(trade["gross_pnl_eur"] for trade in trades),
-        "estimated_cost_eur": sum(trade["estimated_cost_eur"] for trade in trades),
-        "net_pnl_eur": sum(trade["net_pnl_eur"] for trade in trades),
-        "win_count": sum(trade["net_pnl_eur"] > 0 for trade in trades),
-        "loss_count": sum(trade["net_pnl_eur"] <= 0 for trade in trades),
+        "cost_scenarios": _summarize_cost_scenarios(trades, scenarios),
     }
     return {
         "config": asdict(cfg),
         "summary": summary,
         "signals": signals,
         "trades": trades,
+        "cost_scenario_definitions": [asdict(scenario) for scenario in scenarios],
+        "latency_cost": {"status": "not_priced", "reason": "No validated latency-to-EUR model is available."},
         "interpretation": "historical research only; no profitability or execution-readiness claim",
     }
 
@@ -250,10 +306,11 @@ def run_box_theory_segmented(
     candles: Iterable[OHLCVCandle],
     *,
     config: BoxTheoryConfig | None = None,
-    cost_model: CostModel | None = None,
+    cost_scenarios: list[CostScenario] | None = None,
 ) -> dict:
     """Split input at missing intervals and reset all strategy state for each segment."""
     cfg = config or BoxTheoryConfig()
+    scenarios = cost_scenarios or default_cost_scenarios()
     ordered = sorted(candles, key=lambda candle: candle.interval_start)
     if any(current.interval_start == previous.interval_start for previous, current in zip(ordered, ordered[1:])):
         return {
@@ -270,10 +327,7 @@ def run_box_theory_segmented(
                 "trades": 0,
                 "open_at_segment_end": 0,
                 "gross_pnl_eur": 0.0,
-                "estimated_cost_eur": 0.0,
-                "net_pnl_eur": 0.0,
-                "win_count": 0,
-                "loss_count": 0,
+                "cost_scenarios": _summarize_cost_scenarios([], scenarios),
             },
             "interpretation": "rejected input; duplicate timestamps are not treated as ordinary gaps",
         }
@@ -285,7 +339,7 @@ def run_box_theory_segmented(
             segments[-1].append(candle)
 
     results = [
-        run_box_theory_segment(segment, config=cfg, cost_model=cost_model)
+        run_box_theory_segment(segment, config=cfg, cost_scenarios=scenarios)
         for segment in segments
     ]
     trades = [
@@ -307,6 +361,8 @@ def run_box_theory_segmented(
         ],
         "signals": signals,
         "trades": trades,
+        "cost_scenario_definitions": [asdict(scenario) for scenario in scenarios],
+        "latency_cost": {"status": "not_priced", "reason": "No validated latency-to-EUR model is available."},
         "summary": {
             "candles": len(ordered),
             "segment_count": len(segments),
@@ -314,10 +370,7 @@ def run_box_theory_segmented(
             "trades": len(trades),
             "open_at_segment_end": sum(result["summary"]["open_at_segment_end"] for result in results),
             "gross_pnl_eur": sum(trade["gross_pnl_eur"] for trade in trades),
-            "estimated_cost_eur": sum(trade["estimated_cost_eur"] for trade in trades),
-            "net_pnl_eur": sum(trade["net_pnl_eur"] for trade in trades),
-            "win_count": sum(trade["net_pnl_eur"] > 0 for trade in trades),
-            "loss_count": sum(trade["net_pnl_eur"] <= 0 for trade in trades),
+            "cost_scenarios": _summarize_cost_scenarios(trades, scenarios),
         },
         "interpretation": "segmented historical research only; no profitability or execution-readiness claim",
     }
