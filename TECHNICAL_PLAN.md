@@ -1,72 +1,80 @@
-# Technical Plan — Box Theory Research
+# Technical Plan — BTC/EUR Trend Strategy Research
 
 ## Status
-- Scope: historical research only.
-- Active strategy: Box Theory; old strategy runners are not part of the active path.
-- Branch: `strategy/box-theory-research`.
-- Tests and full historical run: pending execution and evidence review.
-- Paper/live/scaling: not authorized.
+- **Current phase:** contract and data audit.
+- **Active target:** BTC/EUR spot trend-following strategy in `STRATEGY_SPECIFICATION.md`.
+- **Strategy engine/backtest:** not yet implemented under this specification.
+- **Input data:** user confirms 24-hour BTC/EUR candles are available and will upload them. Required hourly source, exact paths, schema, timestamp semantics, and coverage remain to be verified.
+- **Paper/live/scaling:** not authorized.
+- **Previous Box Theory:** obsolete for active development; preserve historical reports/code as comparison evidence only.
 
-## Runtime path
+## Proposed runtime path
 ```text
-Kraken BTC/EUR 5m CSV
-  -> OHLCV validation
-  -> contiguous segments (gaps are barriers)
-  -> complete previous UTC-day box
-  -> lower-zone rejection signal
-  -> next-candle-open entry candidate
-  -> stop/target simulation
-  -> gross P&L + explicit fee/spread/slippage scenarios
-  -> provenance-rich JSON report
+BTC/EUR hourly OHLCV
+  -> source/schema/time validation
+  -> gap-aware contiguous segments
+  -> complete UTC daily bars
+  -> compare against uploaded 24-hour candles
+  -> deterministic daily strategy state machine
+  -> target exposure
+  -> hourly execution simulation
+  -> EUR/BTC portfolio accounting and explicit costs
+  -> reproducible window and continuous reports
 ```
 
-Active implementation:
-- `tools/hsra/kraken_ohlcv.py`: Kraken OHLCV loading and validation.
-- `tools/hsra/ohlcv.py`: shared candle structures and validation primitives.
-- `tools/hsra/box_theory.py`: strategy rules, segmentation, trade simulation, and cost scenarios.
-- `tools/hsra/box_theory_experiment.py`: CLI, chronological split, provenance, and JSON report.
-- `tests/test_box_theory.py`: focused strategy and cost-policy tests.
+## Phase 0 — repository and data audit
+1. Inspect the current repository and relevant existing code/tests before selecting implementation locations.
+2. Inspect actual files, not filenames or prior assumptions.
+3. Record path, size, schema, row count, first/last timestamp, timestamp units, timezone, bar-open/bar-close convention, ordering, duplicates, gaps, invalid OHLCV, zero volume, and suspicious moves.
+4. Do not silently deduplicate, forward-fill, synthesize candles, or repair data.
+5. Resample only complete hourly groups to UTC daily bars; gap boundaries split continuity.
+6. Compare the resulting daily candles with the user's 24-hour data when boundaries are comparable. Report mismatches; do not silently replace the hourly-resampled series.
+7. Do not implement strategy logic until the data contract and key ambiguities are recorded.
 
-The legacy shared `tools/hsra/cost.py` model is not used by Box Theory because its latency-to-EUR formula and maker/taker assumptions are not validated for this execution model. Historical strategy code is obsolete; historical reports are retained.
+## Phase 1 — deterministic strategy core
+Implement the nine submodel states/stops, volatility calculation, target exposure, and rebalance decision as pure deterministic logic. Add focused tests for:
+- each lookback and warm-up;
+- entry condition and exact equality semantics;
+- stop check using old stop before ratchet;
+- stop monotonicity;
+- volatility sizing, cap, zero/non-finite volatility;
+- rebalance triggers and zero-exposure denominator;
+- state resets at data gaps and experiment boundaries;
+- no look-ahead from incomplete daily candles.
 
-## Cost accounting contract
-For each completed trade:
-- Quantity = entry notional / entry price.
-- Gross P&L = (exit price − entry price) × quantity.
-- Record entry and exit notionals separately.
-- Each scenario applies fee rate, spread bps, and slippage bps to both entry and exit notionals.
-- Net P&L = gross P&L − fees − spread cost − slippage cost.
-- `gross_only` is a diagnostic, not executable net P&L.
-- `illustrative_taker_spread_slippage` is a configurable, unverified sensitivity case.
-- Latency is reported as `not_priced`; no EUR latency charge is silently included.
-- No maker fill is inferred from a next-open bar simulation.
+## Phase 2 — portfolio backtest
+Implement EUR cash, BTC quantity, target exposure, hourly execution delay, fee/slippage calculations, mark-to-market equity, and separate WARM/COLD window initialization. Keep strategy, portfolio accounting, execution simulation, costs, and analytics logically distinct while reusing the existing repository architecture where practical.
 
-## Data and simulation safeguards
-- A complete prior UTC day requires all 288 expected 5-minute candles in the same contiguous segment.
-- Invalid OHLCV rows fail closed in the loader.
-- Missing intervals split segments; duplicate timestamps reject segmented input.
-- No state or position crosses a gap or partition.
-- Stop-gap exits use the bar open; target-gap exits use the target. If stop and target are both touched within one candle, stop wins.
-- Positions open at segment end remain unresolved; no boundary fill is invented.
-- Entry/stop/target geometry must satisfy stop < entry < target.
-- At most one open position per segment; long-only.
+Required verification:
+- Hand-calculated accounting examples.
+- Costs applied to actual traded notional on each side.
+- No fill at the signal close.
+- No state, position, or P&L carried across independent windows or gaps.
+- Exact 30-day half-open windows and saved random seed/boundaries.
+- Independent fully-liquidated final-equity calculation with exit costs.
 
-## Verification plan
-1. Run `python -m pytest -q tests/test_box_theory.py`.
-2. Run the CLI against the actual `data/kraken/XBTEUR_5.csv` to a new report path.
-3. Inspect JSON structure, source hash, bounds, segment/partition counts, signals/trades, unresolved positions, and cost scenarios.
-4. Independently hand-calculate a trade's gross P&L and each scenario's fees/spread/slippage/net P&L.
-5. Confirm latency has no EUR cost and no generic legacy CostModel is called.
-6. Run relevant Kraken loader/data-quality tests.
-7. Record exact commands, test counts, report path, source hash, and limitations before marking verification complete.
+## Phase 3 — reproducible experiments
+- Main: 20 non-overlapping 30-day windows.
+- Additional: 200 overlapping 30-day windows, separate report.
+- Cost grid: 3 fee levels x 3 slippage levels at baseline delay.
+- Delay sensitivity: 0/1/4 hours at baseline costs.
+- Continuous descriptive backtest after window behavior is verified.
+- Reports must contain configuration, source hashes/bounds, QA findings, exact window boundaries, assumptions, results, and limitations.
+
+## Verification commands
+Commands must be adjusted after inspecting the actual repository and dependencies. Do not assume a test path or report runner until verified. Record commands and actual outputs. GitHub-hosted file edits do not execute Python tests or verify local datasets.
 
 ## Acceptance criteria
-Focused tests actually pass; the actual report is generated and inspected; cost arithmetic is independently verified; provenance and boundaries are explicit; no look-ahead, gap bridging, duplicate auto-removal, or boundary-crossing state; all results are research-only.
+- Data schema, timestamps, and UTC resampling are verified against actual files.
+- Strategy behavior is specified and covered by focused tests.
+- Portfolio balances and cost arithmetic match independent hand calculations.
+- No look-ahead, gap bridging, silent repair, or boundary-crossing state.
+- Reports are reproducible and inspected.
+- Results are described as historical research only; no profitability or live-trading claim without sufficient evidence and explicit authorization.
 
-## Known limitations / blockers
-- GitHub edits do not execute Python tests or the full dataset runner.
-- Illustrative fee/spread/slippage defaults are not verified current exchange data.
-- Kraken OHLCV cannot prove Bitvavo execution prices, spread, depth, or fills.
-- No latency-to-EUR model has been validated.
-- Sample adequacy and final-test interpretation remain open until the actual report is reviewed.
-- Paper trading, live orders, and scaling require separate explicit authorization.
+## Known limitations
+- The 24-hour file is pending upload/inspection.
+- Hourly data and exact coverage have not yet been verified in this phase.
+- Fee and slippage values are research scenarios unless backed by relevant dated evidence.
+- Hourly OHLCV cannot establish exact intrabar path, order-book depth, or actual fills.
+- Paper trading, live orders, and scaling remain blocked.
