@@ -8,7 +8,7 @@
 - **Execution input required:** validated hourly BTC/EUR OHLCV. `data/kraken/XBTEUR_1440.csv` is present for cross-checking; it does not by itself support hourly execution simulation.
 - **Trading permission:** historical research only. No paper/live trading or scaling authorization.
 
-This is the sole authoritative active strategy specification. Box Theory and earlier Experiment A/B, breakout, and zero-cost strategy code/specifications are obsolete for active development. Preserve their historical reports for comparison only and never mix their results with this strategy.
+This is the sole authoritative active strategy specification. Box Theory and earlier Experiment A/B, breakout, and zero-cost strategy implementations/tests are obsolete and must not remain in active source code. Obsolete Box Theory implementation and tests have been removed from `main`; historical reports/manifests are retained for comparison only and must never be mixed with this strategy's results.
 
 ## Research question
 Does this deterministic trend-following strategy show robust positive BTC/EUR spot returns after explicit fee, slippage, and execution-delay sensitivity? No positive expectancy or profitability is presumed.
