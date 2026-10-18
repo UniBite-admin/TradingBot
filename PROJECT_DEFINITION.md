@@ -8,7 +8,7 @@ The aspirational goal of growing €50 to €5,000 in 3–7 days is extremely ag
 ## Active strategy and transition
 - **New active research target:** BTC/EUR spot trend-following strategy defined in `STRATEGY_SPECIFICATION.md`.
 - **State:** specification/data-audit phase; strategy implementation and results are not yet validated.
-- **Previous Box Theory:** obsolete for active development per the user's prior direction. Preserve its historical code/reports as comparison evidence; do not mix its results with the new strategy.
+- **Previous Box Theory and other legacy strategies:** obsolete implementation and tests are removed from `main`. Historical reports/manifests are retained as comparison evidence only; do not mix their results with the new strategy.
 - **Required source:** validated BTC/EUR hourly OHLCV for execution simulation. The repository inventory on `main` confirms that `data/kraken/XBTEUR_1440.csv` is present for cross-checking. The actual files, schemas, timestamp semantics, and coverage must be inspected before data adequacy is claimed.
 - Do not assume that 24-hour data can replace hourly data for hourly execution simulation.
 
