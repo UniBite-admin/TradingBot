@@ -2,8 +2,8 @@
 
 ## Current state
 - **Active research target:** BTC/EUR spot trend-following strategy defined in `STRATEGY_SPECIFICATION.md`.
-- **Current phase:** contract and data audit. Strategy engine/backtest implementation has not started under this specification.
-- **Data:** all five Kraken BTC/EUR files (5m, 1h, 4h, 12h, 24h) are present on `main`. File presence is verified; content-level semantics, coverage, and quality remain unaudited.
+- **Current phase:** hourly/daily data layer and contract closure. Strategy engine/backtest implementation has not started under this specification.
+- **Data:** 1h and 24h file contents have been inspected and cross-checked; details are in `STRATEGY_SPECIFICATION.md`. The 5m/4h/12h files are not inputs to the initial strategy path and have not been audited for this work. The isolated hourly reader and focused tests are on a research branch; tests have not yet run.
 - **Previous Box Theory and other legacy strategies:** implementation and tests removed from `main`; historical reports/manifests retained for comparison only.
 - **Paper trading, live orders, and scaling:** not authorized.
 
@@ -15,13 +15,13 @@
 - `README.md`: project entrypoint and current status.
 
 ## Phase 0 — Contract and data audit
-**Status: in progress; files are present, content-level data audit is pending.**
+**Status: partially complete.** Hourly/daily content checks and daily cross-check are complete; source-paper verification and remaining strategy-contract decisions are still pending. Reader/tests are implemented on a research branch but not yet executed.
 
 Scope:
 - Verify the supplied research source and distinguish source-backed rules from prompt-derived assumptions.
-- Inspect repository structure, local changes where available, and actual BTC/EUR data files.
-- Determine timestamp units, timezone, bar-open/bar-close convention, schema, date coverage, gaps, duplicates, invalid OHLCV, and suspicious movements.
-- Cross-check hourly-resampled UTC daily candles against `data/kraken/XBTEUR_1440.csv` when timestamp boundaries are semantically comparable.
+- Inspect repository structure and actual BTC/EUR hourly/daily data files. **Completed for `XBTEUR_60.csv` and `XBTEUR_1440.csv` on 2026-10-19.**
+- Determine timestamp units, UTC alignment, schema, coverage, gaps, duplicates, and OHLCV relationships.
+- Cross-check hourly-resampled UTC daily candles against `data/kraken/XBTEUR_1440.csv`: 4,637 complete UTC days matched exactly for OHLC, volume, and trade count.
 - Resolve exact signal/execution boundary behavior, price-equality semantics, volatility edge cases, accounting metrics, and window selection protocol.
 - Keep Box Theory reports separate from this strategy.
 
@@ -32,7 +32,7 @@ Acceptance:
 - No strategy engine or backtest implementation begins until the data contract is sufficiently established.
 
 ## Phase 1 — Strategy core and focused tests
-**Not started; gated on Phase 0 review.**
+**Not started; gated on Phase 0 contract closure and successful reader tests.**
 
 Implement only the approved deterministic daily strategy state machine and tests. No portfolio backtest engine or live interfaces unless explicitly included in the next approved scope.
 
