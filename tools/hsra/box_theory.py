@@ -404,3 +404,250 @@ def run_box_theory_segmented(
         },
         "interpretation": "segmented historical research only; no profitability or execution-readiness claim",
     }
+
+
+def run_box_theory_cash_account_period(
+    candles: Iterable[OHLCVCandle],
+    *,
+    period_start: datetime,
+    period_end: datetime,
+    config: BoxTheoryConfig | None = None,
+) -> dict:
+    """Run one period using Box Theory logic with full-cash position sizing and reinvestment.
+
+    The signal/stop/target logic remains identical to the frozen Box Theory engine.
+    Only the accounting layer is widened to support a cash account, zero-cost execution,
+    full-cash entry sizing, and unresolved positions at period end.
+    """
+    cfg = config or BoxTheoryConfig()
+    ordered = sorted(candles, key=lambda candle: candle.interval_start)
+    period_start_utc = period_start.astimezone(timezone.utc)
+    period_end_utc = period_end.astimezone(timezone.utc)
+    if period_end_utc < period_start_utc:
+        raise ValueError("period_end must be on or after period_start")
+
+    context_start = period_start_utc - timedelta(days=1)
+    period_candles = [
+        candle for candle in ordered
+        if context_start <= candle.interval_start.astimezone(timezone.utc) <= period_end_utc
+    ]
+    if not period_candles:
+        return {
+            "period_start_utc": period_start_utc.isoformat(),
+            "period_end_utc": period_end_utc.isoformat(),
+            "initial_cash_eur": 100.0,
+            "cash_eur": 100.0,
+            "ending_cash_eur": 100.0,
+            "ending_equity_eur": 100.0,
+            "eligible_signals": 0,
+            "rejected_signals": 0,
+            "closed_trades": 0,
+            "winning_trades": 0,
+            "losing_trades": 0,
+            "unresolved_positions": 0,
+            "realized_gross_profit_eur": 0.0,
+            "realized_gross_loss_eur": 0.0,
+            "net_realized_pnl_eur": 0.0,
+            "realized_return_pct": 0.0,
+            "equity_return_pct": 0.0,
+            "transaction_costs_zeroed": True,
+            "summary": {
+                "initial_cash_eur": 100.0,
+                "ending_cash_eur": 100.0,
+                "ending_equity_eur": 100.0,
+                "eligible_signals": 0,
+                "rejected_signals": 0,
+                "closed_trades": 0,
+                "winning_trades": 0,
+                "losing_trades": 0,
+                "unresolved_positions": 0,
+                "realized_gross_profit_eur": 0.0,
+                "realized_gross_loss_eur": 0.0,
+                "net_realized_pnl_eur": 0.0,
+                "realized_return_pct": 0.0,
+                "equity_return_pct": 0.0,
+                "transaction_costs_zeroed": True,
+                "open_position": None,
+            },
+            "trades": [],
+            "open_position": None,
+        }
+
+    daily_boxes = _daily_boxes(period_candles, cfg.interval_minutes)
+    cash = 100.0
+    active_position: dict | None = None
+    trades: list[dict] = []
+    eligible_signals = 0
+    rejected_signals = 0
+    realized_gross_profit = 0.0
+    realized_gross_loss = 0.0
+
+    for index in range(len(period_candles) - 1):
+        candle = period_candles[index]
+        if candle.interval_start.astimezone(timezone.utc) < period_start_utc:
+            continue
+        if candle.interval_start.astimezone(timezone.utc) > period_end_utc:
+            break
+        if active_position is not None:
+            continue
+
+        signal_day = candle.interval_start.astimezone(timezone.utc).date()
+        box = daily_boxes.get(signal_day - timedelta(days=1))
+        if box is None:
+            continue
+
+        zone_high = box["box_low"] + cfg.zone_fraction * (box["box_high"] - box["box_low"])
+        if not (
+            candle.low <= zone_high
+            and candle.close > zone_high
+            and box["box_low"] <= candle.close <= box["box_high"]
+        ):
+            continue
+
+        entry_index = index + 1
+        if entry_index >= len(period_candles):
+            break
+        entry_candle = period_candles[entry_index]
+        if entry_candle.interval_start.astimezone(timezone.utc) < period_start_utc:
+            continue
+        if entry_candle.interval_start.astimezone(timezone.utc) > period_end_utc:
+            break
+
+        entry_price = entry_candle.open
+        stop_price = candle.low - candle.low * cfg.stop_buffer_bps / 10000.0
+        target_price = box["box_mid"]
+        if not (math.isfinite(entry_price) and stop_price < entry_price < target_price):
+            rejected_signals += 1
+            continue
+        if cash <= 0.0:
+            rejected_signals += 1
+            continue
+
+        eligible_signals += 1
+        quantity = cash / entry_price
+        active_position = {
+            "signal_index": index,
+            "entry_index": entry_index,
+            "entry_timestamp_utc": entry_candle.interval_start.astimezone(timezone.utc).isoformat(),
+            "entry_price": entry_price,
+            "stop_price": stop_price,
+            "target_price": target_price,
+            "quantity": quantity,
+            "entry_notional_eur": cash,
+            "status": "open",
+        }
+
+        exit_index = None
+        exit_price = None
+        exit_reason = None
+        for cursor in range(entry_index, len(period_candles)):
+            bar = period_candles[cursor]
+            bar_ts = bar.interval_start.astimezone(timezone.utc)
+            if bar_ts > period_end_utc:
+                break
+            if bar.open <= stop_price:
+                exit_index, exit_price, exit_reason = cursor, bar.open, "stop_gap"
+                break
+            if bar.open >= target_price:
+                exit_index, exit_price, exit_reason = cursor, target_price, "target_gap"
+                break
+            stop_hit = bar.low <= stop_price
+            target_hit = bar.high >= target_price
+            if stop_hit:
+                exit_index, exit_price, exit_reason = cursor, stop_price, "stop"
+                break
+            if target_hit:
+                exit_index, exit_price, exit_reason = cursor, target_price, "target"
+                break
+
+        if exit_index is None:
+            active_position["status"] = "unresolved_at_period_end"
+            break
+
+        exit_candle = period_candles[exit_index]
+        exit_timestamp = exit_candle.interval_end.astimezone(timezone.utc).isoformat()
+        exit_notional = quantity * exit_price
+        gross_pnl = (exit_price - entry_price) * quantity
+        cash += gross_pnl
+        trade_record = {
+            **active_position,
+            "signal_timestamp_utc": candle.interval_end.astimezone(timezone.utc).isoformat(),
+            "entry_timestamp_utc": active_position["entry_timestamp_utc"],
+            "exit_index": exit_index,
+            "exit_timestamp_utc": exit_timestamp,
+            "exit_price": exit_price,
+            "exit_reason": exit_reason,
+            "quantity": quantity,
+            "entry_notional_eur": cash - gross_pnl,
+            "exit_notional_eur": exit_notional,
+            "gross_pnl_eur": gross_pnl,
+            "transaction_costs_zeroed": True,
+            "total_cost_eur": 0.0,
+            "net_pnl_eur": gross_pnl,
+        }
+        if gross_pnl > 0:
+            realized_gross_profit += gross_pnl
+        else:
+            realized_gross_loss += abs(gross_pnl)
+        trades.append(trade_record)
+        active_position = None
+
+    if active_position is not None:
+        period_close = period_candles[-1].close if period_candles else 100.0
+        mark_to_market_value = active_position["quantity"] * period_close
+        active_position["quantity"] = active_position["quantity"]
+        active_position["mark_to_market_value_eur"] = mark_to_market_value
+        active_position["unrealized_pnl_eur"] = mark_to_market_value - active_position["entry_notional_eur"]
+        active_position["status"] = "unresolved_at_period_end"
+        active_position["period_end_close_eur"] = period_close
+    else:
+        active_position = None
+
+    total_realized = sum(trade["gross_pnl_eur"] for trade in trades)
+    if active_position is not None:
+        ending_equity = cash + active_position["mark_to_market_value_eur"]
+        ending_cash = cash
+    else:
+        ending_equity = cash
+        ending_cash = cash
+
+    return {
+        "period_start_utc": period_start_utc.isoformat(),
+        "period_end_utc": period_end_utc.isoformat(),
+        "initial_cash_eur": 100.0,
+        "cash_eur": cash,
+        "ending_cash_eur": ending_cash,
+        "ending_equity_eur": ending_equity,
+        "eligible_signals": eligible_signals,
+        "rejected_signals": rejected_signals,
+        "closed_trades": len(trades),
+        "winning_trades": sum(1 for trade in trades if trade["gross_pnl_eur"] > 0),
+        "losing_trades": sum(1 for trade in trades if trade["gross_pnl_eur"] <= 0),
+        "unresolved_positions": 1 if active_position is not None else 0,
+        "realized_gross_profit_eur": realized_gross_profit,
+        "realized_gross_loss_eur": realized_gross_loss,
+        "net_realized_pnl_eur": total_realized,
+        "realized_return_pct": (total_realized / 100.0) * 100.0,
+        "equity_return_pct": ((ending_equity - 100.0) / 100.0) * 100.0,
+        "transaction_costs_zeroed": True,
+        "summary": {
+            "initial_cash_eur": 100.0,
+            "ending_cash_eur": ending_cash,
+            "ending_equity_eur": ending_equity,
+            "eligible_signals": eligible_signals,
+            "rejected_signals": rejected_signals,
+            "closed_trades": len(trades),
+            "winning_trades": sum(1 for trade in trades if trade["gross_pnl_eur"] > 0),
+            "losing_trades": sum(1 for trade in trades if trade["gross_pnl_eur"] <= 0),
+            "unresolved_positions": 1 if active_position is not None else 0,
+            "realized_gross_profit_eur": realized_gross_profit,
+            "realized_gross_loss_eur": realized_gross_loss,
+            "net_realized_pnl_eur": total_realized,
+            "realized_return_pct": (total_realized / 100.0) * 100.0,
+            "equity_return_pct": ((ending_equity - 100.0) / 100.0) * 100.0,
+            "transaction_costs_zeroed": True,
+            "open_position": active_position,
+        },
+        "trades": trades,
+        "open_position": active_position,
+    }
