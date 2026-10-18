@@ -1,10 +1,10 @@
 # Technical Plan — BTC/EUR Trend Strategy Research
 
 ## Status
-- **Current phase:** contract and data audit.
+- **Current phase:** data-contract implementation and strategy-rule decisions; hourly/daily content audit is complete, but automated tests have not yet been executed.
 - **Active target:** BTC/EUR spot trend-following strategy in `STRATEGY_SPECIFICATION.md`.
 - **Strategy engine/backtest:** not yet implemented under this specification.
-- **Input data:** `data/kraken/XBTEUR_5.csv`, `XBTEUR_60.csv`, `XBTEUR_240.csv`, `XBTEUR_720.csv`, and `XBTEUR_1440.csv` are present on `main`. File contents, schema, timestamp semantics, coverage, and quality remain to be verified.
+- **Input data:** the 1h and 24h files have been inspected on `main`; see the observed audit recorded in `STRATEGY_SPECIFICATION.md`. The 5m/4h/12h files have not been inspected for this strategy and are not inputs to its initial hourly/daily path.
 - **Paper/live/scaling:** not authorized.
 - **Previous Box Theory and earlier strategies:** obsolete strategy code/tests are removed from `main`; preserve historical reports/manifests as comparison evidence only.
 
@@ -27,13 +27,11 @@ BTC/EUR hourly OHLCV
 ```
 
 ## Phase 0 — repository and data audit
-1. Inspect the current repository and relevant existing code/tests before selecting implementation locations.
-2. Inspect actual files, not filenames or prior assumptions.
-3. Record path, size, schema, row count, first/last timestamp, timestamp units, timezone, bar-open/bar-close convention, ordering, duplicates, gaps, invalid OHLCV, zero volume, and suspicious moves.
-4. Do not silently deduplicate, forward-fill, synthesize candles, or repair data.
-5. Resample only complete hourly groups to UTC daily bars; gap boundaries split continuity.
-6. Compare the resulting daily candles with the user's 24-hour data when boundaries are comparable. Report mismatches; do not silently replace the hourly-resampled series.
-7. Do not implement strategy logic until the data contract and key ambiguities are recorded.
+1. **Completed content review:** inspect actual `XBTEUR_60.csv` and `XBTEUR_1440.csv` blobs, including schema, timestamp alignment, chronology, duplicates, gaps, and OHLCV relationships.
+2. **Completed cross-check:** 4,637 complete UTC daily bars aggregated from hourly rows match the 24h file exactly for OHLC, volume, and trade count.
+3. **Implemented on research branch; tests pending:** add an isolated hourly reader with strict seven-column mapping and gap-aware UTC daily aggregation. Do not reuse the legacy five-minute reader, which maps trade count into volume for seven-column input.
+4. Do not silently deduplicate, forward-fill, synthesize candles, or repair data. Incomplete UTC days are excluded.
+5. Before the strategy core is implemented, resolve the remaining source-dependent and mathematical contract choices listed in `STRATEGY_SPECIFICATION.md`.
 
 ## Phase 1 — deterministic strategy core
 Implement the nine submodel states/stops, volatility calculation, target exposure, and rebalance decision as pure deterministic logic. Add focused tests for:
