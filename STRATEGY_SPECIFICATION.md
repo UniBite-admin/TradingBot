@@ -106,9 +106,18 @@ The supplied prompt proposes the following criteria; they are not profitability 
 - The approximate February 2025 end date mentioned in the supplied prompt is unconfirmed; derive actual coverage from the repository files after inspecting their contents.
 - Do not claim data adequacy or representativeness based on row count alone.
 
+### Observed hourly/daily file audit (2026-10-19; repository blobs inspected)
+- `XBTEUR_60.csv`: 113,180 rows, seven columns, UTC-hour-aligned timestamps from 2013-09-10 23:00 UTC through 2026-09-30 23:00 UTC.
+- `XBTEUR_1440.csv`: 4,764 rows, seven columns, UTC-day-aligned timestamps from 2013-09-10 through 2026-09-30 UTC.
+- Observed row layout: `timestamp, open, high, low, close, volume, trade_count`; timestamps are Unix seconds. The hourly file has 272 gap transitions (1,253 missing hourly intervals) and 273 contiguous runs. The daily file has four gap transitions (five missing daily intervals) and five contiguous runs.
+- All rows passed the inspected structural checks: seven columns, finite numeric values, valid OHLC relationships, non-negative volume/count, aligned timestamps, strict chronology, and no duplicate timestamps.
+- Of 4,764 UTC dates containing at least one hourly row, 4,637 had all 24 expected hourly intervals. Aggregated OHLC, volume, and trade count matched the corresponding daily file exactly on all 4,637 complete days. The other 127 dates are incomplete and must not be synthesized or used as daily candles.
+- Existing `tools/hsra/kraken_ohlcv.py` is hard-coded to five-minute intervals and, for seven-column rows, reads column 7 (trade count) as volume. Do not reuse it for the new strategy; the new isolated hourly reader maps volume and trade count separately.
+- This is a content/schema and cross-check result, not a claim that the dataset is representative, execution-realistic, profitable, or independently authenticated against Kraken's upstream systems. It does not verify the 5m/4h/12h files.
+
 ## Acceptance gates
 1. Verify the cited source and settle source-dependent mechanics.
-2. Inspect and validate `data/kraken/XBTEUR_60.csv` and `data/kraken/XBTEUR_1440.csv`.
+2. **Completed on 2026-10-19:** inspect `data/kraken/XBTEUR_60.csv` and `data/kraken/XBTEUR_1440.csv` contents, row schema, chronology, gaps, OHLCV relationships, and cross-check complete UTC daily aggregates. New isolated reader/tests have been added on a research branch; test execution remains pending.
 3. Freeze timestamp, daily-bar, gap, warm-up, price equality, volatility, window, accounting, and execution semantics.
 4. Implement and test the deterministic strategy state machine.
 5. Implement and test portfolio accounting, execution simulation, and costs.
