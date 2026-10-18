@@ -6,7 +6,7 @@
 - **Strategy engine/backtest:** not yet implemented under this specification.
 - **Input data:** `data/kraken/XBTEUR_5.csv`, `XBTEUR_60.csv`, `XBTEUR_240.csv`, `XBTEUR_720.csv`, and `XBTEUR_1440.csv` are present on `main`. File contents, schema, timestamp semantics, coverage, and quality remain to be verified.
 - **Paper/live/scaling:** not authorized.
-- **Previous Box Theory:** obsolete for active development; preserve historical reports/code as comparison evidence only.
+- **Previous Box Theory and earlier strategies:** obsolete strategy code/tests are removed from `main`; preserve historical reports/manifests as comparison evidence only.
 
 ## Proposed runtime path
 ```text
