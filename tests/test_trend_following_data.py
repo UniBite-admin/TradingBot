@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from tools.trend_following.kraken_hourly import (
+    TrendCandle,
     TrendDataError,
     build_complete_utc_daily_candles,
     load_kraken_hourly,
@@ -127,10 +128,17 @@ def test_daily_aggregation_uses_only_complete_utc_days(tmp_path):
 def test_daily_segments_do_not_bridge_missing_days():
     start = datetime(2024, 1, 1, tzinfo=timezone.utc)
     daily = [
-        # Only the fields used by the segmentation function are relevant here.
-        type("Candle", (), {"interval_start": start})(),
-        type("Candle", (), {"interval_start": start + timedelta(days=1)})(),
-        type("Candle", (), {"interval_start": start + timedelta(days=3)})(),
+        TrendCandle(start, start + timedelta(days=1), 100, 102, 99, 101, 1, 1),
+        TrendCandle(
+            start + timedelta(days=1),
+            start + timedelta(days=2),
+            101, 103, 100, 102, 1, 1,
+        ),
+        TrendCandle(
+            start + timedelta(days=3),
+            start + timedelta(days=4),
+            102, 104, 101, 103, 1, 1,
+        ),
     ]
 
     assert [len(segment) for segment in split_contiguous_daily_segments(daily)] == [2, 1]
