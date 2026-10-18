@@ -18,8 +18,13 @@ This is the sole authoritative active strategy specification. Box Theory and ear
 ## Research question
 Does this deterministic trend-following strategy show robust positive BTC/EUR spot returns after explicit fee, slippage, and execution-delay sensitivity? No positive expectancy or profitability is presumed.
 
-## Proposed strategy mechanics — source verification required
-The following mechanics are transcribed from the supplied prompt. They must not be described as an exact replication of the cited paper until the source has been checked.
+## Source review and version limitation
+- The SSRN record identifies the paper as last revised on 2025-10-02: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5209907.
+- The authors-hosted 38-page PDF available at https://concretumgroup.com/wp-content/uploads/2026/02/Catching-Crypto-Trends.pdf labels itself “This Version: April 9, 2025”. The accessible PDF therefore does not establish the exact contents of the latest SSRN revision. Treat the source review as partial and do not claim exact replication of the October 2025 version.
+- The accessible PDF supports the core close-based Donchian channels, entry when close equals the upper boundary, initial stop at the midpoint, non-decreasing midpoint trailing stop, 90-day annualized volatility targeting at 25%, nine lookbacks, and the 20% threshold applied only to volatility-targeting rebalances. It describes the threshold as a difference between current and target allocation exceeding 20%, but does not specify the denominator in the text reviewed. The current-position-relative denominator recorded below is the explicit human-approved research interpretation, not a verbatim source formula.
+
+## Proposed strategy mechanics — source verification partial
+The following mechanics are transcribed from the supplied prompt and checked against the accessible April 9, 2025 PDF where noted. They must not be described as an exact replication of the latest SSRN revision until that revision is verified.
 
 ### Daily inputs and volatility
 - Construct UTC daily OHLCV bars from validated hourly data. Use only completed daily bars.
