@@ -9,7 +9,7 @@ The active research target is a BTC/EUR spot trend-following strategy with nine 
 - [Technical plan](TECHNICAL_PLAN.md) — data audit, implementation, and verification plan.
 
 ## Data required
-Validated BTC/EUR hourly OHLCV is required for the proposed hourly execution simulation. The user confirms that 24-hour BTC/EUR candles are available and plans to upload them for cross-checking. The actual files, schemas, timestamps, and date coverage must be inspected before selecting or running a backtest. Do not treat the 24-hour file as a substitute for hourly execution data.
+Repository inventory on `main` confirms these Kraken BTC/EUR OHLCV files exist: `data/kraken/XBTEUR_5.csv`, `XBTEUR_60.csv`, `XBTEUR_240.csv`, `XBTEUR_720.csv`, and `XBTEUR_1440.csv`. Their presence and file sizes have been verified, but their row contents, schema, timestamp semantics, coverage, gaps, duplicates, and OHLCV validity have not yet been audited. Hourly data is required for the proposed hourly execution simulation; 24-hour data is a cross-check, not a substitute.
 
 ## Research boundaries
 - SPOT only; no leverage, margin, futures, or perpetuals.
@@ -19,4 +19,4 @@ Validated BTC/EUR hourly OHLCV is required for the proposed hourly execution sim
 - Historical Box Theory and earlier strategy reports remain comparison evidence only and must not be mixed with this strategy's results.
 
 ## Next step
-Upload the BTC/EUR 24-hour data file(s). Then audit them alongside any available hourly data, document the exact schema and timestamp semantics, cross-check UTC daily candles, and resolve data blockers before implementing the strategy engine.
+Next: audit the existing 1h and 24h files at content level, inspect 5m/4h/12h as supporting datasets, document schema and timestamp semantics, and cross-check UTC daily candles where boundaries are comparable. Resolve data blockers before implementing the strategy engine.
