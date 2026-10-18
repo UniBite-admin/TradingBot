@@ -16,7 +16,7 @@ Repository inventory on `main` confirms these Kraken BTC/EUR OHLCV files exist: 
 - No paper trading, live orders, or automatic scaling is authorized.
 - All windows start independently with €100.
 - Transaction fees and slippage are modeled as explicit scenarios, not claimed as verified future costs.
-- Historical Box Theory and earlier strategy reports remain comparison evidence only and must not be mixed with this strategy's results.
+- Obsolete Box Theory and earlier strategy implementations/tests have been removed from `main`. Historical reports/manifests remain comparison evidence only and must not be mixed with this strategy's results.
 
 ## Next step
 Next: audit the existing 1h and 24h files at content level, inspect 5m/4h/12h as supporting datasets, document schema and timestamp semantics, and cross-check UTC daily candles where boundaries are comparable. Resolve data blockers before implementing the strategy engine.
