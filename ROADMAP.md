@@ -3,7 +3,7 @@
 ## Current state
 - **Active research target:** BTC/EUR spot trend-following strategy defined in `STRATEGY_SPECIFICATION.md`.
 - **Current phase:** contract and data audit. Strategy engine/backtest implementation has not started under this specification.
-- **Data:** user confirms 24-hour BTC/EUR candles are available and will upload them. Required hourly data and all file semantics/coverage still need to be verified from actual files.
+- **Data:** all five Kraken BTC/EUR files (5m, 1h, 4h, 12h, 24h) are present on `main`. File presence is verified; content-level semantics, coverage, and quality remain unaudited.
 - **Previous Box Theory:** obsolete for active development; retain historical code and reports for comparison only.
 - **Paper trading, live orders, and scaling:** not authorized.
 
@@ -15,13 +15,13 @@
 - `README.md`: project entrypoint and current status.
 
 ## Phase 0 — Contract and data audit
-**Status: in progress; data audit is pending upload/inspection.**
+**Status: in progress; files are present, content-level data audit is pending.**
 
 Scope:
 - Verify the supplied research source and distinguish source-backed rules from prompt-derived assumptions.
 - Inspect repository structure, local changes where available, and actual BTC/EUR data files.
 - Determine timestamp units, timezone, bar-open/bar-close convention, schema, date coverage, gaps, duplicates, invalid OHLCV, and suspicious movements.
-- Cross-check hourly-resampled UTC daily candles against the user's 24-hour file when available and semantically comparable.
+- Cross-check hourly-resampled UTC daily candles against `data/kraken/XBTEUR_1440.csv` when timestamp boundaries are semantically comparable.
 - Resolve exact signal/execution boundary behavior, price-equality semantics, volatility edge cases, accounting metrics, and window selection protocol.
 - Keep Box Theory reports separate from this strategy.
 
