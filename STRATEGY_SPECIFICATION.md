@@ -5,7 +5,7 @@
 - **State:** proposed research contract; data audit and source verification pending. Not yet implemented, tested, validated, or approved for trading.
 - **Market:** BTC/EUR spot only.
 - **Initial capital:** €100 per independent 30-day window.
-- **Execution input required:** validated hourly BTC/EUR OHLCV. User also has 24-hour candles to upload for cross-checking; these do not by themselves support hourly fill simulation.
+- **Execution input required:** validated hourly BTC/EUR OHLCV. `data/kraken/XBTEUR_1440.csv` is present for cross-checking; it does not by itself support hourly execution simulation.
 - **Trading permission:** historical research only. No paper/live trading or scaling authorization.
 
 This is the sole authoritative active strategy specification. Box Theory and earlier Experiment A/B, breakout, and zero-cost strategy code/specifications are obsolete for active development. Preserve their historical reports for comparison only and never mix their results with this strategy.
@@ -93,17 +93,17 @@ The supplied prompt proposes the following criteria; they are not profitability 
 
 ## Data contract and blockers
 - Inspect actual BTC/EUR files before assuming path, schema, start/end date, timestamp units, timezone, or bar-open/bar-close semantics.
-- Hourly data is required for the proposed execution simulation. The user's 24-hour file is an additional cross-check source, not an automatic replacement.
+- Hourly data is required for the proposed execution simulation. `data/kraken/XBTEUR_1440.csv` is an additional cross-check source, not an automatic replacement.
 - Resample hourly candles to UTC daily bars with a documented convention. Only complete daily intervals with all expected hourly observations in the same contiguous segment are eligible.
 - Compare resampled daily data with the 24-hour file only when timestamps and daily boundaries are semantically comparable.
 - Detect and report gaps, duplicates, invalid OHLCV, non-finite values, zero-volume bars, and suspicious price jumps. Do not silently delete, deduplicate, forward-fill, synthesize, or repair rows.
 - Gaps split continuity. No signal or state crosses a gap.
-- The approximate February 2025 end date mentioned in the supplied prompt is unconfirmed; derive actual coverage from the uploaded files.
+- The approximate February 2025 end date mentioned in the supplied prompt is unconfirmed; derive actual coverage from the repository files after inspecting their contents.
 - Do not claim data adequacy or representativeness based on row count alone.
 
 ## Acceptance gates
 1. Verify the cited source and settle source-dependent mechanics.
-2. Inspect and validate the actual hourly and 24-hour files.
+2. Inspect and validate `data/kraken/XBTEUR_60.csv` and `data/kraken/XBTEUR_1440.csv`.
 3. Freeze timestamp, daily-bar, gap, warm-up, price equality, volatility, window, accounting, and execution semantics.
 4. Implement and test the deterministic strategy state machine.
 5. Implement and test portfolio accounting, execution simulation, and costs.
