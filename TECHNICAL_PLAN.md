@@ -8,6 +8,10 @@
 - **Paper/live/scaling:** not authorized.
 - **Previous Box Theory and earlier strategies:** obsolete strategy code/tests are removed from `main`; preserve historical reports/manifests as comparison evidence only.
 
+## Approved human decisions
+- **Volatility-only rebalance (approved 2026-10-19):** compare target BTC quantity against current BTC quantity at the same decision price and rebalance only if `abs(target_btc_qty - current_btc_qty) / abs(current_btc_qty) > 0.20`. If current BTC quantity is zero, this relative-deviation rule is not applied; signal-driven submodel entry/exit events remain independent rebalance triggers.
+- **Primary fee assumption:** 25 bp per side, with slippage separate. Preserve the 5/10/25 bp fee grid. Delay sensitivity uses 25 bp fee per side and 1.5 bp slippage per side. The 10 bp Sharpe acceptance comparison is separate from the primary conservative scenario.
+
 ## Proposed runtime path
 ```text
 BTC/EUR hourly OHLCV
@@ -38,7 +42,7 @@ Implement the nine submodel states/stops, volatility calculation, target exposur
 - stop check using old stop before ratchet;
 - stop monotonicity;
 - volatility sizing, cap, zero/non-finite volatility;
-- rebalance triggers and zero-exposure denominator;
+- approved 20% rebalance threshold, strict `> 20%` comparison, and zero-current-position behavior;
 - state resets at data gaps and experiment boundaries;
 - no look-ahead from incomplete daily candles.
 
