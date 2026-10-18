@@ -10,6 +10,11 @@
 
 This is the sole authoritative active strategy specification. Box Theory and earlier Experiment A/B, breakout, and zero-cost strategy implementations/tests are obsolete and must not remain in active source code. Obsolete Box Theory implementation and tests have been removed from `main`; historical reports/manifests are retained for comparison only and must never be mixed with this strategy's results.
 
+## Approved human decisions
+- **Volatility-only rebalance threshold (approved 2026-10-19):** compare target BTC quantity with the current BTC quantity at the same decision price. Rebalance only when `abs(target_btc_qty - current_btc_qty) / abs(current_btc_qty) > 0.20`. Because the same BTC price applies to both quantities, this is equivalent to comparing target and current BTC notional values. The comparison is strictly greater than 20%, not greater-than-or-equal.
+- **Zero current BTC position:** the relative-deviation formula is undefined when current BTC quantity is zero. Do not use this rule in that case; submodel entry/exit events remain separate rebalance triggers as specified above.
+- **Primary fee assumption:** use 25 basis points per side as the primary conservative fee scenario, with slippage modeled separately. Retain the 5/10/25 bp fee grid. Delay sensitivity must use 25 bp fee per side and 1.5 bp slippage per side; the pre-registered Sharpe criterion at 10 bp remains a separate comparison and must not be mistaken for the primary cost case.
+
 ## Research question
 Does this deterministic trend-following strategy show robust positive BTC/EUR spot returns after explicit fee, slippage, and execution-delay sensitivity? No positive expectancy or profitability is presumed.
 
@@ -60,7 +65,7 @@ Research assumptions unless verified by dated, relevant evidence:
 - Fee per side: 5, 10, and 25 basis points.
 - Slippage per side: 1.5, 5, and 10 basis points.
 - Run all nine fee/slippage combinations at baseline delay.
-- Separately test delays 0, 1, and 4 hours using baseline fee 10 bp/side and slippage 1.5 bp/side.
+- Separately test delays 0, 1, and 4 hours using the approved primary fee assumption of 25 bp/side and slippage 1.5 bp/side.
 - Do not add funding costs: this is spot-only research.
 - Report assumptions and results separately; no cost model is proof of actual future execution.
 
@@ -86,7 +91,7 @@ Every report must record strategy version, full configuration, source identity/h
 
 ## Pre-registered research criteria — provisional assumptions
 The supplied prompt proposes the following criteria; they are not profitability claims or trading authorization:
-- Continuous test: net Sharpe >= 0.8 at 10 bp fee per side; max drawdown <= 35%; no collapse from 5 to 25 bp fees; average gross profit per defined completed portfolio trade >= 3x round-trip cost.
+- Continuous test: net Sharpe >= 0.8 at 10 bp fee per side (a separately pre-registered comparison; the primary conservative fee assumption is 25 bp/side); max drawdown <= 35%; no collapse from 5 to 25 bp fees; average gross profit per defined completed portfolio trade >= 3x round-trip cost.
 - WARM 30-day windows: mean net return > 0; at least 50% positive windows; mean in-window max drawdown lower than buy-and-hold.
 - Freeze these criteria before observing results. Do not tune on the final test set or weaken criteria after seeing results.
 - Any multi-asset expansion requires a separate approved scope and a selection rule frozen before evaluating those assets.
