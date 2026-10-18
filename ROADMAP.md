@@ -4,7 +4,7 @@
 - **Active research target:** BTC/EUR spot trend-following strategy defined in `STRATEGY_SPECIFICATION.md`.
 - **Current phase:** contract and data audit. Strategy engine/backtest implementation has not started under this specification.
 - **Data:** all five Kraken BTC/EUR files (5m, 1h, 4h, 12h, 24h) are present on `main`. File presence is verified; content-level semantics, coverage, and quality remain unaudited.
-- **Previous Box Theory:** obsolete for active development; retain historical code and reports for comparison only.
+- **Previous Box Theory and other legacy strategies:** implementation and tests removed from `main`; historical reports/manifests retained for comparison only.
 - **Paper trading, live orders, and scaling:** not authorized.
 
 ## Authoritative files
@@ -67,4 +67,4 @@ Review sample adequacy, continuous results, WARM/COLD window results, costs, del
 **Not authorized.** No automatic transition or scaling. Scaling requires prior-stage evidence and explicit human approval.
 
 ## Legacy comparison evidence
-Historical Experiment A/B, breakout, zero-cost, and Box Theory reports remain historical evidence only. They are not results for the new strategy. A controlled comparison requires a common source, period, data policy, costs, and approved protocol.
+Historical Experiment A/B, breakout, zero-cost, and Box Theory reports/manifests remain historical evidence only. Their obsolete strategy implementation and tests have been removed from `main`. These reports are not results for the new strategy. A controlled comparison requires a common source, period, data policy, costs, and approved protocol.
