@@ -4,7 +4,7 @@
 - **Current phase:** contract and data audit.
 - **Active target:** BTC/EUR spot trend-following strategy in `STRATEGY_SPECIFICATION.md`.
 - **Strategy engine/backtest:** not yet implemented under this specification.
-- **Input data:** user confirms 24-hour BTC/EUR candles are available and will upload them. Required hourly source, exact paths, schema, timestamp semantics, and coverage remain to be verified.
+- **Input data:** `data/kraken/XBTEUR_5.csv`, `XBTEUR_60.csv`, `XBTEUR_240.csv`, `XBTEUR_720.csv`, and `XBTEUR_1440.csv` are present on `main`. File contents, schema, timestamp semantics, coverage, and quality remain to be verified.
 - **Paper/live/scaling:** not authorized.
 - **Previous Box Theory:** obsolete for active development; preserve historical reports/code as comparison evidence only.
 
@@ -14,7 +14,7 @@ BTC/EUR hourly OHLCV
   -> source/schema/time validation
   -> gap-aware contiguous segments
   -> complete UTC daily bars
-  -> compare against uploaded 24-hour candles
+  -> compare against `data/kraken/XBTEUR_1440.csv`
   -> deterministic daily strategy state machine
   -> target exposure
   -> hourly execution simulation
@@ -73,8 +73,8 @@ Commands must be adjusted after inspecting the actual repository and dependencie
 - Results are described as historical research only; no profitability or live-trading claim without sufficient evidence and explicit authorization.
 
 ## Known limitations
-- The 24-hour file is pending upload/inspection.
-- Hourly data and exact coverage have not yet been verified in this phase.
+- The 24-hour file is present; content-level inspection is pending.
+- The hourly file is present; its content, semantics, and exact coverage have not yet been verified in this phase.
 - Fee and slippage values are research scenarios unless backed by relevant dated evidence.
 - Hourly OHLCV cannot establish exact intrabar path, order-book depth, or actual fills.
 - Paper trading, live orders, and scaling remain blocked.
