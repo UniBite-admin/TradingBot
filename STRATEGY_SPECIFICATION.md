@@ -2,7 +2,7 @@
 
 ## Status and authority
 - **Active research target:** nine-submodel trend-following strategy described in the supplied implementation prompt and attributed there to Zarattini, Pagani, and Barbon, “Catching Crypto Trends,” SSRN 5209907.
-- **State:** proposed research contract; data audit and source verification pending. Not yet implemented, tested, validated, or approved for trading.
+- **State:** approved research conventions recorded; deterministic core implemented on the research branch, with new core tests awaiting local execution. Portfolio backtest and profitability remain unvalidated; not approved for trading.
 - **Market:** BTC/EUR spot only.
 - **Initial capital:** €100 per independent 30-day window.
 - **Execution input required:** validated hourly BTC/EUR OHLCV. `data/kraken/XBTEUR_1440.csv` is present for cross-checking; it does not by itself support hourly execution simulation.
@@ -33,7 +33,6 @@ The following mechanics are transcribed from the supplied prompt and checked aga
 - Construct UTC daily OHLCV bars from validated hourly data. Use only completed daily bars.
 - Daily close-to-close return: `ret_t = close_t / close_(t-1) - 1`.
 - Volatility: sample standard deviation (`ddof=1`) of the trailing 90 close-to-close daily returns multiplied by `sqrt(365)`. A 90-return window requires 91 valid closes within the same contiguous daily segment.
-- Use sample standard deviation (`ddof=1`) over the trailing 90 close-to-close daily returns and annualize by `sqrt(365)`. A valid 90-return window requires 91 valid closes within the same contiguous daily segment. If volatility is zero, non-finite, or unavailable, target BTC exposure is zero; do not initiate/increase BTC exposure, and route any existing holding toward target zero through normal portfolio execution and cost accounting.
 
 ### Nine submodels
 Lookbacks: `[5, 10, 20, 30, 60, 90, 150, 250, 360]` daily bars.
@@ -46,7 +45,7 @@ For each lookback `n`, using the close series and the current completed daily ba
 - If flat and `close_t == Up_n`, enter the long state and set the stop to `Mid_n`.
 - If long, compare `close_t` with the old stop first. If `close_t <= stop_n`, exit; otherwise update the stop to `max(old_stop, Mid_n)`.
 - Stop must never decrease.
-- Do not silently replace exact equality with `>=` or add a tolerance. Define price precision/equality semantics after source/data review.
+- Entry uses exact numeric equality on the parsed close values; no tolerance or `>=` substitution is applied. This is the currently implemented interpretation and remains a source-replication limitation because exchange tick-size normalization is not established by the accessible paper.
 
 ### Position sizing and rebalance
 - Submodel weight: `w_n = pos_n * min(0.25 / sigma_t, CAP)`.
@@ -56,7 +55,6 @@ For each lookback `n`, using the close series and the current completed daily ba
 - Rebalance when any submodel enters or exits. If only volatility changes the target, rebalance when relative target deviation exceeds 20%, using a documented denominator and zero-exposure convention.
 - No take-profit or additional stop beyond the submodel rules.
 - At least 450 prior valid daily bars are required before a valid strategy evaluation.
-- For zero, non-finite, or unavailable volatility, target BTC exposure is zero. An existing BTC holding is not erased from accounting; it must be reduced toward zero through normal execution with fees and slippage. No division by zero or accidental exposure is permitted.
 
 ## Execution and accounting contract
 - Signal becomes available only after the UTC daily candle has completed, at its interval-end timestamp.
@@ -64,7 +62,6 @@ For each lookback `n`, using the close series and the current completed daily ba
 - Never fill at the signal close. This is a reproducible OHLCV simulation convention, not evidence that a live order would fill at that price.
 - Baseline delay: 0 hours; delay sensitivity: 0, 1, and 4 hours.
 - Baseline slicing: one hourly bar (K=1). No additional slicing study in the initial implementation.
-- Daily signal availability is the completed daily candle's interval end. At zero delay, select the first hourly candle with `interval_start >= signal_available_at` and use its open as the simulated fill reference; positive delays shift this eligibility time. This convention must be tested and is not a guarantee of real execution.
 - Track EUR cash, BTC quantity, trade notional, fees, slippage, equity, exposure, and mark-to-market P&L.
 - Apply costs to actual traded notional on both entry and exit. Do not assume fills that the hourly OHLCV data cannot support.
 - No portfolio state, position, or trade may bridge a data gap or an independent evaluation-window boundary.
