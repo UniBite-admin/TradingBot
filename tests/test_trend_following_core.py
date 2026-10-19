@@ -32,10 +32,10 @@ def test_long_state_checks_old_stop_before_ratchet():
 
 
 def test_trailing_stop_never_decreases():
-    state = SubmodelState(long=True, stop=105.0)
+    state = SubmodelState(long=True, stop=106.0)
     updated = update_submodel([90, 100, 110, 120, 121], 5, state)
     assert updated.long
-    assert updated.stop == 105.0
+    assert updated.stop == 106.0
 
 
 def test_exit_when_close_is_at_or_below_old_stop():
