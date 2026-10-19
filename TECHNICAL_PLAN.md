@@ -9,6 +9,9 @@
 - **Previous Box Theory and earlier strategies:** obsolete strategy code/tests are removed from `main`; preserve historical reports/manifests as comparison evidence only.
 
 ## Approved human decisions
+- **Volatility (approved 2026-10-19):** sample standard deviation (`ddof=1`) of the trailing 90 close-to-close daily returns, annualized by `sqrt(365)`. A 90-return window requires 91 valid closes within the same daily segment.
+- **Invalid volatility (approved 2026-10-19):** target exposure zero for zero/non-finite/unavailable volatility; any existing BTC holding must be reduced through normal execution/accounting with costs, not erased.
+- **Signal/execution boundary (approved 2026-10-19):** after the daily interval ends, select the first eligible hourly candle whose interval starts at or after signal availability plus configured delay; use its open as simulated fill reference, never the daily close.
 - **Volatility-only rebalance (approved 2026-10-19):** compare target BTC quantity against current BTC quantity at the same decision price and rebalance only if `abs(target_btc_qty - current_btc_qty) / abs(current_btc_qty) > 0.20`. If current BTC quantity is zero, this relative-deviation rule is not applied; signal-driven submodel entry/exit events remain independent rebalance triggers.
 - **Primary fee assumption:** 25 bp per side, with slippage separate. Preserve the 5/10/25 bp fee grid. Delay sensitivity uses 25 bp fee per side and 1.5 bp slippage per side. The 10 bp Sharpe acceptance comparison is separate from the primary conservative scenario.
 
@@ -39,7 +42,7 @@ Implement the nine submodel states/stops, volatility calculation, target exposur
 - entry condition and exact equality semantics;
 - stop check using old stop before ratchet;
 - stop monotonicity;
-- volatility sizing, cap, zero/non-finite volatility;
+- volatility sizing, cap, zero/non-finite volatility and target-zero behavior for any existing holding;
 - approved 20% rebalance threshold, strict `> 20%` comparison, and zero-current-position behavior;
 - state resets at data gaps and experiment boundaries;
 - no look-ahead from incomplete daily candles.
@@ -50,7 +53,7 @@ Implement EUR cash, BTC quantity, target exposure, hourly execution delay, fee/s
 Required verification:
 - Hand-calculated accounting examples.
 - Costs applied to actual traded notional on each side.
-- No fill at the signal close.
+- No fill at the signal close; zero-delay fill reference is the open of the first hourly candle starting at/after signal availability.
 - No state, position, or P&L carried across independent windows or gaps.
 - Exact 30-day half-open windows and saved random seed/boundaries.
 - Independent fully-liquidated final-equity calculation with exit costs.
