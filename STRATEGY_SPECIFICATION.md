@@ -2,7 +2,7 @@
 
 ## Status and authority
 - **Active research target:** nine-submodel trend-following strategy described in the supplied implementation prompt and attributed there to Zarattini, Pagani, and Barbon, “Catching Crypto Trends,” SSRN 5209907.
-- **State:** approved research conventions recorded; deterministic core implemented on the research branch, with new core tests awaiting local execution. Portfolio backtest and profitability remain unvalidated; not approved for trading.
+- **State:** deterministic core and portfolio-accounting primitives implemented on the research branch. Core tests passed locally (17/17; full suite 61/61) before the portfolio module was added; portfolio tests and the complete suite must be run locally. The full backtest and profitability remain unvalidated; not approved for trading.
 - **Market:** BTC/EUR spot only.
 - **Initial capital:** €100 per independent 30-day window.
 - **Execution input required:** validated hourly BTC/EUR OHLCV. `data/kraken/XBTEUR_1440.csv` is present for cross-checking; it does not by itself support hourly execution simulation.
@@ -17,6 +17,7 @@ This is the sole authoritative active strategy specification. Box Theory and ear
 - **Volatility-only rebalance threshold (approved 2026-10-19):** compare target BTC quantity with the current BTC quantity at the same decision price. Rebalance only when `abs(target_btc_qty - current_btc_qty) / abs(current_btc_qty) > 0.20`. Because the same BTC price applies to both quantities, this is equivalent to comparing target and current BTC notional values. The comparison is strictly greater than 20%, not greater-than-or-equal.
 - **Zero current BTC position:** the relative-deviation formula is undefined when current BTC quantity is zero. Do not use this rule in that case; submodel entry/exit events remain separate rebalance triggers as specified above.
 - **Primary fee assumption:** use 25 basis points per side as the primary conservative fee scenario, with slippage modeled separately. Retain the 5/10/25 bp fee grid. Delay sensitivity must use 25 bp fee per side and 1.5 bp slippage per side; the pre-registered Sharpe criterion at 10 bp remains a separate comparison and must not be mistaken for the primary cost case.
+- **Portfolio accounting rules (approved 2026-10-19):** each independent window starts with €100 cash and zero BTC. Track EUR cash, fractional BTC, cumulative fees, and cumulative slippage separately. Charge fees on executed fill notional; model slippage as an adverse fill-price adjustment relative to the hourly-open reference. Target BTC quantity is calculated from pre-trade equity marked at the reference price. A buy is clipped to available cash after fee and slippage so EUR cash cannot become negative. Report end-of-window marked equity and hypothetical fully liquidated equity after sale-side costs.
 
 ## Research question
 Does this deterministic trend-following strategy show robust positive BTC/EUR spot returns after explicit fee, slippage, and execution-delay sensitivity? No positive expectancy or profitability is presumed.
@@ -63,7 +64,7 @@ For each lookback `n`, using the close series and the current completed daily ba
 - Baseline delay: 0 hours; delay sensitivity: 0, 1, and 4 hours.
 - Baseline slicing: one hourly bar (K=1). No additional slicing study in the initial implementation.
 - Track EUR cash, BTC quantity, trade notional, fees, slippage, equity, exposure, and mark-to-market P&L.
-- Apply costs to actual traded notional on both entry and exit. Do not assume fills that the hourly OHLCV data cannot support.
+- Apply costs to actual traded notional on both entry and exit. Fees are charged on fill notional; slippage changes the simulated fill price adversely and its EUR impact is tracked separately. Buys cannot spend more cash than is available after costs. Do not assume fills that the hourly OHLCV data cannot support.
 - No portfolio state, position, or trade may bridge a data gap or an independent evaluation-window boundary.
 
 ## Cost scenarios
