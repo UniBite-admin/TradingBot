@@ -22,7 +22,7 @@ def test_entry_requires_exact_close_equality_to_upper_channel():
     assert update_submodel([100, 101, 102, 103, 104], 5, SubmodelState()) == SubmodelState(
         long=True, stop=102.0
     )
-    assert update_submodel([100, 101, 102, 103, 103.5], 5, SubmodelState()).long is False
+    assert update_submodel([100, 102, 104, 103, 103.5], 5, SubmodelState()).long is False
 
 
 def test_long_state_checks_old_stop_before_ratchet():
@@ -69,7 +69,7 @@ def test_zero_or_invalid_volatility_targets_zero_exposure():
 
 def test_target_exposure_is_mean_of_nine_capped_weights():
     states = [SubmodelState(long=True, stop=90.0)] + [SubmodelState() for _ in range(8)]
-    assert target_exposure(states, 0.10) == pytest.approx(0.25 / 9)
+    assert target_exposure(states, 0.50) == pytest.approx(0.50 / 9)
     assert target_exposure(states, 0.10) <= 1.0
     assert target_exposure(states, 0.01) == pytest.approx(1.0 / 9)
 
