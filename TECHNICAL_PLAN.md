@@ -1,9 +1,9 @@
 # Technical Plan — BTC/EUR Trend Strategy Research
 
 ## Status
-- **Current phase:** strategy core implementation has begun on the research branch; hourly reader tests and full suite passed locally (10/10 focused, 44/44 total on 2026-10-19). Newly added strategy-core tests have not yet been executed locally.
+- **Current phase:** deterministic strategy core and initial portfolio-accounting primitives are implemented on the research branch. Core tests passed locally (17/17; full suite 61/61) before the latest portfolio files were added. Portfolio tests and the updated full suite are pending local execution.
 - **Active target:** BTC/EUR spot trend-following strategy in `STRATEGY_SPECIFICATION.md`.
-- **Strategy core:** implemented on the research branch; tests are added but not yet locally verified. **Portfolio backtest:** not implemented.
+- **Strategy core:** implemented and locally verified. **Portfolio accounting:** initial buy/sell, fee, slippage, and cash-constraint primitives implemented; focused tests added but not yet locally verified. **Hourly execution simulator and window backtest:** not implemented.
 - **Input data:** the 1h and 24h files have been inspected on `main`; see the observed audit recorded in `STRATEGY_SPECIFICATION.md`. The 5m/4h/12h files have not been inspected for this strategy and are not inputs to its initial hourly/daily path.
 - **Paper/live/scaling:** not authorized.
 - **Previous Box Theory and earlier strategies:** obsolete strategy code/tests are removed from `main`; preserve historical reports/manifests as comparison evidence only.
@@ -48,10 +48,10 @@ BTC/EUR hourly OHLCV
 - no look-ahead from incomplete daily candles.
 
 ## Phase 2 — portfolio backtest
-Implement EUR cash, BTC quantity, target exposure, hourly execution delay, fee/slippage calculations, mark-to-market equity, and separate WARM/COLD window initialization. Keep strategy, portfolio accounting, execution simulation, costs, and analytics logically distinct while reusing the existing repository architecture where practical.
+**In progress:** `tools/trend_following/portfolio.py` implements explicit EUR/BTC accounting, adverse slippage, fees on fill notional, fractional BTC, and cash-limited buys. `tests/test_trend_following_portfolio.py` adds hand-calculated examples; local execution is pending. The hourly execution simulator, reproducible WARM/COLD window runner, and reporting are not implemented. Keep strategy, portfolio accounting, execution simulation, costs, and analytics logically distinct while reusing the existing repository architecture where practical.
 
 Required verification:
-- Hand-calculated accounting examples.
+- Hand-calculated accounting examples pass locally (pending for the newly added portfolio tests).
 - Costs applied to actual traded notional on each side.
 - No fill at the signal close; zero-delay fill reference is the open of the first hourly candle starting at/after signal availability.
 - No state, position, or P&L carried across independent windows or gaps.
