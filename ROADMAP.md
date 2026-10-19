@@ -2,8 +2,8 @@
 
 ## Current state
 - **Active research target:** BTC/EUR spot trend-following strategy defined in `STRATEGY_SPECIFICATION.md`.
-- **Current phase:** data layer and core mathematical conventions are documented; strategy core implementation is next. The core is not yet implemented or tested.
-- **Data:** 1h and 24h file contents have been inspected and cross-checked; details are in `STRATEGY_SPECIFICATION.md`. The 5m/4h/12h files are not inputs to the initial strategy path and have not been audited for this work. The isolated hourly reader and focused tests are on a research branch; tests have not yet run.
+- **Current phase:** deterministic strategy core implementation is present on the research branch; new unit tests await local execution. Portfolio accounting/backtest is not implemented.
+- **Data:** 1h and 24h file contents have been inspected and cross-checked; the reader passed 10 focused tests and all 44 repository tests locally on 2026-10-19. The strategy core and focused tests are on this branch; core tests still need local execution.
 - **Previous Box Theory and other legacy strategies:** implementation and tests removed from `main`; historical reports/manifests retained for comparison only.
 - **Paper trading, live orders, and scaling:** not authorized.
 
@@ -32,7 +32,7 @@ Acceptance:
 - No strategy engine or backtest implementation begins until the data contract is sufficiently established.
 
 ## Phase 1 — Strategy core and focused tests
-**Next; reader tests have passed locally and approved volatility/execution conventions are documented.**
+**Implementation added on the research branch; local test verification pending.**
 
 Implement only the approved deterministic daily strategy state machine and tests. No portfolio backtest engine or live interfaces unless explicitly included in the next approved scope.
 
