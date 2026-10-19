@@ -1,7 +1,7 @@
 # TradingBot — BTC/EUR Trend Strategy Research
 
 ## Current status
-The active research target is a BTC/EUR spot trend-following strategy with nine daily submodels. The hourly data reader has passed focused and full test suites locally; approved volatility and execution conventions are documented. The deterministic strategy core and portfolio backtest remain unimplemented, and profitability has not been tested.
+The active research target is a BTC/EUR spot trend-following strategy with nine daily submodels. The hourly data reader has passed focused and full test suites locally. A deterministic strategy core and focused tests have been added on the research branch; the new tests still need local execution. The portfolio backtest and profitability have not been validated.
 
 - [Project definition](PROJECT_DEFINITION.md) — mission, boundaries, governance.
 - [Roadmap](ROADMAP.md) — phase status and acceptance gates.
