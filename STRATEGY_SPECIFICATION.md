@@ -11,6 +11,9 @@
 This is the sole authoritative active strategy specification. Box Theory and earlier Experiment A/B, breakout, and zero-cost strategy implementations/tests are obsolete and must not remain in active source code. Obsolete Box Theory implementation and tests have been removed from `main`; historical reports/manifests are retained for comparison only and must never be mixed with this strategy's results.
 
 ## Approved human decisions
+- **Volatility convention (approved 2026-10-19):** use sample standard deviation (`ddof=1`) over the trailing 90 daily close-to-close returns, annualized by `sqrt(365)`. This is an explicit implementation convention; exact replication of the latest SSRN revision is not established.
+- **Invalid volatility behavior (approved 2026-10-19):** when volatility is zero, non-finite, or unavailable, set target BTC exposure to zero and do not initiate/increase a BTC position. If BTC is already held, the portfolio layer must represent the target-zero rebalance and its costs explicitly; do not silently discard the holding.
+- **Signal/execution boundary (approved 2026-10-19):** a daily signal is available only after the completed UTC daily candle ends. At zero configured delay, the first eligible hourly candle is the candle whose interval starts at or after that signal-availability timestamp; the simulated fill reference is that hourly candle's open, not the daily close. Delay sensitivities shift eligibility by the configured number of hours. This is a simulation convention, not a guarantee of a real fill.
 - **Volatility-only rebalance threshold (approved 2026-10-19):** compare target BTC quantity with the current BTC quantity at the same decision price. Rebalance only when `abs(target_btc_qty - current_btc_qty) / abs(current_btc_qty) > 0.20`. Because the same BTC price applies to both quantities, this is equivalent to comparing target and current BTC notional values. The comparison is strictly greater than 20%, not greater-than-or-equal.
 - **Zero current BTC position:** the relative-deviation formula is undefined when current BTC quantity is zero. Do not use this rule in that case; submodel entry/exit events remain separate rebalance triggers as specified above.
 - **Primary fee assumption:** use 25 basis points per side as the primary conservative fee scenario, with slippage modeled separately. Retain the 5/10/25 bp fee grid. Delay sensitivity must use 25 bp fee per side and 1.5 bp slippage per side; the pre-registered Sharpe criterion at 10 bp remains a separate comparison and must not be mistaken for the primary cost case.
@@ -30,7 +33,7 @@ The following mechanics are transcribed from the supplied prompt and checked aga
 - Construct UTC daily OHLCV bars from validated hourly data. Use only completed daily bars.
 - Daily close-to-close return: `ret_t = close_t / close_(t-1) - 1`.
 - Volatility: standard deviation of the last 90 daily returns multiplied by `sqrt(365)`.
-- The standard-deviation convention, return-count alignment, and zero/non-finite volatility handling must be explicitly fixed and tested before implementation.
+- Use sample standard deviation (`ddof=1`) over the trailing 90 close-to-close daily returns and annualize by `sqrt(365)`. A valid 90-return window requires 91 valid closes within the same contiguous daily segment. If volatility is zero, non-finite, or unavailable, target BTC exposure is zero; do not initiate/increase BTC exposure, and route any existing holding toward target zero through normal portfolio execution and cost accounting.
 
 ### Nine submodels
 Lookbacks: `[5, 10, 20, 30, 60, 90, 150, 250, 360]` daily bars.
@@ -53,14 +56,15 @@ For each lookback `n`, using the close series and the current completed daily ba
 - Rebalance when any submodel enters or exits. If only volatility changes the target, rebalance when relative target deviation exceeds 20%, using a documented denominator and zero-exposure convention.
 - No take-profit or additional stop beyond the submodel rules.
 - At least 450 prior valid daily bars are required before a valid strategy evaluation.
-- Define behavior when volatility is zero, non-finite, or unavailable; do not permit division by zero or accidental exposure.
+- For zero, non-finite, or unavailable volatility, target BTC exposure is zero. An existing BTC holding is not erased from accounting; it must be reduced toward zero through normal execution with fees and slippage. No division by zero or accidental exposure is permitted.
 
 ## Execution and accounting contract
-- Signal becomes available only after the daily candle has completed.
-- Simulated execution is at the first eligible hourly bar after signal availability, with the configured delay; never fill at the signal close.
+- Signal becomes available only after the UTC daily candle has completed, at its interval-end timestamp.
+- With zero configured delay, the first eligible hourly candle has `interval_start >= signal_available_at`; use that candle's open as the simulated fill reference. For positive delays, apply the configured delay before selecting the first eligible hourly candle.
+- Never fill at the signal close. This is a reproducible OHLCV simulation convention, not evidence that a live order would fill at that price.
 - Baseline delay: 0 hours; delay sensitivity: 0, 1, and 4 hours.
 - Baseline slicing: one hourly bar (K=1). No additional slicing study in the initial implementation.
-- Actual hourly timestamp semantics must be established from the data before mapping a signal to an execution bar.
+- Daily signal availability is the completed daily candle's interval end. At zero delay, select the first hourly candle with `interval_start >= signal_available_at` and use its open as the simulated fill reference; positive delays shift this eligibility time. This convention must be tested and is not a guarantee of real execution.
 - Track EUR cash, BTC quantity, trade notional, fees, slippage, equity, exposure, and mark-to-market P&L.
 - Apply costs to actual traded notional on both entry and exit. Do not assume fills that the hourly OHLCV data cannot support.
 - No portfolio state, position, or trade may bridge a data gap or an independent evaluation-window boundary.
