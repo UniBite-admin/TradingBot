@@ -32,7 +32,7 @@ The following mechanics are transcribed from the supplied prompt and checked aga
 ### Daily inputs and volatility
 - Construct UTC daily OHLCV bars from validated hourly data. Use only completed daily bars.
 - Daily close-to-close return: `ret_t = close_t / close_(t-1) - 1`.
-- Volatility: standard deviation of the last 90 daily returns multiplied by `sqrt(365)`.
+- Volatility: sample standard deviation (`ddof=1`) of the trailing 90 close-to-close daily returns multiplied by `sqrt(365)`. A 90-return window requires 91 valid closes within the same contiguous daily segment.
 - Use sample standard deviation (`ddof=1`) over the trailing 90 close-to-close daily returns and annualize by `sqrt(365)`. A valid 90-return window requires 91 valid closes within the same contiguous daily segment. If volatility is zero, non-finite, or unavailable, target BTC exposure is zero; do not initiate/increase BTC exposure, and route any existing holding toward target zero through normal portfolio execution and cost accounting.
 
 ### Nine submodels
