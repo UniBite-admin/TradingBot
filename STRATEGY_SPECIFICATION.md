@@ -2,7 +2,7 @@
 
 ## Status and authority
 - **Active research target:** nine-submodel trend-following strategy described in the supplied implementation prompt and attributed there to Zarattini, Pagani, and Barbon, “Catching Crypto Trends,” SSRN 5209907.
-- **State:** deterministic core and portfolio-accounting primitives implemented on the research branch. Core tests passed locally (17/17; full suite 61/61) before the portfolio module was added; portfolio tests and the complete suite must be run locally. The full backtest and profitability remain unvalidated; not approved for trading.
+- **State:** the deterministic strategy core, portfolio-accounting primitives, gap-aware hourly execution semantics, and reproducible 30-day window selection are implemented on the research branch. The focused execution/window tests and the project full suite are required before drawing any behavioral conclusion. The complete backtest and any profitability claim remain research-only and unapproved for trading.
 - **Market:** BTC/EUR spot only.
 - **Initial capital:** €100 per independent 30-day window.
 - **Execution input required:** validated hourly BTC/EUR OHLCV. `data/kraken/XBTEUR_1440.csv` is present for cross-checking; it does not by itself support hourly execution simulation.

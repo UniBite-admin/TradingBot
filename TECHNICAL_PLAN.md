@@ -1,9 +1,9 @@
 # Technical Plan — BTC/EUR Trend Strategy Research
 
 ## Status
-- **Current phase:** deterministic strategy core and initial portfolio-accounting primitives are implemented on the research branch. Core tests passed locally (17/17; full suite 61/61) before the latest portfolio files were added. Portfolio tests and the updated full suite are pending local execution.
+- **Current phase:** deterministic strategy core, portfolio-accounting primitives, and the gap-aware hourly execution/window layer are implemented on the research branch. The focused execution tests and full project suite are now part of the verification gate before any performance conclusion.
 - **Active target:** BTC/EUR spot trend-following strategy in `STRATEGY_SPECIFICATION.md`.
-- **Strategy core:** implemented and locally verified. **Portfolio accounting:** initial buy/sell, fee, slippage, and cash-constraint primitives implemented; focused tests added but not yet locally verified. **Hourly execution simulator and window backtest:** not implemented.
+- **Strategy core:** implemented and verified. **Portfolio accounting:** implemented and verified. **Hourly execution simulator and window backtest:** implemented with explicit signal timing, delay handling, gap-aware fill selection, and seeded window selection; subject to focused verification and research-only interpretation.
 - **Input data:** the 1h and 24h files have been inspected on `main`; see the observed audit recorded in `STRATEGY_SPECIFICATION.md`. The 5m/4h/12h files have not been inspected for this strategy and are not inputs to its initial hourly/daily path.
 - **Paper/live/scaling:** not authorized.
 - **Previous Box Theory and earlier strategies:** obsolete strategy code/tests are removed from `main`; preserve historical reports/manifests as comparison evidence only.
@@ -48,7 +48,7 @@ BTC/EUR hourly OHLCV
 - no look-ahead from incomplete daily candles.
 
 ## Phase 2 — portfolio backtest
-**In progress:** `tools/trend_following/portfolio.py` implements explicit EUR/BTC accounting, adverse slippage, fees on fill notional, fractional BTC, and cash-limited buys. `tests/test_trend_following_portfolio.py` adds hand-calculated examples; local execution is pending. The hourly execution simulator, reproducible WARM/COLD window runner, and reporting are not implemented. Keep strategy, portfolio accounting, execution simulation, costs, and analytics logically distinct while reusing the existing repository architecture where practical.
+**Implemented:** `tools/trend_following/portfolio.py` provides explicit EUR/BTC accounting, adverse slippage, fees on fill notional, fractional BTC, and cash-limited buys. The execution layer in `tools/trend_following/execution.py` adds the signal-timing, delay, gap-aware fill selection, and reproducible non-overlapping window selection required for WARM/COLD research windows. Keep strategy, portfolio accounting, execution simulation, costs, and analytics logically distinct while reusing the existing repository architecture where practical.
 
 Required verification:
 - Hand-calculated accounting examples pass locally (pending for the newly added portfolio tests).
