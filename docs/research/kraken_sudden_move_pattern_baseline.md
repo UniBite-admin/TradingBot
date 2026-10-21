@@ -1,6 +1,6 @@
 # Kraken Multi-Pair Sudden-Move Pattern Research Baseline
 
-- **Status:** Research scope, initial event labels, and core validation protocol approved; unresolved operational definitions and quantitative acceptance criteria remain blocking gates before outcome analysis.
+- **Status:** Research definitions approved for the first historical discovery run. Results remain exploratory until the untouched chronological test and predeclared statistical checks are completed.
 - **Baseline date:** 2026-10-21
 - **Research branch:** `research/kraken-sudden-move-patterns`
 - **Data location:** `data/kraken_5/`
@@ -57,7 +57,7 @@ Horizons:
 - 30 minutes = 6 five-minute candles
 - 60 minutes = 12 five-minute candles
 
-For a candidate start candle at time `t`, define the primary horizon return using the close at `t` and the close exactly 3, 6, or 12 candles later, provided the required sequence is valid under the yet-to-be-frozen gap rule. Label upward and downward directions separately.
+For a candidate start candle at time `t`, define the primary horizon return using the close at `t` and the close exactly 3, 6, or 12 candles later, provided the required sequence passes the validity rules in Section 5. Label upward and downward directions separately.
 
 Fixed-percentage event candidates for every horizon:
 - Upward: horizon return ≥ +0.5%, +1%, or +2%.
@@ -66,32 +66,36 @@ Fixed-percentage event candidates for every horizon:
 Volatility-normalized event candidates for every horizon:
 - Upward: horizon return ≥ +2× or +3× the prior 24-hour volatility measure.
 - Downward: horizon return ≤ −2× or −3× the prior 24-hour volatility measure.
-- The volatility estimator and forward-horizon scaling are specified in Section 5. Do not calculate volatility-normalized labels until the remaining return convention, warm-up eligibility, and missing-candle rules are explicitly frozen.
+- The volatility estimator and forward-horizon scaling are specified in Section 5.
 
 This protocol uses close-to-close horizon return as the primary event measurement. High/low excursion is not part of this approved label definition and must not be substituted into the primary analysis. It may only be added later as a separately documented analysis.
 
-**Still unresolved before event-label calculations:** exact return convention used inside the volatility estimator (simple or log returns); warm-up eligibility; exact gap/missing-candle validity checks; overlap-dependence method; minimum-history and any liquidity eligibility rule; exact chronological calendar boundaries and whether boundaries are shared globally across pairs; control-window matching; exact feature windows; and quantitative acceptance thresholds. Freeze these before inspecting comparative outcomes. Do not tune against the final test period.
+
 
 ## 5. Approved validation protocol and candidate pre-event features
 
 The human approved the following protocol on 2026-10-21:
 
-- **Volatility candidate:** calculate the standard deviation of the prior 288 five-minute close-to-close returns (a trailing 24-hour window), then scale it to 15-, 30-, and 60-minute horizons using square-root-of-time scaling. The precise return convention (simple vs. log returns), warm-up eligibility, and missing-candle rules must still be frozen before labels are computed.
-- **Missing data/gaps:** exclude an individual observation from a particular analysis when its required historical or forward candles are missing/invalid; report counts and reasons. Do not silently discard entire files.
-- **Overlapping events:** retain otherwise eligible overlapping events. Statistical evaluation must account for temporal dependence; the method must be specified before outcome analysis. Do not count overlapping observations as independent evidence.
-- **Chronological split:** allocate 60% to discovery/training, 20% to validation, and 20% to an untouched final test, in chronological order. Exact calendar boundaries and whether the same global boundaries apply across all pairs remain to be frozen before labels/features/results are inspected.
-- **Candidate feature families:** prior returns/momentum, realized volatility, volume, candle bodies and wicks, and distance to prior highs/lows. Each feature must use only data available at the event start. Exact windows and calculations remain to be frozen.
-- **Evaluation principle:** compare candidate predictors against a declared baseline on the untouched test set, account for multiple testing, and report effect sizes and uncertainty. A concrete numerical definition of “meaningful predictive improvement” and the exact test/statistical procedure remain unresolved and must be frozen before outcome analysis.
+- **Volatility candidate:** use log returns, `ln(close_t / close_(t-1))`. Calculate the sample standard deviation (`ddof=1`) of the previous 288 valid five-minute log returns, excluding the current candle's return. Scale the standard deviation by `sqrt(horizon_candles)` for 3, 6, and 12 candles. The event threshold is `2×` or `3×` this horizon-scaled volatility.
+- **Warm-up:** a candidate event time is eligible for volatility-normalized labels and full-window features only after 288 consecutive valid prior five-minute returns are available. Fixed-threshold event counts may be reported separately without volatility warm-up, but their feature comparisons must use the same eligible sample as the corresponding model comparison.
+- **Candle validity:** timestamps must be strictly increasing and exactly five minutes apart within a required sequence; timestamps must be parseable and unique. OHLC values must be finite and positive, `high >= max(open, close, low)`, and `low <= min(open, close, high)`; volume and trade count must be finite and non-negative. Do not interpolate or repair source data.
+- **Missing data/gaps:** exclude an individual observation from a particular analysis when any required historical or forward candle is missing/invalid; report counts by reason and file. Do not silently discard entire files. A valid forward horizon requires all intervening five-minute candles and the exact endpoint candle.
+- **Overlapping events:** retain otherwise eligible overlapping events. Estimate uncertainty with a moving-block bootstrap using 288-candle (24-hour) time blocks, synchronized by UTC time across pairs so common market-wide moves are not treated as independent. Report the bootstrap procedure, seed, number of resamples, and confidence intervals; overlapping events are not independent observations.
+- **Chronological split:** derive one set of shared UTC calendar boundaries from the minimum and maximum valid timestamps across the complete input inventory: first 60% of elapsed time for discovery/training, next 20% for validation, final 20% for untouched test. Apply the same boundaries to every pair. Do not randomly split rows or move observations between periods.
+- **Candidate feature families and windows:** use trailing windows of 3, 6, 12, and 288 five-minute candles, with no current/future horizon data. Momentum is cumulative close-to-close log return over each window; realized volatility is sample standard deviation of log returns; volume is the mean and sum of volume; candle anatomy is body size and upper/lower wick size normalized by close, measured for the latest candle and averaged over 3/6/12 candles; distance to prior highs/lows is the percentage distance from event-start close to the prior-window high/low over 12 and 288 candles. A window must be fully valid under Section 5.
+- **Control windows:** for each event definition/horizon, sample non-event controls from the same pair and same chronological partition, with the same horizon and the same prior-volatility quintile. A control must not meet either upward or downward event threshold for that event definition/horizon. Use deterministic sampling without replacement and report the seed, control/event ratio, and eligible pool counts. If a volatility quintile cannot be estimated in discovery data, mark the control unmatched rather than using future data.
+- **Multiple testing:** apply Benjamini–Hochberg false-discovery-rate correction at `q = 0.05` to the predeclared family of feature/event/horizon hypotheses. Report raw and adjusted p-values.
+- **Statistical acceptance:** a candidate is statistically supported only if the untouched-test effect is in the hypothesized direction, its 95% moving-block-bootstrap confidence interval excludes zero, and its Benjamini–Hochberg adjusted p-value is below 0.05. Always report absolute effect size and relative lift; do not equate statistical significance with practical profitability. No fixed minimum economic effect is asserted by this research protocol.
 
 These choices define a research protocol, not evidence of predictive power or profitability. They do not authorize trading.
 
 ## 6. Controls and validation
 
 1. Build event labels without using future information in predictors.
-2. Compare event windows with non-event control windows from the same pair where practical; define matching rules before examining outcomes.
-3. Split data chronologically into 60% discovery/training, 20% validation, and 20% untouched final test periods. Exact calendar boundaries and cross-pair boundary policy must be frozen before analysis. Do not randomly mix future and past observations.
-4. Address overlapping event horizons and temporal dependence; do not treat highly overlapping observations as independent evidence.
-5. Account for multiple testing across many pairs, horizons, thresholds, and features. Report how many hypotheses were tested and use a declared correction or other predeclared control. The correction method and numerical acceptance threshold must be frozen before outcome analysis.
+2. Compare event windows with deterministic non-event controls matched by pair, chronological partition, horizon, and prior-volatility quintile, as specified in Section 5.
+3. Apply the shared UTC chronological split defined in Section 5: 60% discovery/training, 20% validation, and 20% untouched final test.
+4. Address overlapping event horizons with the synchronized 24-hour moving-block bootstrap defined in Section 5; do not treat highly overlapping observations as independent evidence.
+5. Account for multiple testing using Benjamini–Hochberg FDR `q = 0.05`; report the hypothesis family and raw/adjusted p-values.
 6. Report per-pair and cross-pair results so one extreme or dominant pair cannot conceal broad failure. Preserve weak-data cases in the inventory and label their uncertainty.
 7. Keep predictive association separate from trading profitability. No profitability claim can be made without a separately specified execution and cost model, including fees, spread, slippage, latency, and liquidity constraints.
 
@@ -111,8 +115,8 @@ Do not present a discovery-set result as validated evidence. If no candidate pas
 
 ## 8. Current phase and next gate
 
-**Current phase:** Research contract/baseline recorded; implementation and event study have not been approved as completed or validated.
+**Current phase:** First-run operational definitions frozen. No event labels, comparative outcomes, predictive patterns, or profitability have yet been computed or validated.
 
-**Next gate:** Freeze the remaining definitions listed in Sections 4–6: return convention and warm-up for volatility, exact gap validity checks, overlap-dependence method, minimum-history/liquidity eligibility, chronological calendar boundaries and cross-pair policy, control-window matching, exact feature windows, multiple-testing method, and quantitative acceptance criteria. Do not calculate comparative event or feature outcomes before that gate is satisfied.
+**Next step:** Implement the frozen definitions with focused tests, run a read-only input audit, then calculate discovery results. Validation must preserve the untouched final test set and use the acceptance procedure in Section 5. No liquidity filter is applied in this first descriptive study; liquidity constraints belong to a later, separately specified tradability study.
 
 No source data, strategy implementation, authoritative active strategy specification, or trading permissions are changed by this baseline.
