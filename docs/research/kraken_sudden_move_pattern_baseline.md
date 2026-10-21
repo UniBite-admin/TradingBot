@@ -57,7 +57,7 @@ Horizons:
 - 30 minutes = 6 five-minute candles
 - 60 minutes = 12 five-minute candles
 
-For a candidate start candle at time `t`, define the primary horizon return using the close at `t` and the close exactly 3, 6, or 12 candles later, provided the required sequence passes the validity rules in Section 5. Label upward and downward directions separately.
+For a candidate start candle at time `t`, use the close at `t` and the close exactly 3, 6, or 12 candles later, provided the required sequence passes the validity rules in Section 5. For fixed-percentage labels, define simple horizon return as `(close_(t+h) / close_t) - 1`. For volatility-normalized labels, define log horizon return as `ln(close_(t+h) / close_t)` so it is measured on the same scale as the log-return volatility estimator. Label upward and downward directions separately.
 
 Fixed-percentage event candidates for every horizon:
 - Upward: horizon return ≥ +0.5%, +1%, or +2%.
@@ -85,7 +85,7 @@ The human approved the following protocol on 2026-10-21:
 - **Candidate feature families and windows:** use trailing windows of 3, 6, 12, and 288 five-minute candles, with no current/future horizon data. Momentum is cumulative close-to-close log return over each window; realized volatility is sample standard deviation of log returns; volume is the mean and sum of volume; candle anatomy is body size and upper/lower wick size normalized by close, measured for the latest candle and averaged over 3/6/12 candles; distance to prior highs/lows is the percentage distance from event-start close to the prior-window high/low over 12 and 288 candles. A window must be fully valid under Section 5.
 - **Control windows:** for each event definition/horizon, sample non-event controls from the same pair and same chronological partition, with the same horizon and the same prior-volatility quintile. A control must not meet either upward or downward event threshold for that event definition/horizon. Use deterministic 1:1 sampling without replacement and fixed seed `20261021`; report eligible pool counts. If a volatility quintile cannot be estimated in discovery data, mark the control unmatched rather than using future data.
 - **Multiple testing:** apply Benjamini–Hochberg false-discovery-rate correction at `q = 0.05` to the full predeclared family of feature × event definition × horizon × direction hypotheses. Derive two-sided p-values from the moving-block-bootstrap null distribution and report raw and adjusted p-values.
-- **Statistical acceptance:** a candidate is statistically supported only if the untouched-test effect is in the hypothesized direction, its 95% moving-block-bootstrap confidence interval excludes zero, and its Benjamini–Hochberg adjusted p-value is below 0.05. Always report absolute effect size and relative lift; do not equate statistical significance with practical profitability. No fixed minimum economic effect is asserted by this research protocol.
+- **Primary feature-comparison metric:** for each feature/event-definition/horizon/direction, compare matched event and control observations using the paired standardized mean difference (Cohen's `d_z`); also report the raw paired mean difference and median difference in the feature's native units. Use a two-sided moving-block-bootstrap test; do not assume a direction for an undiscovered pattern. **Statistical acceptance:** a candidate is statistically supported only if its untouched-test 95% moving-block-bootstrap confidence interval for the paired effect excludes zero and its Benjamini–Hochberg adjusted p-value is below 0.05. Report the effect magnitude and sign; do not equate statistical significance with practical profitability. No fixed minimum economic effect is asserted by this research protocol.
 
 These choices define a research protocol, not evidence of predictive power or profitability. They do not authorize trading.
 
@@ -106,7 +106,7 @@ For every frozen experiment, record:
 - Event-definition version, horizon, thresholds, anchor, overlap policy, and feature definitions.
 - Chronological date boundaries and exclusion/eligibility rules.
 - Event counts by direction, pair, and period.
-- Baseline event rates and control comparison.
+- Baseline event rates, matched-control counts, paired raw mean/median differences, and paired standardized mean differences.
 - Effect sizes with uncertainty, multiple-testing treatment, and per-pair dispersion.
 - Performance on untouched periods, including failures and limitations.
 - Reproducible command, code/version identifier, and report location.
