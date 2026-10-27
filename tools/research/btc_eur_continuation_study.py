@@ -121,6 +121,7 @@ def _matched_control_pairs(frame: pd.DataFrame, event_df: pd.DataFrame, *, horiz
     horizon_candles = max(1, int(round(horizon_minutes / 5)))
     close = df["close"].to_numpy(dtype=float)
     n = len(close)
+    trigger_mask = np.zeros(n, dtype=bool)
     # A control must be a non-event for either direction and must have a
     # contiguous trigger-plus-outcome interval available.
     for idx in range(WARMUP_CANDLES, n - (2 * horizon_candles)):
