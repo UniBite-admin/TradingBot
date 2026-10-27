@@ -19,7 +19,7 @@ from tools.research.btc_eur_continuation_study import (
 def _make_synthetic_frame() -> pd.DataFrame:
     ts = pd.date_range("2024-01-01 00:00:00", periods=600, freq="5min", tz="UTC")
     rng = np.random.default_rng(20261021)
-    log_returns = rng.normal(loc=0.00005, scale=0.003, size=len(ts) - 1)
+    log_returns = rng.normal(loc=0.00002, scale=0.0015, size=len(ts) - 1)
     base = 100.0 * np.exp(np.concatenate(([0.0], np.cumsum(log_returns))))
     close = pd.Series(base, index=ts)
     open_ = close * 0.998
