@@ -54,6 +54,8 @@ def test_evaluate_period_summary_includes_effect_and_uncertainty():
         threshold=0.005,
         horizon_minutes=15,
         direction="up",
+        seed=20261021,
+        bootstrap_replicates=64,
     )
     assert summary["period"] == "discovery"
     assert summary["threshold"] == 0.005
@@ -143,7 +145,7 @@ def test_fdr_adjustment_and_test_period_are_separated():
         bootstrap_replicates=16,
     )
     discovery_rows = [row for row in result["period_summaries"] if row["period"] == "discovery"]
-    assert discovery_rows
+    assert len(discovery_rows) == 54
     assert all("p_value_adj" in row for row in discovery_rows)
     assert all(
         np.isfinite(row["p_value_adj"]) and 0.0 <= row["p_value_adj"] <= 1.0
