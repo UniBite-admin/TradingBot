@@ -122,11 +122,13 @@ def _matched_control_pairs(frame: pd.DataFrame, event_df: pd.DataFrame, *, horiz
     close = df["close"].to_numpy(dtype=float)
     n = len(close)
     trigger_mask = np.zeros(n, dtype=bool)
+    valid_control_mask = np.zeros(n, dtype=bool)
     # A control must be a non-event for either direction and must have a
     # contiguous trigger-plus-outcome interval available.
     for idx in range(WARMUP_CANDLES, n - (2 * horizon_candles)):
         if not _window_is_contiguous(df, idx, 2 * horizon_candles):
             continue
+        valid_control_mask[idx] = True
         move = close[idx + horizon_candles] / close[idx] - 1.0
         trigger_mask[idx] = abs(move) >= threshold
 
@@ -153,7 +155,8 @@ def _matched_control_pairs(frame: pd.DataFrame, event_df: pd.DataFrame, *, horiz
         if pd.isna(bucket_value):
             continue
         candidates = np.flatnonzero(
-            (~trigger_mask)
+            valid_control_mask
+            & (~trigger_mask)
             & (~exclusion_mask)
             & (vol_bucket.to_numpy(dtype=float) == float(bucket_value))
         )
