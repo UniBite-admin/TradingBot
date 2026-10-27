@@ -91,7 +91,7 @@ def scan_events(frame: pd.DataFrame, *, horizon_minutes: int, threshold: float, 
         else:
             trigger_mask[idx] = move <= -threshold
         if trigger_mask[idx]:
-            if not event_starts or idx - event_starts[-1] >= 2 * horizon_candles:
+            if not event_starts or idx - event_starts[-1] > 2 * horizon_candles:
                 event_starts.append(idx)
     rows = []
     for idx in event_starts:
