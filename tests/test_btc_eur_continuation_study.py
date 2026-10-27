@@ -8,6 +8,7 @@ import numpy as np
 
 from tools.research.btc_eur_continuation_study import (
     _matched_control_indices,
+    _subsequent_return,
     evaluate_period_summary,
     load_btc_eur_5m,
     run_continuation_study,
@@ -17,7 +18,9 @@ from tools.research.btc_eur_continuation_study import (
 
 def _make_synthetic_frame() -> pd.DataFrame:
     ts = pd.date_range("2024-01-01 00:00:00", periods=600, freq="5min", tz="UTC")
-    base = 100.0 + np.linspace(0, 1800.0, len(ts))
+    rng = np.random.default_rng(20261021)
+    log_returns = rng.normal(loc=0.00005, scale=0.003, size=len(ts) - 1)
+    base = 100.0 * np.exp(np.concatenate(([0.0], np.cumsum(log_returns))))
     close = pd.Series(base, index=ts)
     open_ = close * 0.998
     high = close * 1.005
@@ -62,6 +65,13 @@ def test_evaluate_period_summary_includes_effect_and_uncertainty():
     assert "effect_ci_95_low" in summary
     assert "effect_ci_95_high" in summary
     assert summary["control_count"] >= 1
+    repeated = evaluate_period_summary(
+        df, period_name="discovery", threshold=0.005, horizon_minutes=15,
+        direction="up", seed=20261021, bootstrap_replicates=64,
+    )
+    assert summary["p_value"] == repeated["p_value"] or (
+        np.isnan(summary["p_value"]) and np.isnan(repeated["p_value"])
+    )
 
 
 def test_run_study_generates_compact_report_for_btc_eur_file(tmp_path):
@@ -90,9 +100,15 @@ def test_controls_are_unique_and_non_overlapping():
     events = scan_events(df, horizon_minutes=15, threshold=0.005, direction="up")
     controls = _matched_control_indices(df, events, horizon_minutes=15, threshold=0.005, direction="up")
     assert len(set(controls)) == len(controls)
+    horizon_candles = 3
+    event_starts = events["event_index"].astype(int).to_list()
     for idx in controls:
-        assert idx not in events["event_index"].to_numpy()
-        assert abs(idx - events["event_index"].to_numpy()[:, None]).min() > 15
+        for event_idx in event_starts:
+            # Trigger and measured outcome together occupy [start, start + 2h].
+            assert idx + 2 * horizon_candles < event_idx or event_idx + 2 * horizon_candles < idx
+    for i, left in enumerate(controls):
+        for right in controls[i + 1:]:
+            assert left + 2 * horizon_candles < right or right + 2 * horizon_candles < left
 
 
 def test_gap_and_boundary_windows_are_rejected():
@@ -111,6 +127,10 @@ def test_gap_and_boundary_windows_are_rejected():
     })
     events = scan_events(df, horizon_minutes=15, threshold=0.005, direction="up")
     assert len(events) == 0 or all(events["event_index"] < 150)
+    gap_frame = df.copy()
+    gap_frame["timestamp"] = pd.to_datetime(gap_frame["timestamp"], utc=True)
+    # A post-trigger outcome spanning a timestamp gap must not be measured.
+    assert np.isnan(_subsequent_return(gap_frame, 147, 15))
 
 
 def test_fdr_adjustment_and_test_period_are_separated():
@@ -124,5 +144,8 @@ def test_fdr_adjustment_and_test_period_are_separated():
     discovery_rows = [row for row in result["period_summaries"] if row["period"] == "discovery"]
     assert discovery_rows
     assert all("p_value_adj" in row for row in discovery_rows)
-    assert all(row["p_value_adj"] is None or 0.0 <= row["p_value_adj"] <= 1.0 for row in discovery_rows)
+    assert all(
+        not np.isfinite(row["p_value_adj"]) or 0.0 <= row["p_value_adj"] <= 1.0
+        for row in discovery_rows
+    )
     assert all(row["period"] != "test" for row in result["discovery_adjusted_results"])
