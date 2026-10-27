@@ -113,7 +113,8 @@ def test_controls_are_unique_and_non_overlapping():
 
 def test_gap_and_boundary_windows_are_rejected():
     ts = pd.date_range("2024-01-01 00:00:00", periods=300, freq="5min", tz="UTC")
-    gap_ts = ts.insert(150, ts[149] + pd.Timedelta(minutes=10))
+    gap_ts = ts.copy()
+    gap_ts = gap_ts.where(gap_ts < ts[150], gap_ts + pd.Timedelta(minutes=5))
     base = 100.0 + np.linspace(0, 1800.0, len(gap_ts))
     close = pd.Series(base, index=gap_ts)
     df = pd.DataFrame({
@@ -145,7 +146,7 @@ def test_fdr_adjustment_and_test_period_are_separated():
     assert discovery_rows
     assert all("p_value_adj" in row for row in discovery_rows)
     assert all(
-        not np.isfinite(row["p_value_adj"]) or 0.0 <= row["p_value_adj"] <= 1.0
+        np.isfinite(row["p_value_adj"]) and 0.0 <= row["p_value_adj"] <= 1.0
         for row in discovery_rows
     )
     assert all(row["period"] != "test" for row in result["discovery_adjusted_results"])
