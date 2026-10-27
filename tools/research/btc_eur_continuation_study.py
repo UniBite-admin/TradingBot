@@ -114,7 +114,7 @@ def _volatility_bucket(frame: pd.DataFrame, *, window: int = WARMUP_CANDLES) -> 
     return frame["log_return"].rolling(window=window, min_periods=window).std(ddof=1)
 
 
-def _matched_control_indices(frame: pd.DataFrame, event_df: pd.DataFrame, *, horizon_minutes: int, threshold: float, direction: str, seed: int = SEED) -> list[int]:
+def _matched_control_pairs(frame: pd.DataFrame, event_df: pd.DataFrame, *, horizon_minutes: int, threshold: float, direction: str, seed: int = SEED) -> list[tuple[int, int]]:
     df = _prepare_frame(frame)
     if event_df.empty:
         return []
@@ -145,12 +145,12 @@ def _matched_control_indices(frame: pd.DataFrame, event_df: pd.DataFrame, *, hor
     vol = _volatility_bucket(df)
     vol_bucket = pd.qcut(vol.fillna(0.0), q=5, duplicates="drop", labels=False)
     rng = np.random.default_rng(seed)
-    chosen: list[int] = []
+    chosen: list[tuple[int, int]] = []
     for _, row in event_df.iterrows():
         event_idx = int(row["event_index"])
         bucket_value = vol_bucket.iloc[event_idx]
         if pd.isna(bucket_value):
-            break
+            continue
         candidates = np.flatnonzero(
             (~trigger_mask)
             & (~exclusion_mask)
@@ -158,13 +158,19 @@ def _matched_control_indices(frame: pd.DataFrame, event_df: pd.DataFrame, *, hor
         )
         candidates = candidates[(candidates >= WARMUP_CANDLES) & (candidates < n - (2 * horizon_candles))]
         if candidates.size == 0:
-            # Keep the returned controls aligned with the first N event rows,
-            # because the inference routine consumes event/control pairs in order.
-            break
+            continue
         selected = int(rng.choice(candidates))
-        chosen.append(selected)
+        chosen.append((event_idx, selected))
         exclude_complete_window(selected)
     return chosen
+
+
+def _matched_control_indices(frame: pd.DataFrame, event_df: pd.DataFrame, *, horizon_minutes: int, threshold: float, direction: str, seed: int = SEED) -> list[int]:
+    """Return control indices in matched-event order for focused tests and callers."""
+    return [control_idx for _, control_idx in _matched_control_pairs(
+        frame, event_df, horizon_minutes=horizon_minutes, threshold=threshold,
+        direction=direction, seed=seed,
+    )]
 
 
 def _subsequent_return(frame: pd.DataFrame, event_start_index: int, horizon_minutes: int) -> float:
@@ -275,7 +281,10 @@ def evaluate_period_summary(
             "notes": "No qualifying events met warm-up and valid-window criteria in this period.",
         }
 
-    control_indices = _matched_control_indices(df, events, horizon_minutes=horizon_minutes, threshold=threshold, direction=direction, seed=seed)
+    matched_pairs = _matched_control_pairs(df, events, horizon_minutes=horizon_minutes, threshold=threshold, direction=direction, seed=seed)
+    control_indices = [control_idx for _, control_idx in matched_pairs]
+    matched_event_indices = [event_idx for event_idx, _ in matched_pairs]
+    matched_events = events[events["event_index"].isin(matched_event_indices)].sort_values("event_index").reset_index(drop=True)
     event_returns = []
     control_returns = []
     for _, row in events.iterrows():
@@ -309,7 +318,7 @@ def evaluate_period_summary(
 
     matched_event_arr, matched_control_arr, observed_effect, p_value, ci_low_bs, ci_high_bs, paired_sd = _paired_effect_and_p_value(
         df,
-        events,
+        matched_events,
         control_indices,
         horizon_minutes=horizon_minutes,
         direction=direction,
