@@ -79,8 +79,11 @@ def scan_events(frame: pd.DataFrame, *, horizon_minutes: int, threshold: float, 
     n = len(close)
     trigger_mask = np.zeros(n, dtype=bool)
     event_starts: list[int] = []
-    for idx in range(WARMUP_CANDLES, n - horizon_candles):
-        if not _window_is_contiguous(df, idx, horizon_candles):
+    # The measured outcome needs a second full horizon after the trigger.
+    # Require continuity across both windows and keep complete event/outcome
+    # intervals non-overlapping.
+    for idx in range(WARMUP_CANDLES, n - (2 * horizon_candles)):
+        if not _window_is_contiguous(df, idx, 2 * horizon_candles):
             continue
         move = close[idx + horizon_candles] / close[idx] - 1.0
         if direction == "up":
@@ -88,7 +91,7 @@ def scan_events(frame: pd.DataFrame, *, horizon_minutes: int, threshold: float, 
         else:
             trigger_mask[idx] = move <= -threshold
         if trigger_mask[idx]:
-            if not event_starts or idx - event_starts[-1] >= horizon_candles:
+            if not event_starts or idx - event_starts[-1] >= 2 * horizon_candles:
                 event_starts.append(idx)
     rows = []
     for idx in event_starts:
@@ -118,41 +121,49 @@ def _matched_control_indices(frame: pd.DataFrame, event_df: pd.DataFrame, *, hor
     horizon_candles = max(1, int(round(horizon_minutes / 5)))
     close = df["close"].to_numpy(dtype=float)
     n = len(close)
-    trigger_mask = np.zeros(n, dtype=bool)
-    for idx in range(WARMUP_CANDLES, n - horizon_candles):
-        if not _window_is_contiguous(df, idx, horizon_candles):
+    # A control must be a non-event for either direction and must have a
+    # contiguous trigger-plus-outcome interval available.
+    for idx in range(WARMUP_CANDLES, n - (2 * horizon_candles)):
+        if not _window_is_contiguous(df, idx, 2 * horizon_candles):
             continue
         move = close[idx + horizon_candles] / close[idx] - 1.0
-        if direction == "up":
-            trigger_mask[idx] = move >= threshold
-        else:
-            trigger_mask[idx] = move <= -threshold
+        trigger_mask[idx] = abs(move) >= threshold
 
     event_start_indices = event_df["event_index"].astype(int).to_numpy(dtype=int)
     exclusion_mask = np.zeros(n, dtype=bool)
-    for event_idx in event_start_indices:
-        start = max(0, event_idx - horizon_candles)
-        stop = min(n, event_idx + (4 * horizon_candles) + 1)
+
+    def exclude_complete_window(start_index: int) -> None:
+        # [start, start + 2h] includes both the trigger and measured outcome.
+        # A candidate start overlaps this interval iff it is within +/- 2h.
+        start = max(0, start_index - (2 * horizon_candles))
+        stop = min(n, start_index + (2 * horizon_candles) + 1)
         exclusion_mask[start:stop] = True
+
+    for event_idx in event_start_indices:
+        exclude_complete_window(int(event_idx))
 
     vol = _volatility_bucket(df)
     vol_bucket = pd.qcut(vol.fillna(0.0), q=5, duplicates="drop", labels=False)
     rng = np.random.default_rng(seed)
     chosen: list[int] = []
-    used: set[int] = set()
     for _, row in event_df.iterrows():
         event_idx = int(row["event_index"])
         bucket_value = vol_bucket.iloc[event_idx]
         if pd.isna(bucket_value):
-            continue
-        candidates = np.flatnonzero((~trigger_mask) & (~exclusion_mask) & (vol_bucket.to_numpy(dtype=float) == float(bucket_value)))
-        candidates = candidates[(candidates >= WARMUP_CANDLES) & (candidates < n - horizon_candles)]
-        candidates = np.asarray([int(candidate) for candidate in candidates if candidate not in used], dtype=int)
+            break
+        candidates = np.flatnonzero(
+            (~trigger_mask)
+            & (~exclusion_mask)
+            & (vol_bucket.to_numpy(dtype=float) == float(bucket_value))
+        )
+        candidates = candidates[(candidates >= WARMUP_CANDLES) & (candidates < n - (2 * horizon_candles))]
         if candidates.size == 0:
-            continue
+            # Keep the returned controls aligned with the first N event rows,
+            # because the inference routine consumes event/control pairs in order.
+            break
         selected = int(rng.choice(candidates))
-        used.add(selected)
         chosen.append(selected)
+        exclude_complete_window(selected)
     return chosen
 
 
@@ -161,6 +172,8 @@ def _subsequent_return(frame: pd.DataFrame, event_start_index: int, horizon_minu
     event_end_index = event_start_index + horizon_candles
     post_end_index = event_end_index + horizon_candles
     if event_end_index >= len(frame) or post_end_index >= len(frame):
+        return float("nan")
+    if not _window_is_contiguous(frame, event_end_index, horizon_candles):
         return float("nan")
     return float(frame["close"].iloc[post_end_index] / frame["close"].iloc[event_end_index] - 1.0)
 
@@ -198,30 +211,34 @@ def _paired_effect_and_p_value(
     diffs = event_arr - control_arr
     observed_effect = float(np.mean(diffs))
 
-    block_size = max(12, int(round(horizon_minutes / 5)))
+    n = diffs.size
+    if n < 2 or bootstrap_replicates < 1:
+        return event_arr, control_arr, observed_effect, float("nan"), float("nan"), float("nan"), float("nan")
+
+    # The paired differences are kept in chronological event order. A moving
+    # block bootstrap over this ordered difference series retains local
+    # dependence between nearby event outcomes better than iid resampling.
+    # It remains an approximation: controls are matched observations, not a
+    # resampled reconstruction of the raw BTC/EUR return process.
+    block_size = min(n, max(3 * int(round(horizon_minutes / 5)), 12))
     rng = np.random.default_rng(seed)
     replicates = int(bootstrap_replicates)
     bootstrap_stats = np.empty(replicates, dtype=float)
-    n = diffs.size
-    if n > 1:
-        for i in range(replicates):
-            sample = []
-            while len(sample) < n:
-                start = int(rng.integers(0, n - block_size + 1 if n > block_size else 1))
-                end = min(n, start + block_size)
-                sample.extend(diffs[start:end].tolist())
-            sample_arr = np.asarray(sample[:n], dtype=float)
-            bootstrap_stats[i] = float(np.mean(sample_arr))
-    else:
-        bootstrap_stats.fill(observed_effect)
+    null_stats = np.empty(replicates, dtype=float)
+    centered_diffs = diffs - observed_effect
+    for i in range(replicates):
+        sample_indices: list[int] = []
+        while len(sample_indices) < n:
+            start = int(rng.integers(0, n - block_size + 1))
+            sample_indices.extend(range(start, start + block_size))
+        indices = np.asarray(sample_indices[:n], dtype=int)
+        bootstrap_stats[i] = float(np.mean(diffs[indices]))
+        null_stats[i] = float(np.mean(centered_diffs[indices]))
 
-    if direction == "up":
-        p_value = float(np.mean(bootstrap_stats >= observed_effect))
-    else:
-        p_value = float(np.mean(bootstrap_stats <= observed_effect))
-
+    # Two-sided null test; use a finite-sample correction so p-values cannot be 0.
+    p_value = float((1 + np.count_nonzero(np.abs(null_stats) >= abs(observed_effect))) / (replicates + 1))
     ci_low, ci_high = np.quantile(bootstrap_stats, [0.025, 0.975])
-    return event_arr, control_arr, observed_effect, p_value, float(ci_low), float(ci_high), float(np.std(diffs, ddof=1)) if diffs.size > 1 else float("nan")
+    return event_arr, control_arr, observed_effect, p_value, float(ci_low), float(ci_high), float(np.std(diffs, ddof=1))
 
 
 def evaluate_period_summary(
@@ -368,7 +385,7 @@ def run_continuation_study(
     discovery_adjusted = benjamini_hochberg(discovery_pvalues, q=BH_Q) if discovery_pvalues.size else np.empty((0,), dtype=float)
     for pos, row_index in enumerate(discovery_indices):
         summary_rows[row_index]["p_value_adj"] = float(discovery_adjusted[pos])
-        summary_rows[row_index]["significant_fdr_05"] = bool(discovery_adjusted[pos] < BH_Q)
+        summary_rows[row_index]["significant_fdr_05"] = bool(discovery_adjusted[pos] <= BH_Q)
 
     discovery_adjusted_results = [
         {
@@ -403,8 +420,9 @@ def run_continuation_study(
         "limitations": [
             "This is a descriptive continuation study, not a profitability or execution model.",
             "BH-FDR is applied only to the 54 discovery-period threshold/horizon/direction hypotheses at q=0.05.",
-            "Control matching is a non-event sample from the same period and volatility bucket, with duplicate reuse and overlap removed before inference.",
-            "The study uses a 288-candle warm-up and excludes overlapping event, control, and outcome windows to avoid look-ahead and dependence contamination.",
+            "Controls must not cross either directional event threshold; control and event trigger-plus-outcome windows are unique and non-overlapping within each period and volatility bucket.",
+            "Uncertainty uses a moving-block bootstrap over chronologically ordered paired differences (block length max(3 x horizon candles, 12), capped at pair count; 2,000 replicates by default). This approximates local dependence in paired effects but does not reconstruct the raw return process.",
+            "The study uses a 288-candle warm-up and requires contiguous trigger and outcome windows; no outcome is measured across a timestamp gap.",
         ],
     }
 
