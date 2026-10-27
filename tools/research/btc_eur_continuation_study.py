@@ -179,7 +179,7 @@ def _subsequent_return(frame: pd.DataFrame, event_start_index: int, horizon_minu
     post_end_index = event_end_index + horizon_candles
     if event_end_index >= len(frame) or post_end_index >= len(frame):
         return float("nan")
-    if not _window_is_contiguous(frame, event_end_index, horizon_candles):
+    if not _window_is_contiguous(frame, event_start_index, 2 * horizon_candles):
         return float("nan")
     return float(frame["close"].iloc[post_end_index] / frame["close"].iloc[event_end_index] - 1.0)
 
@@ -226,7 +226,10 @@ def _paired_effect_and_p_value(
     # dependence between nearby event outcomes better than iid resampling.
     # It remains an approximation: controls are matched observations, not a
     # resampled reconstruction of the raw BTC/EUR return process.
-    block_size = min(n, max(3 * int(round(horizon_minutes / 5)), 12))
+    block_size = max(3 * int(round(horizon_minutes / 5)), 12)
+    if n <= block_size:
+        # Too few ordered pairs to resample multiple temporal blocks reliably.
+        return event_arr, control_arr, observed_effect, float("nan"), float("nan"), float("nan"), float(np.std(diffs, ddof=1))
     rng = np.random.default_rng(seed)
     replicates = int(bootstrap_replicates)
     bootstrap_stats = np.empty(replicates, dtype=float)
@@ -389,8 +392,15 @@ def run_continuation_study(
                     row["end_index"] = int(end_idx)
                     summary_rows.append(row)
 
-    discovery_indices = [i for i, row in enumerate(summary_rows) if row.get("period") == "discovery" and np.isfinite(row.get("p_value", np.nan))]
-    discovery_pvalues = np.asarray([float(summary_rows[i]["p_value"]) for i in discovery_indices], dtype=float)
+    # Keep the full predeclared family of 54 discovery hypotheses. A hypothesis
+    # without enough matched pairs for inference receives p=1 for adjustment.
+    discovery_indices = [i for i, row in enumerate(summary_rows) if row.get("period") == "discovery"]
+    discovery_pvalues = np.asarray([
+        float(summary_rows[i]["p_value"])
+        if np.isfinite(summary_rows[i].get("p_value", np.nan))
+        else 1.0
+        for i in discovery_indices
+    ], dtype=float)
     discovery_adjusted = benjamini_hochberg(discovery_pvalues, q=BH_Q) if discovery_pvalues.size else np.empty((0,), dtype=float)
     for pos, row_index in enumerate(discovery_indices):
         summary_rows[row_index]["p_value_adj"] = float(discovery_adjusted[pos])
@@ -410,7 +420,7 @@ def run_continuation_study(
             "control_count": row.get("control_count"),
         }
         for row in summary_rows
-        if row.get("period") == "discovery" and np.isfinite(row.get("p_value", np.nan))
+        if row.get("period") == "discovery"
     ]
 
     output_summary = {
@@ -428,7 +438,7 @@ def run_continuation_study(
         "discovery_adjusted_results": discovery_adjusted_results,
         "limitations": [
             "This is a descriptive continuation study, not a profitability or execution model.",
-            "BH-FDR is applied only to the 54 discovery-period threshold/horizon/direction hypotheses at q=0.05.",
+            "BH-FDR is applied to all 54 discovery-period threshold/horizon/direction hypotheses at q=0.05; hypotheses without sufficient matched pairs receive p=1 for adjustment.",
             "Controls must not cross either directional event threshold; control and event trigger-plus-outcome windows are unique and non-overlapping within each period and volatility bucket.",
             "Uncertainty uses a moving-block bootstrap over chronologically ordered paired differences (block length max(3 x horizon candles, 12), capped at pair count; 2,000 replicates by default). This approximates local dependence in paired effects but does not reconstruct the raw return process.",
             "The study uses a 288-candle warm-up and requires contiguous trigger and outcome windows; no outcome is measured across a timestamp gap.",
